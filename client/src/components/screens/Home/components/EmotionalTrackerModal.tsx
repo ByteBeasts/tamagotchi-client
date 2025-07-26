@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
 
 // Assets
 import heartIcon from "../../../../assets/icons/heart/hearth.png";
+import rankingIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
 
 interface EmotionalTrackerModalProps {
   isOpen: boolean;
@@ -405,9 +406,9 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
           {/* Section 3: Weekly Achievements */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 justify-center">
-              <span className="text-2xl">🏆</span>
+              <img src={rankingIcon} alt="Achievement Medal" className="w-8 h-8 drop-shadow-lg" />
               <h3 className="text-gray-800 font-luckiest text-lg">Your Weekly Achievements</h3>
-              <span className="text-2xl">🏆</span>
+              <img src={rankingIcon} alt="Achievement Medal" className="w-8 h-8 drop-shadow-lg" />
             </div>
             
             {/* Achievement Stats */}
@@ -427,9 +428,9 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                       <p className="font-luckiest text-sm text-gray-800">{achievement.goal}</p>
                       <p className="font-rubik text-xs text-gray-600">{achievement.completedOn}</p>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <span className="text-gold text-lg">✓</span>
-                      <span className="text-xs">🏆</span>
+                      <img src={rankingIcon} alt="Medal" className="w-6 h-6 drop-shadow-md" />
                     </div>
                   </motion.div>
                 ))}
@@ -438,8 +439,8 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
               {/* Weekly Progress Bar */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm font-rubik text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm">🏆</span>
+                  <div className="flex items-center gap-2">
+                    <img src={rankingIcon} alt="Progress Medal" className="w-5 h-5 drop-shadow-md" />
                     <span>Weekly Progress</span>
                   </div>
                   <span className="font-luckiest">{completeDaysThisWeek}/7 days</span>
@@ -452,8 +453,10 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                     transition={{ duration: 1.5, delay: 0.5 }}
                   />
                 </div>
-                <div className="flex justify-center">
-                  <span className="text-xs text-gray-500">🏆 Keep going to unlock more trophies! 🏆</span>
+                <div className="flex justify-center items-center gap-2">
+                  <img src={rankingIcon} alt="Trophy" className="w-4 h-4 drop-shadow-md" />
+                  <span className="text-xs text-gray-500">Keep going to unlock more medals!</span>
+                  <img src={rankingIcon} alt="Trophy" className="w-4 h-4 drop-shadow-md" />
                 </div>
               </div>
 
@@ -468,7 +471,7 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                   >
                     <span className="text-sm">🔥</span>
                     <span className="font-luckiest text-sm text-gray-800">Streak</span>
-                    <span className="text-xs">🏆</span>
+                    <img src={rankingIcon} alt="Streak Medal" className="w-4 h-4 drop-shadow-md" />
                   </motion.div>
                 )}
                 
@@ -481,7 +484,7 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                   >
                     <span className="text-sm">⭐</span>
                     <span className="font-luckiest text-sm text-white">Champion</span>
-                    <span className="text-xs">🏆</span>
+                    <img src={rankingIcon} alt="Champion Medal" className="w-4 h-4 drop-shadow-md" />
                   </motion.div>
                 )}
 
@@ -494,7 +497,7 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                   >
                     <span className="text-sm">👑</span>
                     <span className="font-luckiest text-sm text-gray-800">Perfect Week</span>
-                    <span className="text-xs">🏆</span>
+                    <img src={rankingIcon} alt="Perfect Week Medal" className="w-4 h-4 drop-shadow-md" />
                   </motion.div>
                 )}
               </div>
