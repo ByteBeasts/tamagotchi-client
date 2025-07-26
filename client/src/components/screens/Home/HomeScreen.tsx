@@ -40,8 +40,8 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   
-  // Speech bubble states - with test message
-  const [speechMessage, setSpeechMessage] = useState<string>('¡Hola! Soy tu dragón virtual. ¿Cómo estás hoy?');
+  // Speech bubble states - with permanent test message
+  const [speechMessage, setSpeechMessage] = useState<string>('Hello! I am your virtual dragon companion. How are you feeling today?');
   const [showSpeech, setShowSpeech] = useState(true);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -243,8 +243,10 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   }, []);
 
   const handleSpeechComplete = () => {
-    setShowSpeech(false);
-    setSpeechMessage('');
+    // Keep speech bubble visible permanently for UI testing
+    // setShowSpeech(false);
+    // setSpeechMessage('');
+    console.log('Speech completed but keeping visible for testing');
   };
 
   const handleVoiceRecorderClick = () => {

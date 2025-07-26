@@ -29,13 +29,15 @@ export const BeastHomeDisplay = ({
 }: BeastHomeDisplayProps) => {
   return (
     <div className="flex-grow flex items-center justify-center w-full pointer-events-none select-none z-0 relative">
-      <div className="relative">
+      <div className="relative flex flex-col items-center w-full">
         {/* Speech Bubble */}
-        <SpeechBubble 
-          message={speechMessage || ''} 
-          isVisible={showSpeech || false}
-          onComplete={onSpeechComplete}
-        />
+        <div className="relative" style={{ width: '65%' }}>
+          <SpeechBubble 
+            message={speechMessage || ''} 
+            isVisible={showSpeech || false}
+            onComplete={onSpeechComplete}
+          />
+        </div>
         
         {/* Beast Image */}
         <motion.img

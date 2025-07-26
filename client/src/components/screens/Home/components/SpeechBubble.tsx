@@ -50,23 +50,29 @@ export const SpeechBubble = ({ message, isVisible, onComplete }: SpeechBubblePro
             damping: 20,
             duration: 0.3 
           }}
-          className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-20"
+          className="relative z-50 mb-4"
+          style={{ 
+            zIndex: 1000, 
+            width: '200px',
+            margin: '0 auto'
+          }}
         >
           {/* Dialog background */}
-          <div className="relative">
+          <div className="relative w-full">
             <img 
               src={dialogIcon} 
               alt="Speech bubble" 
-              className="w-48 h-32 object-contain drop-shadow-lg"
+              className="w-full h-auto object-contain drop-shadow-lg mx-auto block"
             />
             
-            {/* Text content */}
-            <div className="absolute inset-0 flex items-center justify-center px-6 py-4">
+            {/* Text content - positioned to fit within the speech bubble */}
+            <div className="absolute top-3 left-3 right-3 bottom-6 flex items-center justify-center">
               <motion.p 
-                className="text-gray-800 font-rubik text-sm font-medium text-center leading-tight max-w-32"
+                className="text-gray-800 font-luckiest text-xs text-center leading-tight px-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
+                style={{ maxWidth: '160px' }}
               >
                 {displayedText}
                 {currentIndex < message.length && (
