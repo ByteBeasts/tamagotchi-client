@@ -22,40 +22,40 @@ interface EmotionalEntry {
 }
 
 const emotions = [
-  { emoji: '😄', name: 'Feliz', value: 'happy' },
+  { emoji: '😄', name: 'Happy', value: 'happy' },
   { emoji: '😐', name: 'Neutral', value: 'neutral' },
-  { emoji: '😞', name: 'Triste', value: 'sad' },
-  { emoji: '😡', name: 'Enojado', value: 'angry' },
-  { emoji: '😰', name: 'Ansioso', value: 'anxious' },
+  { emoji: '😞', name: 'Sad', value: 'sad' },
+  { emoji: '😡', name: 'Angry', value: 'angry' },
+  { emoji: '😰', name: 'Anxious', value: 'anxious' },
 ];
 
 const motivationalPhrases = [
-  "¡Cada día eres más fuerte! 💪",
-  "Tu progreso es inspirador ✨",
-  "Pequeños pasos, grandes cambios 🌱",
-  "¡Sigue brillando! ⭐",
-  "Estás creando hábitos increíbles 🏆"
+  "Every day you're getting stronger! 💪",
+  "Your progress is inspiring ✨",
+  "Small steps, big changes 🌱",
+  "Keep shining bright! ⭐",
+  "You're building amazing habits 🏆"
 ];
 
 export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModalProps) => {
   const [selectedEmotion, setSelectedEmotion] = useState<string>('');
   const [note, setNote] = useState<string>('');
   const [goals, setGoals] = useState<Goal[]>([
-    { id: '1', text: 'Meditar 10 minutos', completed: false },
-    { id: '2', text: 'Hacer ejercicio', completed: true },
+    { id: '1', text: 'Meditate for 10 minutes', completed: false },
+    { id: '2', text: 'Exercise', completed: true },
   ]);
   const [newGoal, setNewGoal] = useState<string>('');
   const [tamagotchiReaction, setTamagotchiReaction] = useState<string>('😊');
 
   // Mock data for progress chart
   const progressData = [
-    { day: 'L', emotion: 'happy' },
-    { day: 'M', emotion: 'neutral' },
     { day: 'M', emotion: 'happy' },
-    { day: 'J', emotion: 'sad' },
-    { day: 'V', emotion: 'happy' },
+    { day: 'T', emotion: 'neutral' },
+    { day: 'W', emotion: 'happy' },
+    { day: 'T', emotion: 'sad' },
+    { day: 'F', emotion: 'happy' },
     { day: 'S', emotion: 'neutral' },
-    { day: 'D', emotion: 'happy' },
+    { day: 'S', emotion: 'happy' },
   ];
 
   const handleEmotionSelect = useCallback((emotion: string) => {
@@ -102,13 +102,13 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
 
   const suggestGoal = useCallback(() => {
     const suggestions = [
-      'Beber 8 vasos de agua',
-      'Dormir 8 horas',
-      'Leer 20 páginas',
-      'Escribir en diario',
-      'Caminar 30 minutos',
-      'Practicar gratitud',
-      'Respirar profundamente',
+      'Drink 8 glasses of water',
+      'Sleep 8 hours',
+      'Read 20 pages',
+      'Write in journal',
+      'Walk for 30 minutes',
+      'Practice gratitude',
+      'Deep breathing exercises',
     ];
     
     const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
@@ -165,10 +165,10 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
         {/* Body */}
         <div className="p-4 bg-gradient-to-b from-cream to-cream/80 space-y-6">
           
-          {/* Section 1: Estado emocional actual */}
+          {/* Section 1: Current emotional state */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-gray-800 font-luckiest text-lg">¿Cómo te estás sintiendo hoy?</h3>
+              <h3 className="text-gray-800 font-luckiest text-lg">How are you feeling today?</h3>
               <motion.div
                 key={tamagotchiReaction}
                 initial={{ scale: 0.8 }}
@@ -201,15 +201,15 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="¿Qué pasó hoy?"
+              placeholder="What happened today?"
               className="w-full p-3 border-2 border-stone-400/50 rounded-xl bg-white/80 font-rubik text-sm resize-none focus:border-gold focus:outline-none"
               rows={3}
             />
           </div>
 
-          {/* Section 2: Metas emocionales */}
+          {/* Section 2: Emotional goals */}
           <div className="space-y-3">
-            <h3 className="text-gray-800 font-luckiest text-lg">¿En qué quieres enfocarte esta semana?</h3>
+            <h3 className="text-gray-800 font-luckiest text-lg">What do you want to focus on this week?</h3>
             
             <div className="space-y-2">
               {goals.map((goal) => (
@@ -243,7 +243,7 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                   type="text"
                   value={newGoal}
                   onChange={(e) => setNewGoal(e.target.value)}
-                  placeholder="Nueva meta..."
+                  placeholder="New goal..."
                   className="flex-1 p-2 border-2 border-stone-400/50 rounded-lg bg-white/80 font-rubik text-sm focus:border-gold focus:outline-none"
                   onKeyPress={(e) => e.key === 'Enter' && addGoal()}
                 />
@@ -268,9 +268,9 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
             )}
           </div>
 
-          {/* Section 3: Progreso */}
+          {/* Section 3: Progress */}
           <div className="space-y-3">
-            <h3 className="text-gray-800 font-luckiest text-lg">Así vas transformándote</h3>
+            <h3 className="text-gray-800 font-luckiest text-lg">Your transformation journey</h3>
             
             {/* Simple progress chart */}
             <div className="bg-white/80 p-4 rounded-xl border-2 border-stone-400/50">
@@ -292,7 +292,7 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
               {/* Progress bar for goals */}
               <div className="mt-4">
                 <div className="flex justify-between text-xs font-rubik text-gray-600 mb-1">
-                  <span>Metas completadas</span>
+                  <span>Goals completed</span>
                   <span>{completedGoalsCount}/{goals.length}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -315,7 +315,7 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                   className="inline-flex items-center gap-2 bg-gold px-3 py-1 rounded-full"
                 >
                   <span className="text-lg">⭐</span>
-                  <span className="font-luckiest text-sm text-gray-800">¡Estrella de progreso!</span>
+                  <span className="font-luckiest text-sm text-gray-800">Progress Star!</span>
                 </motion.div>
               )}
               
