@@ -3,7 +3,7 @@ import { PlayerInfoSectionProps } from "../../../types/home.types";
 import { DropdownMenu } from "./DropDownMenu";
 import bannerImg from "../../../../assets/banners/banner-dragon.png";
 import treeOfLifeIcon from "../../../../assets/icons/age/icon-age-tree-of-life.webp";
-import emotionalTrackerIcon from "../../../../assets/icons/menu/icon-emotional-tracker.webp";
+import heartIcon from "../../../../assets/icons/heart/hearth.png";
 
 const buttonInteractionProps = {
   whileHover: { scale: 1.1 },
@@ -64,7 +64,7 @@ export const PlayerInfoSection = ({
             className="p-3 bg-cream/80 rounded-full focus:outline-none active:scale-90"
             aria-label="Open Emotional Tracker"
           >
-            <img src={emotionalTrackerIcon} alt="Emotional Tracker" className="h-10 w-10" />
+            <img src={heartIcon} alt="Emotional Tracker" className="h-10 w-10" />
           </motion.button>
         </motion.div>
 

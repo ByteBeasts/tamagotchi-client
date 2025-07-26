@@ -37,4 +37,7 @@ export interface ActionButtonsProps {
 export interface BeastHomeDisplayProps {
   beastImage: string;
   altText: string;
+  speechMessage?: string;
+  showSpeech?: boolean;
+  onSpeechComplete?: () => void;
 }

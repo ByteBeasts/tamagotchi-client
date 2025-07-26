@@ -5,7 +5,7 @@ import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import { EmotionalTrackerModal } from "./components/EmotionalTrackerModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
-import dailyStreakIcon from "../../../assets/icons/dailyStreak/icon-daily-streak.webp";
+import microphoneIcon from "../../../assets/icons/microphone/micro.png";
 import { lookupAddresses } from '@cartridge/controller';
 import { useAccount } from "@starknet-react/core";
 import { motion } from "framer-motion";
@@ -39,6 +39,10 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  
+  // Speech bubble states - with test message
+  const [speechMessage, setSpeechMessage] = useState<string>('¡Hola! Soy tu dragón virtual. ¿Cómo estás hoy?');
+  const [showSpeech, setShowSpeech] = useState(true);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -225,12 +229,23 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
       // Console log for debugging/testing
       console.log('🎤 Voice Transcription Result:', data.text);
 
+      // Show the transcribed text in the speech bubble
+      if (data.text.trim()) {
+        setSpeechMessage(data.text.trim());
+        setShowSpeech(true);
+      }
+
     } catch (err) {
       console.error('Transcription error:', err);
     } finally {
       setIsTranscribing(false);
     }
   }, []);
+
+  const handleSpeechComplete = () => {
+    setShowSpeech(false);
+    setSpeechMessage('');
+  };
 
   const handleVoiceRecorderClick = () => {
     if (isRecording) {
@@ -284,6 +299,9 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
       <BeastHomeDisplay 
         beastImage={currentBeastDisplay.asset}
         altText={currentBeastDisplay.displayName}
+        speechMessage={speechMessage}
+        showSpeech={showSpeech}
+        onSpeechComplete={handleSpeechComplete}
       />
     );
   };
@@ -362,7 +380,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
             <div className="animate-spin rounded-full h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 border-4 border-white border-t-transparent"></div>
           ) : (
             <img 
-              src={dailyStreakIcon} 
+              src={microphoneIcon} 
               alt="Voice Recorder" 
               className={`h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 ${isRecording ? 'filter brightness-0 invert' : ''}`} 
             />

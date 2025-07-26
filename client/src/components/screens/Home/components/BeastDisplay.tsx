@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { BeastHomeDisplayProps } from "../../../types/home.types";
+import { SpeechBubble } from "./SpeechBubble";
 
 const beastAnimation = {
   initial: { scale: 0.3, opacity: 0, rotate: -15 },
@@ -8,7 +9,7 @@ const beastAnimation = {
     opacity: 1,
     rotate: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 100,
       damping: 10,
       delay: 0.6,
@@ -19,17 +20,33 @@ const beastAnimation = {
   whileHover: { scale: 1.03, rotate: 2 },
 };
 
-export const BeastHomeDisplay = ({ beastImage, altText }: BeastHomeDisplayProps) => {
+export const BeastHomeDisplay = ({ 
+  beastImage, 
+  altText, 
+  speechMessage, 
+  showSpeech, 
+  onSpeechComplete 
+}: BeastHomeDisplayProps) => {
   return (
     <div className="flex-grow flex items-center justify-center w-full pointer-events-none select-none z-0 relative">
-      <motion.img
-        src={beastImage}
-        alt={altText}
-        className="h-48 w-48 sm:h-56 sm:w-56 md:h-64 md:w-64 lg:h-[280px] lg:w-[280px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.3)] pointer-events-auto"
-        initial={beastAnimation.initial}
-        animate={beastAnimation.animate}
-        whileHover={beastAnimation.whileHover}
-      />
+      <div className="relative">
+        {/* Speech Bubble */}
+        <SpeechBubble 
+          message={speechMessage || ''} 
+          isVisible={showSpeech || false}
+          onComplete={onSpeechComplete}
+        />
+        
+        {/* Beast Image */}
+        <motion.img
+          src={beastImage}
+          alt={altText}
+          className="h-48 w-48 sm:h-56 sm:w-56 md:h-64 md:w-64 lg:h-[280px] lg:w-[280px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.3)] pointer-events-auto"
+          initial={beastAnimation.initial}
+          animate={beastAnimation.animate}
+          whileHover={beastAnimation.whileHover}
+        />
+      </div>
     </div>
   );
 };
