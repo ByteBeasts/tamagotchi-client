@@ -4,8 +4,9 @@ import { ActionButtonsProps } from "../../../types/home.types";
 import shopIcon from "../../../../assets/icons/shop/icon-general-shop.webp";
 
 const buttonInteractionProps = {
-  whileHover: { scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 15 } },
-  whileTap: { scale: 0.95, transition: { type: "spring", stiffness: 400, damping: 20 } },
+  whileHover: { scale: 1.1 },
+  whileTap: { scale: 0.95 },
+  transition: { type: "spring" as const, stiffness: 300, damping: 15 }
 };
 
 export const ActionButtons = ({ onShopClick }: ActionButtonsProps) => {
@@ -25,7 +26,7 @@ export const ActionButtons = ({ onShopClick }: ActionButtonsProps) => {
         <img src={shopIcon} alt="Shop" className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16" />
       </motion.button>
 
-      {/* Daily Quests Button (enters from right) */}
+      {/* Daily Quests Button (commented out) */}
       {/* <motion.button
         onClick={onDailyQuestsClick}
         initial={{ opacity: 0, x: 50 }}

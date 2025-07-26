@@ -1,11 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { HomeScreenProps, BeastData, PlayerData } from "../../types/home.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
+import { EmotionalTrackerModal } from "./components/EmotionalTrackerModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
+import dailyStreakIcon from "../../../assets/icons/dailyStreak/icon-daily-streak.webp";
 import { lookupAddresses } from '@cartridge/controller';
 import { useAccount } from "@starknet-react/core";
+import { motion } from "framer-motion";
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -23,9 +26,23 @@ import { PlayerInfoSection } from "./components/PlayerInfoSection";
 import { ActionButtons } from "./components/ActionButtons";
 import { BeastHomeDisplay } from "./components/BeastDisplay";
 
+interface TranscriptionResponse {
+  text: string;
+}
+
 export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
+  const [isEmotionalTrackerModalOpen, setIsEmotionalTrackerModalOpen] = useState(false);
+  
+  // Voice recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Account from Starknet
   const { account } = useAccount();
@@ -123,6 +140,106 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     openPlayerModal();
   };
 
+  const handleEmotionalTrackerClick = () => {
+    setIsEmotionalTrackerModalOpen(true);
+  };
+
+  const closeEmotionalTrackerModal = () => {
+    setIsEmotionalTrackerModalOpen(false);
+  };
+
+  // Voice recording functions
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(track => track.stop());
+        transcribeAudio();
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // Timer for recording duration
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+
+    } catch (err) {
+      console.error('Error starting recording:', err);
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  }, [isRecording]);
+
+  const transcribeAudio = useCallback(async () => {
+    if (audioChunksRef.current.length === 0) {
+      console.error('No audio data available');
+      return;
+    }
+
+    setIsTranscribing(true);
+
+    try {
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'recording.webm');
+      formData.append('model', 'whisper-1');
+
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY || 'your-api-key-here'}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data: TranscriptionResponse = await response.json();
+      
+      // Console log for debugging/testing
+      console.log('🎤 Voice Transcription Result:', data.text);
+
+    } catch (err) {
+      console.error('Transcription error:', err);
+    } finally {
+      setIsTranscribing(false);
+    }
+  }, []);
+
+  const handleVoiceRecorderClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else if (!isTranscribing) {
+      startRecording();
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -200,6 +317,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onProfileClick={handleProfileClick}
         onNavigateLogin={handleNavigateLogin}
         beastData={beastData}
+        onEmotionalTrackerClick={handleEmotionalTrackerClick}
       />
 
       {renderBeastContent()}
@@ -216,6 +334,52 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onClose={closePlayerModal}
         playerData={playerData}
       />
+
+      <EmotionalTrackerModal
+        isOpen={isEmotionalTrackerModalOpen}
+        onClose={closeEmotionalTrackerModal}
+      />
+
+      {/* Voice Recorder Button (floating bottom right) */}
+      {hasLiveBeast && currentBeastDisplay && (
+        <motion.button
+          onClick={handleVoiceRecorderClick}
+          disabled={isTranscribing}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0, transition: { delay: 0.45, duration: 0.5, ease: "easeOut" } }}
+          whileHover={{ scale: isTranscribing ? 1 : 1.1 }}
+          whileTap={{ scale: isTranscribing ? 1 : 0.95 }}
+          className={`fixed bottom-[calc(theme(spacing.16)+0.75rem+env(safe-area-inset-bottom))] right-3 sm:right-4 md:right-5 lg:right-6 z-30 p-3 rounded-full focus:outline-none active:scale-90 transition-colors ${
+            isRecording 
+              ? 'bg-red-500 animate-pulse' 
+              : isTranscribing 
+                ? 'bg-blue-500' 
+                : 'bg-cream/80 hover:bg-cream'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+          aria-label={isRecording ? 'Stop Recording' : isTranscribing ? 'Transcribing...' : 'Start Recording'}
+        >
+          {isTranscribing ? (
+            <div className="animate-spin rounded-full h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 border-4 border-white border-t-transparent"></div>
+          ) : (
+            <img 
+              src={dailyStreakIcon} 
+              alt="Voice Recorder" 
+              className={`h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 ${isRecording ? 'filter brightness-0 invert' : ''}`} 
+            />
+          )}
+        </motion.button>
+      )}
+
+      {/* Recording time indicator */}
+      {isRecording && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-[calc(theme(spacing.16)+5rem+env(safe-area-inset-bottom))] right-3 sm:right-4 md:right-5 lg:right-6 z-30 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-luckiest"
+        >
+          {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+        </motion.div>
+      )}
     </div>
   );
 };

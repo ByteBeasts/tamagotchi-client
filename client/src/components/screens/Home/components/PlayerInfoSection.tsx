@@ -3,10 +3,12 @@ import { PlayerInfoSectionProps } from "../../../types/home.types";
 import { DropdownMenu } from "./DropDownMenu";
 import bannerImg from "../../../../assets/banners/banner-dragon.png";
 import treeOfLifeIcon from "../../../../assets/icons/age/icon-age-tree-of-life.webp";
+import emotionalTrackerIcon from "../../../../assets/icons/menu/icon-emotional-tracker.webp";
 
 const buttonInteractionProps = {
-  whileHover: { scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 15 } },
-  whileTap: { scale: 0.95, transition: { type: "spring", stiffness: 400, damping: 20 } },
+  whileHover: { scale: 1.1 },
+  whileTap: { scale: 0.95 },
+  transition: { type: "spring" as const, stiffness: 300, damping: 15 }
 };
 
 export const PlayerInfoSection = ({
@@ -14,6 +16,7 @@ export const PlayerInfoSection = ({
   age,
   onProfileClick,
   onNavigateLogin,
+  onEmotionalTrackerClick,
 }: PlayerInfoSectionProps) => {
   return (
     <div className="w-full px-4 md:px-6 lg:px-8 flex justify-between items-start mt-3 md:mt-4 z-10">
@@ -36,7 +39,7 @@ export const PlayerInfoSection = ({
         </p>
       </motion.div>
 
-      {/* Right: Age & Dropdown */}
+      {/* Right: Age, Emotional Tracker & Dropdown */}
       <div className="flex items-center space-x-3 md:space-x-4 lg:space-x-5 pt-1">
         <motion.div
           initial={{ opacity: 0, x: 50 }}
@@ -47,6 +50,22 @@ export const PlayerInfoSection = ({
           <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
             {age}
           </span>
+        </motion.div>
+
+        {/* Emotional Tracker Button */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0, transition: { delay: 0.32, duration: 0.5, ease: "easeOut" } }}
+          className="z-50"
+        >
+          <motion.button
+            onClick={onEmotionalTrackerClick}
+            {...buttonInteractionProps}
+            className="p-3 bg-cream/80 rounded-full focus:outline-none active:scale-90"
+            aria-label="Open Emotional Tracker"
+          >
+            <img src={emotionalTrackerIcon} alt="Emotional Tracker" className="h-10 w-10" />
+          </motion.button>
         </motion.div>
 
         <motion.div

@@ -26,6 +26,7 @@ export interface PlayerInfoSectionProps {
   onProfileClick: () => void;
   onNavigateLogin: () => void;
   beastData: BeastData;
+  onEmotionalTrackerClick: () => void;
 }
 
 export interface ActionButtonsProps {
