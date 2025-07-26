@@ -1,13 +1,21 @@
-import { motion } from 'framer-motion';
-import { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import type { Engine, Container, IOptions, RecursivePartial } from "@tsparticles/engine";
+import { MoveDirection, OutMode } from "@tsparticles/engine";
+import { loadSlim } from "@tsparticles/slim";
 
 // Assets
 import heartIcon from "../../../../assets/icons/heart/hearth.png";
 import rankingIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
 
+// Types
+import type { BeastDisplayInfo } from "../../../../dojo/hooks/useBeastDisplay";
+
 interface EmotionalTrackerModalProps {
   isOpen: boolean;
   onClose: () => void;
+  beastDisplay: BeastDisplayInfo | null;
 }
 
 interface Goal {
@@ -21,6 +29,11 @@ interface EmotionalEntry {
   date: string;
   emotion: string;
   note: string;
+}
+
+interface CelebrationEffect {
+  goalId: string;
+  timestamp: number;
 }
 
 const emotions = [
@@ -39,7 +52,7 @@ const motivationalPhrases = [
   "You're building amazing habits 🏆"
 ];
 
-export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModalProps) => {
+export const EmotionalTrackerModal = ({ isOpen, onClose, beastDisplay }: EmotionalTrackerModalProps) => {
   const [selectedEmotion, setSelectedEmotion] = useState<string>('');
   const [note, setNote] = useState<string>('');
   const [goals, setGoals] = useState<Goal[]>([
@@ -49,6 +62,18 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
   ]);
   const [newGoal, setNewGoal] = useState<string>('');
   const [tamagotchiReaction, setTamagotchiReaction] = useState<string>('😊');
+  
+  // Celebration effect states
+  const [celebrationEffects, setCelebrationEffects] = useState<CelebrationEffect[]>([]);
+  const [engineLoaded, setEngineLoaded] = useState(false);
+  const [showMegaCelebration, setShowMegaCelebration] = useState(false);
+
+  // Initialize particles engine
+  useEffect(() => {
+    initParticlesEngine(async (engine: Engine) => {
+      await loadSlim(engine);
+    }).then(() => setEngineLoaded(true));
+  }, []);
   
   // Track completed goals this week (will be populated from completed daily goals)
   const [weeklyAchievements, setWeeklyAchievements] = useState([
@@ -100,6 +125,23 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
         }
       }
     });
+  }, [goals]);
+
+  // Check for mega celebration (all 3 goals completed)
+  useEffect(() => {
+    const completedGoalsToday = goals.filter(goal => goal.completed).length;
+    if (completedGoalsToday === 3 && goals.length === 3) {
+      setShowMegaCelebration(true);
+      
+      // Play celebration sound
+      const audio = new Audio("/purchase-success.mp3");
+      audio.volume = 0.7;
+      audio.play().catch((err) => console.log("Audio play failed:", err));
+      
+      setTimeout(() => {
+        setShowMegaCelebration(false);
+      }, 4000);
+    }
   }, [goals]);
 
   // Function to get emoji based on goal text
@@ -190,7 +232,23 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
           : goal
       )
     );
-  }, []);
+
+    // Trigger celebration effect for this specific goal
+    const goal = goals.find(g => g.id === goalId);
+    if (goal && !goal.completed) {
+      setCelebrationEffects(prev => [...prev, { goalId, timestamp: Date.now() }]);
+      
+      // Remove celebration effect after 2 seconds
+      setTimeout(() => {
+        setCelebrationEffects(prev => prev.filter(effect => effect.goalId !== goalId));
+      }, 2000);
+      
+      // Play success sound
+      const audio = new Audio("/purchase-success.mp3");
+      audio.volume = 0.4;
+      audio.play().catch((err) => console.log("Audio play failed:", err));
+    }
+  }, [goals]);
 
   const suggestGoal = useCallback(() => {
     const suggestions = [
@@ -219,6 +277,157 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
       default: return 'bg-gray-200';
     }
   };
+
+  // Celebration particles configuration
+  const celebrationParticles = useMemo<RecursivePartial<IOptions>>(
+    () => ({
+      fullScreen: { enable: false },
+      fpsLimit: 60,
+      particles: {
+        number: { 
+          value: 30, 
+          density: { 
+            enable: true, 
+            width: 600,
+            height: 400
+          } 
+        },
+        color: {
+          value: ["#FFD700", "#FF6B35", "#F7931E", "#FFE66D", "#06FFA5", "#4ECDC4"]
+        },
+        shape: { 
+          type: ["circle", "star"],
+          options: {
+            star: {
+              sides: 5,
+            },
+          },
+        },
+        opacity: {
+          value: { min: 0.6, max: 0.9 },
+          animation: { 
+            enable: true, 
+            speed: 1.5, 
+            startValue: "max",
+            destroy: "min"
+          },
+        },
+        size: { 
+          value: { min: 4, max: 10 },
+          animation: { 
+            enable: true,
+            speed: 3,
+            startValue: "min",
+            destroy: "max"
+          } 
+        },
+        move: {
+          enable: true,
+          speed: { min: 3, max: 8 },
+          direction: MoveDirection.none,
+          random: true,
+          straight: false,
+          outModes: { 
+            default: "destroy"
+          },
+          gravity: {
+            enable: true,
+            acceleration: 1.5
+          }
+        },
+        life: {
+          duration: {
+            sync: false,
+            value: { min: 1.5, max: 2.5 }
+          }
+        },
+        stroke: {
+          width: 1,
+          color: "#FFFFFF"
+        }
+      },
+      detectRetina: true,
+    }),
+    []
+  );
+
+  // Mega celebration particles (all goals complete)
+  const megaCelebrationParticles = useMemo<RecursivePartial<IOptions>>(
+    () => ({
+      fullScreen: { enable: false },
+      fpsLimit: 60,
+      particles: {
+        number: { 
+          value: 150, 
+          density: { 
+            enable: true, 
+            width: 800,
+            height: 600
+          } 
+        },
+        color: {
+          value: ["#FFD700", "#FF1493", "#00CED1", "#FF6347", "#98FB98", "#DDA0DD", "#FFA500", "#FF69B4", "#00FA9A"]
+        },
+        shape: { 
+          type: ["circle", "star", "triangle"],
+          options: {
+            star: {
+              sides: 6,
+            },
+          },
+        },
+        opacity: {
+          value: { min: 0.8, max: 1 },
+          animation: { 
+            enable: true, 
+            speed: 2, 
+            startValue: "max",
+            destroy: "min"
+          },
+        },
+        size: { 
+          value: { min: 8, max: 18 },
+          animation: { 
+            enable: true,
+            speed: 6,
+            startValue: "min",
+            destroy: "max"
+          } 
+        },
+        move: {
+          enable: true,
+          speed: { min: 6, max: 20 },
+          direction: MoveDirection.none,
+          random: true,
+          straight: false,
+          outModes: { 
+            default: "destroy"
+          },
+          gravity: {
+            enable: true,
+            acceleration: 2
+          }
+        },
+        life: {
+          duration: {
+            sync: false,
+            value: { min: 3, max: 6 }
+          }
+        },
+        stroke: {
+          width: 3,
+          color: "#FFFFFF"
+        },
+        shadow: {
+          enable: true,
+          color: "#FFD700",
+          blur: 10
+        }
+      },
+      detectRetina: true,
+    }),
+    []
+  );
 
   const completedGoalsCount = goals.filter(goal => goal.completed).length;
   const progressPercentage = goals.length > 0 ? (completedGoalsCount / goals.length) * 100 : 0;
@@ -263,14 +472,27 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-gray-800 font-luckiest text-lg">Your Wellness Overview</h3>
-              <motion.div
-                key={tamagotchiReaction}
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                className="text-2xl"
-              >
-                {tamagotchiReaction}
-              </motion.div>
+              <div className="flex items-center gap-3">
+                {/* User's Beast Display */}
+                {beastDisplay && (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    className="relative"
+                  >
+                    <div className="relative w-16 h-16 flex items-center justify-center">
+                      <img 
+                        src={beastDisplay.asset} 
+                        alt={beastDisplay.displayName}
+                        className="w-16 h-16 object-contain drop-shadow-lg transition-all duration-300"
+                      />
+                      {/* Magical aura around the beast */}
+                      <div className="absolute inset-0 w-16 h-16 rounded-full bg-gold/20 animate-pulse blur-md -z-10" />
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
             
             {/* Wellness Metrics Bars */}
@@ -517,21 +739,85 @@ export const EmotionalTrackerModal = ({ isOpen, onClose }: EmotionalTrackerModal
                 {completeDaysThisWeek >= 5 && completeDaysThisWeek <= 6 && "Incredible dedication! You're a champion! ⭐"}
                 {completeDaysThisWeek === 7 && "Perfect week! You're absolutely unstoppable! 👑"}
               </motion.p>
-
-              {weeklyAchievements.length > 0 && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 2 }}
-                  className="font-luckiest text-xs text-gold"
-                >
-                  Look how much you've accomplished! 🎉
-                </motion.p>
-              )}
             </div>
           </div>
         </div>
       </motion.div>
+
+      {/* Celebration Effects */}
+      <AnimatePresence>
+        {celebrationEffects.length > 0 && engineLoaded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-50 pointer-events-none"
+          >
+            <Particles
+              id="goal-celebration"
+              options={celebrationParticles}
+              className="absolute inset-0"
+            />
+          </motion.div>
+        )}
+
+        {/* Mega Celebration (All Goals Complete) */}
+        {showMegaCelebration && engineLoaded && (
+          <>
+            {/* Flash Effect */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: [0, 0.8, 0.8, 0],
+                backgroundColor: ['rgba(255, 215, 0, 0)', 'rgba(255, 215, 0, 0.3)', 'rgba(255, 215, 0, 0.3)', 'rgba(255, 215, 0, 0)']
+              }}
+              transition={{
+                times: [0, 0.1, 0.7, 1],
+                duration: 2,
+                ease: "easeInOut"
+              }}
+              className="absolute inset-0 z-40 pointer-events-none rounded-2xl"
+            />
+            
+            {/* Mega Particles */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="absolute inset-0 z-50 pointer-events-none"
+            >
+              <Particles
+                id="mega-celebration"
+                options={megaCelebrationParticles}
+                className="absolute inset-0"
+              />
+            </motion.div>
+
+            {/* Epic Success Message */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0, opacity: 0, y: -50 }}
+              transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
+            >
+              <div className="bg-gradient-to-r from-gold to-yellow-400 p-4 rounded-xl shadow-2xl border-4 border-white">
+                <div className="text-center">
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="text-4xl mb-2"
+                  >
+                    🏆
+                  </motion.div>
+                  <h3 className="font-luckiest text-xl text-gray-800 mb-1">PERFECT DAY!</h3>
+                  <p className="font-rubik text-sm text-gray-700">All goals completed! 🎉</p>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

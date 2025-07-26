@@ -8,6 +8,9 @@ import beastIcon from "../../../../assets/icons/profile/beast.png";
 import editIcon from "../../../../assets/icons/profile/edit.png";
 import dailyStreakIcon from "../../../../assets/icons/dailyStreak/icon-daily-streak.webp";
 
+// Types
+import type { BeastDisplayInfo } from "../../../../dojo/hooks/useBeastDisplay";
+
 interface PlayerInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,19 +20,29 @@ interface PlayerInfoModalProps {
     currentStreak: number;
     banner?: string;
   };
+  beastDisplay?: BeastDisplayInfo | null;
 }
 
 export const PlayerInfoModal = ({
   isOpen,
   onClose,
   playerData = { username: '', points: 0, currentStreak: 0 },
+  beastDisplay,
 }: PlayerInfoModalProps) => {
   const [selectedEvolution, setSelectedEvolution] = useState<number | null>(null);
 
+  // Dynamic evolutions based on user's beast
   const evolutions = [
-    { id: 1, name: "Baby Dragon", type: "Fire", status: "Locked", level: "Level 1" },
-    { id: 2, name: "Young Dragon", type: "Fire", status: "Locked", level: "Level 2" },
-    { id: 3, name: "Old Dragon", type: "Fire", status: "Locked", level: "Level 3" },
+    { 
+      id: 1, 
+      name: beastDisplay ? `Baby ${beastDisplay.typeName}` : "Baby Beast", 
+      type: beastDisplay ? beastDisplay.specieName : "Unknown", 
+      status: beastDisplay ? "Current" : "Locked", 
+      level: "Level 1",
+      image: beastDisplay ? beastDisplay.asset : beastIcon
+    },
+    { id: 2, name: "Young Beast", type: "Fire", status: "Locked", level: "Level 2", image: beastIcon },
+    { id: 3, name: "Ancient Beast", type: "Fire", status: "Locked", level: "Level 3", image: beastIcon },
   ];
 
   if (!isOpen) return null;
@@ -150,7 +163,10 @@ export const PlayerInfoModal = ({
                     arrowClass: "right-6"
                   };
                 }
-                return {};
+                return {
+                  containerClass: "",
+                  arrowClass: "left-6"
+                };
               };
 
               const popoverPos = getPopoverPosition();
@@ -158,9 +174,13 @@ export const PlayerInfoModal = ({
               return (
                 <div key={evolution.id} className="relative w-20 h-20 flex items-center justify-center">
                   <motion.img
-                    src={beastIcon}
+                    src={evolution.image}
                     alt={`Beast Evolution ${index + 1}`}
-                    className="w-20 h-20 opacity-30 grayscale hover:opacity-50 transition-opacity cursor-pointer"
+                    className={`w-20 h-20 transition-opacity cursor-pointer ${
+                      evolution.status === "Current" 
+                        ? "opacity-100" 
+                        : "opacity-30 grayscale hover:opacity-50"
+                    }`}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() =>
@@ -169,6 +189,17 @@ export const PlayerInfoModal = ({
                       )
                     }
                   />
+
+                  {/* Current beast indicator */}
+                  {evolution.status === "Current" && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-gold rounded-full flex items-center justify-center text-xs font-bold text-gray-800"
+                    >
+                      ✨
+                    </motion.div>
+                  )}
 
                   {selectedEvolution === evolution.id && (
                     <motion.div

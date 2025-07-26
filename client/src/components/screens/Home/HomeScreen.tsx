@@ -353,11 +353,13 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         isOpen={isPlayerInfoModalOpen}
         onClose={closePlayerModal}
         playerData={playerData}
+        beastDisplay={currentBeastDisplay}
       />
 
-      <EmotionalTrackerModal
-        isOpen={isEmotionalTrackerModalOpen}
-        onClose={closeEmotionalTrackerModal}
+      <EmotionalTrackerModal 
+        isOpen={isEmotionalTrackerModalOpen} 
+        onClose={() => setIsEmotionalTrackerModalOpen(false)}
+        beastDisplay={currentBeastDisplay}
       />
 
       {/* Voice Recorder Button (floating bottom right) */}
