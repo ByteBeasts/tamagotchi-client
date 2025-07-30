@@ -12,6 +12,7 @@ interface UseCavosAuthReturn {
   handleLogin: () => Promise<void>;
   handleDisconnect: () => void;
   isConnected: boolean;
+  testCavosConnection: () => Promise<void>;
 }
 
 /**
@@ -54,15 +55,25 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(false);
   };
 
+  // Simple registration-only flow to avoid login conflicts
   const handleLogin = async () => {
     setLoading(true);
     setError(null);
+    
+    console.log('🔐 Starting Cavos authentication...', {
+      email: HARDCODED_CREDENTIALS.email,
+      orgSecret: orgSecret ? 'LOADED' : 'MISSING',
+      network
+    });
+    
+    // For testing, go straight to registration with unique email
     try {
-      console.log('🔐 Attempting login with Cavos...');
-      const result = await CavosAuth.signIn(
+      console.log('📝 Creating new Cavos account...');
+      const result = await CavosAuth.signUp(
         HARDCODED_CREDENTIALS.email,
         HARDCODED_CREDENTIALS.password,
-        orgSecret
+        orgSecret,
+        network
       );
       
       setUser(result.user);
@@ -76,36 +87,26 @@ export function useCavosAuth(): UseCavosAuthReturn {
         localStorage.setItem('refreshToken', result.refresh_token);
       }
       
-      console.log('✅ Login successful:', result.wallet?.address);
-    } catch (loginError) {
-      console.log('🔄 Login failed, attempting registration...');
-      
-      // If login fails, try registration
-      try {
-        const result = await CavosAuth.signUp(
-          HARDCODED_CREDENTIALS.email,
-          HARDCODED_CREDENTIALS.password,
-          orgSecret,
-          network
-        );
-        
-        setUser(result.user);
-        setWallet(result.wallet);
-        
-        // Store tokens if available
-        if (result.access_token) {
-          localStorage.setItem('accessToken', result.access_token);
-        }
-        if (result.refresh_token) {
-          localStorage.setItem('refreshToken', result.refresh_token);
-        }
-        
-        console.log('✅ Registration successful:', result.wallet?.address);
-      } catch (registerError) {
-        const errorMsg = registerError instanceof Error ? registerError.message : 'Authentication failed';
-        setError(errorMsg);
-        console.error('❌ Both login and registration failed:', registerError);
+      // Store complete auth data for Cavos
+      if (result.user && result.wallet) {
+        localStorage.setItem('cavos_auth_data', JSON.stringify({
+          user: result.user,
+          wallet: result.wallet
+        }));
       }
+      
+      console.log('✅ Cavos account created successfully:', {
+        userExists: !!result.user,
+        walletExists: !!result.wallet,
+        walletAddress: result.wallet?.address,
+        accessToken: !!result.access_token,
+        fullResult: result
+      });
+      
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Cavos authentication failed';
+      setError(errorMsg);
+      console.error('❌ Cavos authentication failed:', error);
     }
     setLoading(false);
   };
@@ -116,7 +117,22 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setError(null);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('cavos_auth_data');
     console.log('🚪 Disconnected');
+  };
+
+  // Debug function to test Cavos connection
+  const testCavosConnection = async () => {
+    console.log('🧪 Testing Cavos connection...', {
+      email: HARDCODED_CREDENTIALS.email,
+      orgSecret: orgSecret,
+      network: network,
+      envVars: {
+        VITE_CAVOS_APP_ID: import.meta.env.VITE_CAVOS_APP_ID,
+        VITE_CAVOS_ORG_SECRET: import.meta.env.VITE_CAVOS_ORG_SECRET,
+        VITE_CAVOS_DEFAULT_NETWORK: import.meta.env.VITE_CAVOS_DEFAULT_NETWORK
+      }
+    });
   };
 
   return {
@@ -128,6 +144,7 @@ export function useCavosAuth(): UseCavosAuthReturn {
     handleRegister,
     handleLogin,
     handleDisconnect,
-    isConnected: !!(user && wallet)
+    isConnected: !!(user && wallet),
+    testCavosConnection
   };
 }
