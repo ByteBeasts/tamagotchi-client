@@ -1,6 +1,5 @@
-import { useStarknetConnect } from '../../../dojo/hooks/useStarknetConnect';
-import { usePlayerInitialization } from '../../../dojo/hooks/usePlayerInitialization';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAuth } from '../../../dojo/hooks/useCavosAuth';
+import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerInitializationCavos';
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
 import { VennDiagram } from './components/VennDiagram';
@@ -20,16 +19,15 @@ interface LoginScreenProps {
 export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   const { view, currentCircle } = useLoginAnimations();
   
-  // Integrate useStarknetConnect hook 
+  // Integrate Cavos authentication hook
   const { 
-    status, 
-    handleConnect: connectWallet, 
     error: connectionError,
     address,
-    hasTriedConnect
-  } = useStarknetConnect();
+    handleLogin,
+    isConnected
+  } = useCavosAuth();
 
-  // Integrate player initialization coordinator hook 
+  // Integrate Cavos player initialization coordinator hook 
   const { 
     initializeComplete,
     error: initializationError,
@@ -40,9 +38,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     shouldGoToHome,
     playerSpawnTxHash,
     playerSpawnTxStatus,
-  } = usePlayerInitialization();
-
-  const { account } = useAccount();
+  } = usePlayerInitializationCavos();
 
   // Get player from store 
   const storePlayer = useAppStore(state => state.player);
@@ -50,18 +46,18 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   // Ref to prevent multiple initializations 
   const hasInitialized = useRef(false);
 
-  // Handle connect button click - trigger Cartridge Controller
+  // Handle connect button click - trigger Cavos authentication
   const handleConnect = async () => {
     try {
-      await connectWallet();
+      await handleLogin();
     } catch (error) {
-      console.error('Connection failed:', error);
+      console.error('Cavos authentication failed:', error);
     }
   };
 
-  // Trigger complete player initialization on wallet connect
+  // Trigger complete player initialization on Cavos authentication
   useEffect(() => {
-    if (status === 'connected' && hasTriedConnect && account && !hasInitialized.current) {
+    if (isConnected && address && !hasInitialized.current) {
       hasInitialized.current = true;
       
       // Enhanced: Show validation loading toast
@@ -70,7 +66,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
         duration: 0
       });
       
-      initializeComplete().then(() => {
+      initializeComplete(address).then(() => {
         // Enhanced: Dismiss loading toast and show success
         toast.dismiss('init-validation');
         toast.success('Validation completed!', { duration: 2000 });
@@ -81,7 +77,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
         hasInitialized.current = false; // Reset on error
       });
     }
-  }, [status, hasTriedConnect, account, initializeComplete]);
+  }, [isConnected, address, initializeComplete]);
 
   /**
    * Enhanced navigation logic with validated beast status
@@ -89,7 +85,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
    */
   useEffect(() => {
     // Only navigate when initialization is complete
-    if (status === 'connected' && address && completed && storePlayer) {
+    if (isConnected && address && completed && storePlayer) {
       console.log('🎯 Navigation with validated beast status:', {
         shouldGoToHome,
         shouldGoToHatch,
@@ -108,7 +104,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
       }, 1500);
     }
   }, [
-    status, 
+    isConnected, 
     address, 
     completed, 
     storePlayer, 
