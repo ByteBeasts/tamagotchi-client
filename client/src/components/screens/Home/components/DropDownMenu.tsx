@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
-import { useAccount, useDisconnect } from "@starknet-react/core";
+// import { useCavosAccount } from "../../../../dojo/hooks/useCavosAccount"; // Not needed for invisible wallets
 
 // Components
 import { ShareModal } from "./ShareModal";
@@ -27,8 +27,7 @@ export const DropdownMenu = ({ onNavigateLogin }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { connector } = useAccount();
-  const { disconnect } = useDisconnect();
+  // Note: account removed since not used - Cavos handles invisible wallets
   const { isMuted, toggleMute } = useMusic();
 
   // Only need to check if user has a beast (for disabling share button)
@@ -56,16 +55,9 @@ export const DropdownMenu = ({ onNavigateLogin }: DropdownMenuProps) => {
   }, [isOpen]);
 
   const handleProfile = useCallback(() => {
-    if (!connector || !('controller' in connector)) {
-      console.error("Connector not initialized");
-      return;
-    }
-    if (connector.controller && typeof connector.controller === 'object' && 'openProfile' in connector.controller) {
-      (connector.controller as { openProfile: (profile: string) => void }).openProfile("achievements");
-    } else {
-      console.error("Connector controller is not properly initialized");
-    }
-  }, [connector]);
+    // Profile functionality disabled for Cavos migration
+    console.log("Profile feature temporarily disabled");
+  }, []);
 
   const handleShareClick = useCallback(() => {
     setIsShareModalOpen(true);
@@ -73,9 +65,12 @@ export const DropdownMenu = ({ onNavigateLogin }: DropdownMenuProps) => {
   }, []);
 
   const handleDisconnect = useCallback(() => {
-    disconnect();
+    // Clear Cavos auth data
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('cavos_auth_data');
     setIsOpen(false);
-    // Add a small delay to ensure the wallet modal is closed before navigation
+    // Navigate to login after clearing auth data
     setTimeout(() => {
       onNavigateLogin();
     }, 100);

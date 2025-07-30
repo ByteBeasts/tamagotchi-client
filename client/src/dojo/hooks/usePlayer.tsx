@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAccount } from './useCavosAccount';
 import { addAddressPadding } from 'starknet';
 
 // Store import
@@ -108,7 +108,7 @@ const fetchPlayerData = async (playerAddress: string): Promise<Player | null> =>
 export const usePlayer = (): UsePlayerReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   
   // Get and set player from/to store
   const storePlayer = useAppStore(state => state.player);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAccount } from './useCavosAccount';
 import useAppStore from '../../zustand/store';
 import fetchStatus from '../../utils/fetchStatus';
 
@@ -35,7 +35,7 @@ interface UseRealTimeStatusReturn {
  * Handles periodic fetching, optimistic updates, and UI integration
  */
 export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   
   // Store selectors
   const realTimeStatus = useAppStore(state => state.realTimeStatus);

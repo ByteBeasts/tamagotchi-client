@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAccount } from './useCavosAccount';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import useAppStore from '../../zustand/store';
 import { useRealTimeStatus } from './useRealTimeStatus';
@@ -28,7 +28,7 @@ interface UseUpdateBeastReturn {
  * Executes update_beast contract calls without blocking UI
  */
 export const useUpdateBeast = (): UseUpdateBeastReturn => {
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const { client } = useDojoSDK();
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast());
   const { fetchLatestStatus } = useRealTimeStatus();

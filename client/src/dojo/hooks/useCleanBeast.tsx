@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { Account } from 'starknet';
+import { useCavosAccount } from './useCavosAccount';
 import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useCavosTransaction } from './useCavosTransaction';
 import toast from 'react-hot-toast';
 
 // Store imports
@@ -41,8 +41,9 @@ interface CleanActionResult {
  */
 export const useCleanBeast = (): UseCleanBeastReturn => {
   const { client } = useDojoSDK();
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const { status } = useStarknetConnect();
+  const { executeTransaction } = useCavosTransaction();
   
   // Store state and actions
   const cleanTransaction = useAppStore(state => state.cleanTransaction);
@@ -96,8 +97,20 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
         error: null,
       });
 
-      // Execute transaction (no loading toast - handled by UI)
-      const tx = await client.game.clean(account as Account);
+      // Execute transaction using Cavos
+      const calls = [{
+        contractAddress: client.client.contractAddresses.game,
+        entrypoint: 'clean',
+        calldata: []
+      }];
+      
+      const transactionHash = await executeTransaction(calls);
+      
+      // Create a compatible response object
+      const tx = {
+        transaction_hash: transactionHash,
+        code: "SUCCESS"
+      };
       
       // Check transaction result
       if (tx && tx.code === "SUCCESS") {

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { Account } from 'starknet';
+import { useCavosAccount } from './useCavosAccount';
 import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useCavosTransaction } from './useCavosTransaction';
 
 // Hooks imports
 import { useLiveBeast } from './useLiveBeast';
@@ -63,8 +63,9 @@ interface UseSpawnBeastReturn {
 export const useSpawnBeast = (): UseSpawnBeastReturn => {
   const { useDojoStore, client } = useDojoSDK();
   const state = useDojoStore((state) => state);
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const { status } = useStarknetConnect();
+  const { executeTransaction } = useCavosTransaction();
   
   // Use optimized hooks for data management
   const { refetch: refetchLiveBeast } = useLiveBeast();
@@ -135,12 +136,25 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
 
       console.log('🥚 Executing spawn_beast transaction...', params);
       
-      const tx = await client.game.spawnBeast(
-        account as Account,
-        params.specie,
-        params.beast_type,
-        params.name
-      );
+      // Construct Cavos transaction call
+      const calls = [{
+        contractAddress: client.client.contractAddresses.game,
+        entrypoint: 'spawn_beast',
+        calldata: [
+          params.specie.toString(),
+          params.beast_type.toString(),
+          params.name.toString()
+        ]
+      }];
+      
+      // Execute transaction using Cavos
+      const transactionHash = await executeTransaction(calls);
+      
+      // Create a compatible response object
+      const tx = {
+        transaction_hash: transactionHash,
+        code: "SUCCESS"
+      };
       
       setSpawnState(prev => ({
         ...prev,

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAccount } from './useCavosAccount';
 import { addAddressPadding } from 'starknet';
 import { dojoConfig } from '../dojoConfig';
 import { GAME_IDS } from '../../components/types/game.types';
@@ -96,7 +96,7 @@ export const useHighScore = (): UseHighScoreReturn => {
   const [playerScores, setPlayerScores] = useState<PlayerHighScore[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
 
   // User address
   const userAddress = useMemo(() => 

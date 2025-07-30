@@ -5,7 +5,7 @@ import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
 import { lookupAddresses } from '@cartridge/controller';
-import { useAccount } from "@starknet-react/core";
+import { useCavosAccount } from "../../../dojo/hooks/useCavosAccount";
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -28,7 +28,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [playerName, setPlayerName] = useState("Player");
   
   // Account from Starknet
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
 
   // Music context
   const { setCurrentScreen } = useMusic();

@@ -1,5 +1,5 @@
 import { useCavosAuth } from '../../../dojo/hooks/useCavosAuth';
-import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerInitializationCavos';
+import { useSimpleCavosFlow } from '../../../dojo/hooks/useSimpleCavosFlow';
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
 import { VennDiagram } from './components/VennDiagram';
@@ -27,7 +27,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     isConnected
   } = useCavosAuth();
 
-  // Integrate Cavos player initialization coordinator hook 
+  // Integrate simple Cavos flow for testing
   const { 
     initializeComplete,
     error: initializationError,
@@ -38,7 +38,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     shouldGoToHome,
     playerSpawnTxHash,
     playerSpawnTxStatus,
-  } = usePlayerInitializationCavos();
+  } = useSimpleCavosFlow();
 
   // Get player from store 
   const storePlayer = useAppStore(state => state.player);

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { useAccount } from "@starknet-react/core";
+import { useCavosAccount } from "./useCavosAccount";
 import { addAddressPadding } from "starknet";
 import { dojoConfig } from "../dojoConfig";
 import { Beast, BeastStatus } from '../models.gen';
@@ -180,7 +180,7 @@ const fetchLiveBeastData = async (playerAddress: string): Promise<{
 export const useLiveBeast = (): UseLiveBeastReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   
   // Single ref to prevent multiple refetches
   const isRefetchingRef = useRef(false);

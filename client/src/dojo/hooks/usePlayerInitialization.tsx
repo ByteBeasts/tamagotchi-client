@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { useSpawnPlayer } from './useSpawnPlayer';
+import { useCavosAccount } from './useCavosAccount';
+import { useSpawnPlayerCavos } from './useSpawnPlayerCavos';
 import { useLiveBeast } from './useLiveBeast';
 import { useRealTimeStatus } from './useRealTimeStatus';
 import { useUpdateBeast } from './useUpdateBeast';
@@ -53,17 +53,16 @@ interface UsePlayerInitializationReturn {
  * includes beast status validation with contract sync
  */
 export const usePlayerInitialization = (): UsePlayerInitializationReturn => {
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   
   // Hooks dependencies
   const {
-    initializePlayer,
+    initializePlayer: initializePlayerCavos,
     isInitializing: playerSpawning,
     error: playerError,
     txHash: playerTxHash,
-    txStatus: playerTxStatus,
     resetInitializer: resetPlayerSpawn
-  } = useSpawnPlayer();
+  } = useSpawnPlayerCavos();
 
   // Use optimized live beast hook
   const {
@@ -195,7 +194,10 @@ export const usePlayerInitialization = (): UsePlayerInitializationReturn => {
       }));
 
       // Step 1: Initialize/spawn player 
-      const playerResult = await initializePlayer();
+      if (!account?.address) {
+        throw new Error("No wallet address available");
+      }
+      const playerResult = await initializePlayerCavos(account.address);
 
       if (!playerResult.success) {
         throw new Error(playerResult.error || "Player initialization failed");
@@ -270,7 +272,7 @@ export const usePlayerInitialization = (): UsePlayerInitializationReturn => {
         error: errorMessage
       };
     }
-  }, [initializePlayer, validateBeastWithContractSync]);
+  }, [initializePlayerCavos, validateBeastWithContractSync, account]);
 
   /**
    * Reset all initialization state 
@@ -325,7 +327,7 @@ export const usePlayerInitialization = (): UsePlayerInitializationReturn => {
     
     // Player spawn state passthrough 
     playerSpawnTxHash: playerTxHash,
-    playerSpawnTxStatus: playerTxStatus,
+    playerSpawnTxStatus: null, // Cavos version doesn't provide transaction status
     
     // Actions
     initializeComplete,

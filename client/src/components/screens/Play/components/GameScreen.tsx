@@ -3,7 +3,7 @@ import { GameId } from '../.../../../../types/play.types';
 import { getGameById } from '../components/data/miniGames';
 import { useBeastDisplay } from '../../../../dojo/hooks/useBeastDisplay';
 import { useDojoSDK } from '@dojoengine/sdk/react';
-import { useAccount } from "@starknet-react/core";
+import { useCavosAccount } from "../../../../dojo/hooks/useCavosAccount";
 
 // Game Components
 import FlappyBeastsScreen from '../components/minigames/flappybeast/FlappyBeastsScreen';
@@ -14,7 +14,7 @@ interface GameScreenProps {
 }
 
 export const GameScreen = ({ gameId, onExitGame }: GameScreenProps) => {
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const { currentBeastDisplay, hasLiveBeast, isLoading } = useBeastDisplay();
   
   // Track if the game has been successfully initialized to prevent interruption

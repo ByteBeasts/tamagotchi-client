@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { AccountInterface } from 'starknet';
+// import { AccountInterface } from 'starknet'; // Not needed for Cavos
 
 // Dojo hooks
 import { useDojoSDK } from '@dojoengine/sdk/react';
@@ -13,7 +13,7 @@ import { MarketFoodItem } from '../../../../constants/foodMarket.constants';
 import useAppStore from '../../../../zustand/store';
 
 interface UseMarketPurchaseProps {
-  account?: AccountInterface;
+  account?: any; // Simple account object from Cavos
   toastPosition?: 'top-center' | 'top-right' | 'bottom-center';
 }
 

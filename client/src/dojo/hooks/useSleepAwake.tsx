@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAccount } from './useCavosAccount';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { toast } from 'react-hot-toast';
 import useAppStore from '../../zustand/store';
@@ -37,7 +37,7 @@ interface UseSleepAwakeReturn {
  * Hook for managing Sleep/Awake transactions
  */
 export const useSleepAwake = (): UseSleepAwakeReturn => {
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const { client } = useDojoSDK();
   
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast());

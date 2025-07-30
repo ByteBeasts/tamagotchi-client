@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAccount } from './useCavosAccount';
 import { useLiveBeast } from './useLiveBeast';
 import useAppStore from '../../zustand/store';
 import fetchStatus from '../../utils/fetchStatus';
@@ -12,7 +12,7 @@ interface PostSpawnSyncResult {
 }
 
 export const usePostSpawnSync = () => {
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   
   // Use correct function name from useLiveBeast
   const { forceRefetch: refetchLiveBeast } = useLiveBeast();

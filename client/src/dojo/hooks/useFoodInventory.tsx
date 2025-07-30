@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
+import { useCavosAccount } from './useCavosAccount';
 import { addAddressPadding } from 'starknet';
 
 // Store and config imports
@@ -97,7 +97,7 @@ const fetchFoodInventory = async (playerAddress: string): Promise<Food[]> => {
 export const useFoodInventory = (): UseFoodInventoryReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   
   // Store state and actions
   const storeFoods = useAppStore(state => state.foods);

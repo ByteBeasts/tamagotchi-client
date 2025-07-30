@@ -58,6 +58,7 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(true);
     setError(null);
     try {
+      console.log('🔐 Attempting login with Cavos...');
       const result = await CavosAuth.signIn(
         HARDCODED_CREDENTIALS.email,
         HARDCODED_CREDENTIALS.password,
@@ -76,10 +77,35 @@ export function useCavosAuth(): UseCavosAuthReturn {
       }
       
       console.log('✅ Login successful:', result.wallet?.address);
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Login failed';
-      setError(errorMsg);
-      console.error('❌ Login failed:', error);
+    } catch (loginError) {
+      console.log('🔄 Login failed, attempting registration...');
+      
+      // If login fails, try registration
+      try {
+        const result = await CavosAuth.signUp(
+          HARDCODED_CREDENTIALS.email,
+          HARDCODED_CREDENTIALS.password,
+          orgSecret,
+          network
+        );
+        
+        setUser(result.user);
+        setWallet(result.wallet);
+        
+        // Store tokens if available
+        if (result.access_token) {
+          localStorage.setItem('accessToken', result.access_token);
+        }
+        if (result.refresh_token) {
+          localStorage.setItem('refreshToken', result.refresh_token);
+        }
+        
+        console.log('✅ Registration successful:', result.wallet?.address);
+      } catch (registerError) {
+        const errorMsg = registerError instanceof Error ? registerError.message : 'Authentication failed';
+        setError(errorMsg);
+        console.error('❌ Both login and registration failed:', registerError);
+      }
     }
     setLoading(false);
   };

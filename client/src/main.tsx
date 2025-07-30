@@ -4,13 +4,12 @@ import { posthogInstance } from "./context/PosthogConfig";
 import { PostHogProvider } from 'posthog-js/react';
 import { MusicProvider } from "./context/MusicContext";
 
-// Dojo & Starknet
+// Dojo 
 import { init } from "@dojoengine/sdk";
 import { DojoSdkProvider } from "@dojoengine/sdk/react";
 import { dojoConfig } from "./dojo/dojoConfig";
 import type { SchemaType } from "./dojo/models.gen";
 import { setupWorld } from "./dojo/contracts.gen";
-import StarknetProvider from "./dojo/starknet-provider";
 
 // App Entry
 import Main from "../src/app/App";
@@ -56,17 +55,15 @@ async function main() {
   createRoot(rootElement).render(
     <StrictMode>
         <DojoSdkProvider sdk={sdk} dojoConfig={dojoConfig} clientFn={setupWorld}>
-          <StarknetProvider> 
-            <MusicProvider>
-              {posthogInstance.initialized && posthogInstance.client ? (
-                <PostHogProvider client={posthogInstance.client}>
-                  <Main />
-                </PostHogProvider>
-              ) : (
+          <MusicProvider>
+            {posthogInstance.initialized && posthogInstance.client ? (
+              <PostHogProvider client={posthogInstance.client}>
                 <Main />
-              )}
-            </MusicProvider>
-          </StarknetProvider>
+              </PostHogProvider>
+            ) : (
+              <Main />
+            )}
+          </MusicProvider>
         </DojoSdkProvider>
     </StrictMode>
   );

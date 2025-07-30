@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { Account } from 'starknet';
+import { useCavosAccount } from './useCavosAccount';
 import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useCavosTransaction } from './useCavosTransaction';
 import toast from 'react-hot-toast';
 
 // Store imports
@@ -41,8 +41,9 @@ interface FeedActionResult {
  */
 export const useFeedBeast = (): UseFeedBeastReturn => {
   const { client } = useDojoSDK();
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const { status } = useStarknetConnect();
+  const { executeTransaction } = useCavosTransaction();
   
   // Store state and actions
   const feedTransaction = useAppStore(state => state.feedTransaction);
@@ -98,8 +99,20 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
         error: null,
       });
 
-      // Execute transaction (no optimistic updates needed)
-      const tx = await client.game.feed(account as Account, foodId);
+      // Execute transaction using Cavos
+      const calls = [{
+        contractAddress: client.client.contractAddresses.game,
+        entrypoint: 'feed',
+        calldata: [foodId.toString()]
+      }];
+      
+      const transactionHash = await executeTransaction(calls);
+      
+      // Create a compatible response object
+      const tx = {
+        transaction_hash: transactionHash,
+        code: "SUCCESS"
+      };
       
       // Check transaction result
       if (tx && tx.code === "SUCCESS") {

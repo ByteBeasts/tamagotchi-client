@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { Account } from 'starknet';
+import { useCavosAccount } from './useCavosAccount';
+// import { Account } from 'starknet'; // Deprecated - using Cavos instead
 import { v4 as uuidv4 } from 'uuid';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 
@@ -51,7 +51,7 @@ interface UseSpawnPlayerReturn {
 export const useSpawnPlayer = (): UseSpawnPlayerReturn => {
   const { useDojoStore, client } = useDojoSDK();
   const state = useDojoStore((state) => state);
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const { status } = useStarknetConnect();
   const { refetch: refetchPlayer } = usePlayer();
 
@@ -226,8 +226,9 @@ export const useSpawnPlayer = (): UseSpawnPlayerReturn => {
 
         console.log('📤 Executing spawn player transaction...');
         
-        // Execute spawn player transaction using Dojo SDK
-        const spawnTx = await client.player.spawnPlayer(account as Account);
+        // TODO: This hook is deprecated - use useSpawnPlayerCavos instead
+        // Execute spawn player transaction using Dojo SDK  
+        const spawnTx = await client.player.spawnPlayer(account as any); // Temporary fix - hook is deprecated
         
         console.log('📥 Spawn transaction response:', {
           transaction_hash: spawnTx?.transaction_hash,

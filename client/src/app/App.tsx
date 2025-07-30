@@ -2,13 +2,13 @@ import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { CoverScreen } from "../components/screens/Cover/CoverScreen";
 import { HatchEggScreen } from "../components/screens/Hatch/HatchEggScreen";
-import { HomeScreen } from "../components/screens/Home/HomeScreen";
+// import { HomeScreen } from "../components/screens/Home/HomeScreen"; // Temporarily disabled
 import { SleepScreen } from "../components/screens/Sleep/SleepScreen";
 import { FeedScreen } from "../components/screens/Feed/FeedScreen";
 import { CleanScreen } from "../components/screens/Clean/CleanScreen";
-import { PlayScreen } from "../components/screens/Play/PlayScreen";
-import { GameScreen } from "../components/screens/Play/components/GameScreen";
-import { MarketScreen } from "../components/screens/Market/MarketScreen";
+// import { PlayScreen } from "../components/screens/Play/PlayScreen"; // Temporarily disabled
+// import { GameScreen } from "../components/screens/Play/components/GameScreen"; // Temporarily disabled
+// import { MarketScreen } from "../components/screens/Market/MarketScreen"; // Temporarily disabled
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
 import type { Screen } from "../components/types/screens";
@@ -18,11 +18,11 @@ import { GameId } from "../components/types/play.types";
 import { generateRandomBeastParams } from "../utils/beastHelpers";
 import type { BeastSpawnParams } from "../utils/beastHelpers";
 
-// Sleep logic for navigation blocking
-import { useSleepLogic } from "../components/screens/Sleep/components/hooks/useSleepLogic";
+// Sleep logic for navigation blocking - temporarily disabled for Cavos migration
+// import { useSleepLogic } from "../components/screens/Sleep/components/hooks/useSleepLogic";
 
-// Wallet and cache management
-import { useAccount } from "@starknet-react/core";
+// Wallet and cache management  
+import { useCavosAccount } from "../dojo/hooks/useCavosAccount";
 import useAppStore from "../zustand/store";
 
 function AppContent() {
@@ -33,11 +33,12 @@ function AppContent() {
   // State for predefined beast parameters
   const [pendingBeastParams, setPendingBeastParams] = useState<BeastSpawnParams | null>(null);
 
-  // Get sleep logic for navigation blocking
-  const { shouldBlockNavigation } = useSleepLogic();
+  // Get sleep logic for navigation blocking - temporarily disabled
+  // const { shouldBlockNavigation } = useSleepLogic();
+  const shouldBlockNavigation = false; // Temporary fix
 
   // Wallet and cache management
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
   const resetStore = useAppStore(state => state.resetStore);
 
   // Clear cache on wallet change
@@ -136,11 +137,11 @@ function AppContent() {
   };
 
   // Handle exiting games back to play screen
-  const handleExitGame = useCallback(() => {
-    console.log('🔙 Exiting game, returning to play screen');
-    setCurrentGameId(null);
-    setCurrentScreenState("play");
-  }, []);
+  // const handleExitGame = useCallback(() => {
+  //   console.log('🔙 Exiting game, returning to play screen');
+  //   setCurrentGameId(null);
+  //   setCurrentScreenState("play");
+  // }, []); // Commented out during Cavos migration
 
   // Callback for when Login completes - dynamic navigation based on beast status
   const handleLoginComplete = useCallback((destination: 'hatch' | 'cover') => {
@@ -201,10 +202,10 @@ function AppContent() {
       )}
 
       {currentScreen === "home" && (
-        <HomeScreen
-          onNavigation={handleNavigation}
-          playerAddress={playerAddress}
-        />
+        <div style={{padding: '20px', textAlign: 'center'}}>
+          <h2>Home Screen</h2>
+          <p>Temporarily disabled during Cavos migration</p>
+        </div>
       )}
 
       {currentScreen === "sleep" && (
@@ -228,24 +229,25 @@ function AppContent() {
       )}
 
       {currentScreen === "play" && (
-        <PlayScreen
-          onNavigation={handleNavigation}
-          playerAddress={playerAddress}
-        />
+        <div style={{padding: '20px', textAlign: 'center'}}>
+          <h2>Play Screen</h2>
+          <p>Temporarily disabled during Cavos migration</p>
+        </div>
       )}
 
       {/* Game Screen for mini-games */}
       {currentScreen === "game" && currentGameId && (
-        <GameScreen
-          gameId={currentGameId}
-          onExitGame={handleExitGame}
-        />
+        <div style={{padding: '20px', textAlign: 'center'}}>
+          <h2>Game Screen</h2>
+          <p>Temporarily disabled during Cavos migration</p>
+        </div>
       )}
 
       {currentScreen === "market" && (
-        <MarketScreen
-          onNavigation={handleNavigation}
-        />
+        <div style={{padding: '20px', textAlign: 'center'}}>
+          <h2>Market Screen</h2>
+          <p>Temporarily disabled during Cavos migration</p>
+        </div>
       )}
 
       {/* NavBar - Hide on game screen for fullscreen experience */}
