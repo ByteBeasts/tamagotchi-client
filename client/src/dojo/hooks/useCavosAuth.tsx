@@ -35,18 +35,25 @@ export function useCavosAuth(): UseCavosAuthReturn {
         network
       );
       
-      setUser(result.user);
-      setWallet(result.wallet);
+      // Extract the actual user and wallet data from the response
+      const userData = result.data || result.user || result;
+      const walletData = result.data?.wallet || result.wallet;
       
-      // Store tokens if available
-      if (result.access_token) {
-        localStorage.setItem('accessToken', result.access_token);
+      setUser(userData);
+      setWallet(walletData);
+      
+      // Store tokens if available from the response
+      const accessToken = result.data?.access_token || result.access_token;
+      const refreshToken = result.data?.refresh_token || result.refresh_token;
+      
+      if (accessToken) {
+        localStorage.setItem('accessToken', accessToken);
       }
-      if (result.refresh_token) {
-        localStorage.setItem('refreshToken', result.refresh_token);
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
       }
       
-      console.log('✅ Registration successful:', result.wallet?.address);
+      console.log('✅ Registration successful:', walletData?.address);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Registration failed';
       setError(errorMsg);
@@ -76,30 +83,50 @@ export function useCavosAuth(): UseCavosAuthReturn {
         network
       );
       
-      setUser(result.user);
-      setWallet(result.wallet);
+      // Extract the actual user and wallet data from the response
+      const userData = result.data || result.user || result;
+      const walletData = result.data?.wallet || result.wallet;
       
-      // Store tokens if available
-      if (result.access_token) {
-        localStorage.setItem('accessToken', result.access_token);
+      setUser(userData);
+      setWallet(walletData);
+      
+      // Store tokens if available from the response
+      const accessToken = result.data?.access_token || result.access_token;
+      const refreshToken = result.data?.refresh_token || result.refresh_token;
+      
+      if (accessToken) {
+        localStorage.setItem('accessToken', accessToken);
       }
-      if (result.refresh_token) {
-        localStorage.setItem('refreshToken', result.refresh_token);
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
       }
       
       // Store complete auth data for Cavos
-      if (result.user && result.wallet) {
+      if (userData && walletData) {
         localStorage.setItem('cavos_auth_data', JSON.stringify({
-          user: result.user,
-          wallet: result.wallet
+          user: userData,
+          wallet: walletData
         }));
       }
       
       console.log('✅ Cavos account created successfully:', {
-        userExists: !!result.user,
-        walletExists: !!result.wallet,
-        walletAddress: result.wallet?.address,
-        accessToken: !!result.access_token,
+        userExists: !!userData,
+        walletExists: !!walletData,
+        walletAddress: walletData?.address,
+        accessToken: !!accessToken,
+        resultStructure: {
+          hasData: !!result.data,
+          hasUser: !!result.user,
+          hasWallet: !!result.wallet,
+          hasAuthData: !!result.authData,
+          dataKeys: result.data ? Object.keys(result.data) : [],
+          topLevelKeys: Object.keys(result)
+        },
+        extractedData: {
+          userData: userData,
+          walletData: walletData,
+          accessToken: accessToken
+        },
         fullResult: result
       });
       

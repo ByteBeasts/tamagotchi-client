@@ -1,5 +1,5 @@
 import { useCavosAuth } from '../../../dojo/hooks/useCavosAuth';
-import { useSimpleCavosFlow } from '../../../dojo/hooks/useSimpleCavosFlow';
+import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerInitializationCavos';
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
 import { VennDiagram } from './components/VennDiagram';
@@ -27,7 +27,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     isConnected
   } = useCavosAuth();
 
-  // Integrate simple Cavos flow for testing
+  // Integrate real Cavos player initialization
   const { 
     initializeComplete,
     error: initializationError,
@@ -38,7 +38,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     shouldGoToHome,
     playerSpawnTxHash,
     playerSpawnTxStatus,
-  } = useSimpleCavosFlow();
+  } = usePlayerInitializationCavos();
 
   // Get player from store 
   const storePlayer = useAppStore(state => state.player);
@@ -57,7 +57,14 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
 
   // Trigger complete player initialization on Cavos authentication
   useEffect(() => {
+    console.log('🔄 Initialization effect triggered:', {
+      isConnected,
+      address: !!address,
+      hasInitialized: hasInitialized.current
+    });
+    
     if (isConnected && address && !hasInitialized.current) {
+      console.log('🎯 Starting initialization process...');
       hasInitialized.current = true;
       
       // Enhanced: Show validation loading toast
@@ -67,11 +74,12 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
       });
       
       initializeComplete(address).then(() => {
+        console.log('✅ initializeComplete promise resolved');
         // Enhanced: Dismiss loading toast and show success
         toast.dismiss('init-validation');
         toast.success('Validation completed!', { duration: 2000 });
       }).catch(error => {
-        console.error("Initialization failed:", error);
+        console.error("❌ Initialization failed:", error);
         toast.dismiss('init-validation');
         toast.error('Validation failed');
         hasInitialized.current = false; // Reset on error
@@ -85,7 +93,18 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
    */
   useEffect(() => {
     // Only navigate when initialization is complete
-    if (isConnected && address && completed && storePlayer) {
+    console.log('🔍 Navigation check:', {
+      isConnected,
+      address: !!address,
+      completed,
+      storePlayer: !!storePlayer,
+      shouldGoToHome,
+      shouldGoToHatch,
+      canNavigate: isConnected && address && completed
+    });
+    
+    // Navigation based on completed initialization (storePlayer not required for new players)
+    if (isConnected && address && completed) {
       console.log('🎯 Navigation with validated beast status:', {
         shouldGoToHome,
         shouldGoToHatch,

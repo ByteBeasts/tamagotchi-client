@@ -10,27 +10,34 @@ export function useSimpleCavosFlow() {
   const [completed, setCompleted] = useState(false);
 
   const initializeComplete = async (walletAddress: string) => {
+    console.log('🚀 initializeComplete called with:', walletAddress);
     setIsInitializing(true);
     setError(null);
     
     try {
       console.log('🎯 Simple Cavos flow: wallet connected', walletAddress);
+      console.log('⏳ Starting 2-second timeout...');
       
       // Simulate some processing
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      console.log('✅ Timeout completed, setting completed to true');
       setCompleted(true);
       setIsInitializing(false);
       
-      return {
+      const result = {
         success: true,
         playerExists: true,
         hasLiveBeast: false,
         shouldGoToHatch: true,
         shouldGoToHome: false
       };
+      
+      console.log('🎉 initializeComplete finished with result:', result);
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Initialization failed';
+      console.error('❌ initializeComplete failed:', errorMessage);
       setError(errorMessage);
       setIsInitializing(false);
       
