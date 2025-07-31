@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { executeCalls } from 'cavos-service-sdk';
-import { network } from '../../config/cavosConfig';
+import { CavosAuth } from 'cavos-service-sdk';
+import { network, appId } from '../../config/cavosConfig';
 
 interface CavosTransactionCall {
   contractAddress: string;
@@ -26,9 +26,13 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
     setError(null);
 
     try {
+      console.log('🔍 Looking for accessToken in localStorage...');
       const accessToken = localStorage.getItem('accessToken');
       
+      console.log('📋 AccessToken found:', !!accessToken, accessToken?.substring(0, 20) + '...');
+      
       if (!accessToken) {
+        console.log('❌ No accessToken found in localStorage. Keys available:', Object.keys(localStorage));
         throw new Error('No access token found. Please login first.');
       }
 
@@ -53,7 +57,6 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
       console.log('📝 Executing Cavos transaction:', {
         network,
         callsCount: calls.length,
-        address: address,
         calls: calls.map(call => ({
           contract: call.contractAddress,
           entrypoint: call.entrypoint,
@@ -61,14 +64,19 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
         }))
       });
 
-      const result = await executeCalls(
-        network,
-        calls,
-        address,
-        accessToken
-      );
+      // Initialize CavosAuth with app ID (frontend configuration)
+      const cavosAuth = new CavosAuth({
+        appId: appId,
+        baseURL: 'https://services.cavos.xyz/api/v1/external',
+        network: network
+      });
 
-      console.log('✅ Cavos transaction successful:', result.transaction_hash);
+      const result = await cavosAuth.executeTransaction({
+        accessToken,
+        calls
+      });
+
+      console.log('✅ Cavos transaction successful:', result);
       return result.transaction_hash;
 
     } catch (err) {

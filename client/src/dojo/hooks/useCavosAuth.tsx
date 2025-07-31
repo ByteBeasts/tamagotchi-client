@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CavosAuth } from 'cavos-service-sdk';
-import { HARDCODED_CREDENTIALS, orgSecret, network } from '../../config/cavosConfig';
+import { HARDCODED_CREDENTIALS, orgSecret, appId, network } from '../../config/cavosConfig';
 
 interface UseCavosAuthReturn {
   user: any;
@@ -28,10 +28,41 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(true);
     setError(null);
     try {
+      // TEST CAVOS CON TU ORG_SECRET REAL
+      console.log('🧪 Testing CavosAuth.signUp with your real orgSecret...');
+      console.log('🔑 Using orgSecret:', orgSecret ? 'LOADED' : 'MISSING');
+      const testResult = await CavosAuth.signUp("user91@example.com", "PasswordSegura123", orgSecret);
+      console.log('🧪 CAVOS TEST RESULT WITH REAL SECRET:', testResult);
+      
+      // Debug: Check what's available in the installed version
+      console.log('🔍 Investigating CavosAuth v1.2.20...');
+      
+      // Try static methods first (older API)
+      console.log('📋 Static methods available:', {
+        signUp: typeof CavosAuth.signUp,
+        login: typeof CavosAuth.login,
+        register: typeof CavosAuth.register
+      });
+      
+      // Try instance methods
+      const cavosAuth = new CavosAuth({
+        appId: appId,
+        baseURL: 'https://services.cavos.xyz/api/v1/external',
+        network: network
+      });
+      
+      console.log('📋 Instance methods available:', {
+        signUp: typeof cavosAuth.signUp,
+        login: typeof cavosAuth.login,
+        register: typeof cavosAuth.register,
+        executeTransaction: typeof cavosAuth.executeTransaction
+      });
+      
+      // Try the original static method that was working
       const result = await CavosAuth.signUp(
         HARDCODED_CREDENTIALS.email,
         HARDCODED_CREDENTIALS.password,
-        orgSecret,
+        orgSecret, // Use orgSecret since that was working
         network
       );
       
@@ -42,15 +73,29 @@ export function useCavosAuth(): UseCavosAuthReturn {
       setUser(userData);
       setWallet(walletData);
       
-      // Store tokens if available from the response
-      const accessToken = result.data?.access_token || result.access_token;
-      const refreshToken = result.data?.refresh_token || result.refresh_token;
+      // Store tokens if available from the response (check multiple possible locations)
+      const accessToken = result.authData?.accessToken || result.authData?.access_token || 
+                         result.data?.authData?.accessToken || result.data?.authData?.access_token ||
+                         result.access_token || result.data?.access_token;
+      const refreshToken = result.authData?.refreshToken || result.authData?.refresh_token ||
+                          result.data?.authData?.refreshToken || result.data?.authData?.refresh_token ||
+                          result.refresh_token || result.data?.refresh_token;
       
       if (accessToken) {
+        console.log('💾 Storing accessToken in localStorage:', accessToken.substring(0, 20) + '...');
         localStorage.setItem('accessToken', accessToken);
+        
+        // Verify it was stored
+        const storedToken = localStorage.getItem('accessToken');
+        console.log('✅ Verified stored accessToken:', !!storedToken, storedToken?.substring(0, 20) + '...');
+      } else {
+        console.log('⚠️ No accessToken to store');
       }
       if (refreshToken) {
+        console.log('💾 Storing refreshToken in localStorage');
         localStorage.setItem('refreshToken', refreshToken);
+      } else {
+        console.log('⚠️ No refreshToken to store');
       }
       
       console.log('✅ Registration successful:', walletData?.address);
@@ -75,11 +120,42 @@ export function useCavosAuth(): UseCavosAuthReturn {
     
     // For testing, go straight to registration with unique email
     try {
+      // TEST CAVOS CON TU ORG_SECRET REAL  
+      console.log('🧪 Testing CavosAuth.signUp with your real orgSecret...');
+      console.log('🔑 Using orgSecret:', orgSecret ? 'LOADED' : 'MISSING');
+      const testResult = await CavosAuth.signUp("user91@example.com", "PasswordSegura123", orgSecret);
+      console.log('🧪 CAVOS TEST RESULT WITH REAL SECRET:', testResult);
+      
       console.log('📝 Creating new Cavos account...');
+      // Debug: Check what's available in the installed version
+      console.log('🔍 Investigating CavosAuth v1.2.20...');
+      
+      // Try static methods first (older API)
+      console.log('📋 Static methods available:', {
+        signUp: typeof CavosAuth.signUp,
+        login: typeof CavosAuth.login,
+        register: typeof CavosAuth.register
+      });
+      
+      // Try instance methods
+      const cavosAuth = new CavosAuth({
+        appId: appId,
+        baseURL: 'https://services.cavos.xyz/api/v1/external',
+        network: network
+      });
+      
+      console.log('📋 Instance methods available:', {
+        signUp: typeof cavosAuth.signUp,
+        login: typeof cavosAuth.login,
+        register: typeof cavosAuth.register,
+        executeTransaction: typeof cavosAuth.executeTransaction
+      });
+      
+      // Try the original static method that was working
       const result = await CavosAuth.signUp(
         HARDCODED_CREDENTIALS.email,
         HARDCODED_CREDENTIALS.password,
-        orgSecret,
+        orgSecret, // Use orgSecret since that was working
         network
       );
       
@@ -90,15 +166,29 @@ export function useCavosAuth(): UseCavosAuthReturn {
       setUser(userData);
       setWallet(walletData);
       
-      // Store tokens if available from the response
-      const accessToken = result.data?.access_token || result.access_token;
-      const refreshToken = result.data?.refresh_token || result.refresh_token;
+      // Store tokens if available from the response (check multiple possible locations)
+      const accessToken = result.authData?.accessToken || result.authData?.access_token || 
+                         result.data?.authData?.accessToken || result.data?.authData?.access_token ||
+                         result.access_token || result.data?.access_token;
+      const refreshToken = result.authData?.refreshToken || result.authData?.refresh_token ||
+                          result.data?.authData?.refreshToken || result.data?.authData?.refresh_token ||
+                          result.refresh_token || result.data?.refresh_token;
       
       if (accessToken) {
+        console.log('💾 Storing accessToken in localStorage:', accessToken.substring(0, 20) + '...');
         localStorage.setItem('accessToken', accessToken);
+        
+        // Verify it was stored
+        const storedToken = localStorage.getItem('accessToken');
+        console.log('✅ Verified stored accessToken:', !!storedToken, storedToken?.substring(0, 20) + '...');
+      } else {
+        console.log('⚠️ No accessToken to store');
       }
       if (refreshToken) {
+        console.log('💾 Storing refreshToken in localStorage');
         localStorage.setItem('refreshToken', refreshToken);
+      } else {
+        console.log('⚠️ No refreshToken to store');
       }
       
       // Store complete auth data for Cavos
@@ -125,7 +215,16 @@ export function useCavosAuth(): UseCavosAuthReturn {
         extractedData: {
           userData: userData,
           walletData: walletData,
-          accessToken: accessToken
+          accessToken: accessToken,
+          refreshToken: refreshToken
+        },
+        tokenSearchPaths: {
+          'result.authData?.accessToken': result.authData?.accessToken,
+          'result.authData?.access_token': result.authData?.access_token,
+          'result.data?.authData?.accessToken': result.data?.authData?.accessToken,
+          'result.data?.authData?.access_token': result.data?.authData?.access_token,
+          'result.access_token': result.access_token,
+          'result.data?.access_token': result.data?.access_token
         },
         fullResult: result
       });
