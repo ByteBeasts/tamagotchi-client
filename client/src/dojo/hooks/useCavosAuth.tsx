@@ -28,41 +28,11 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(true);
     setError(null);
     try {
-      // TEST CAVOS CON TU ORG_SECRET REAL
-      console.log('🧪 Testing CavosAuth.signUp with your real orgSecret...');
-      console.log('🔑 Using orgSecret:', orgSecret ? 'LOADED' : 'MISSING');
-      const testResult = await CavosAuth.signUp("user91@example.com", "PasswordSegura123", orgSecret);
-      console.log('🧪 CAVOS TEST RESULT WITH REAL SECRET:', testResult);
-      
-      // Debug: Check what's available in the installed version
-      console.log('🔍 Investigating CavosAuth v1.2.20...');
-      
-      // Try static methods first (older API)
-      console.log('📋 Static methods available:', {
-        signUp: typeof CavosAuth.signUp,
-        login: typeof CavosAuth.login,
-        register: typeof CavosAuth.register
-      });
-      
-      // Try instance methods
-      const cavosAuth = new CavosAuth({
-        appId: appId,
-        baseURL: 'https://services.cavos.xyz/api/v1/external',
-        network: network
-      });
-      
-      console.log('📋 Instance methods available:', {
-        signUp: typeof cavosAuth.signUp,
-        login: typeof cavosAuth.login,
-        register: typeof cavosAuth.register,
-        executeTransaction: typeof cavosAuth.executeTransaction
-      });
-      
-      // Try the original static method that was working
+      // Usar método estático como funciona ahora
       const result = await CavosAuth.signUp(
         HARDCODED_CREDENTIALS.email,
         HARDCODED_CREDENTIALS.password,
-        orgSecret, // Use orgSecret since that was working
+        orgSecret,
         network
       );
       
@@ -120,42 +90,13 @@ export function useCavosAuth(): UseCavosAuthReturn {
     
     // For testing, go straight to registration with unique email
     try {
-      // TEST CAVOS CON TU ORG_SECRET REAL  
-      console.log('🧪 Testing CavosAuth.signUp with your real orgSecret...');
-      console.log('🔑 Using orgSecret:', orgSecret ? 'LOADED' : 'MISSING');
-      const testResult = await CavosAuth.signUp("user91@example.com", "PasswordSegura123", orgSecret);
-      console.log('🧪 CAVOS TEST RESULT WITH REAL SECRET:', testResult);
-      
       console.log('📝 Creating new Cavos account...');
-      // Debug: Check what's available in the installed version
-      console.log('🔍 Investigating CavosAuth v1.2.20...');
       
-      // Try static methods first (older API)
-      console.log('📋 Static methods available:', {
-        signUp: typeof CavosAuth.signUp,
-        login: typeof CavosAuth.login,
-        register: typeof CavosAuth.register
-      });
-      
-      // Try instance methods
-      const cavosAuth = new CavosAuth({
-        appId: appId,
-        baseURL: 'https://services.cavos.xyz/api/v1/external',
-        network: network
-      });
-      
-      console.log('📋 Instance methods available:', {
-        signUp: typeof cavosAuth.signUp,
-        login: typeof cavosAuth.login,
-        register: typeof cavosAuth.register,
-        executeTransaction: typeof cavosAuth.executeTransaction
-      });
-      
-      // Try the original static method that was working
+      // Usar método estático como funciona ahora  
       const result = await CavosAuth.signUp(
         HARDCODED_CREDENTIALS.email,
         HARDCODED_CREDENTIALS.password,
-        orgSecret, // Use orgSecret since that was working
+        orgSecret,
         network
       );
       

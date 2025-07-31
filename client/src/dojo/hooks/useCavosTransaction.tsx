@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CavosAuth } from 'cavos-service-sdk';
-import { network, appId } from '../../config/cavosConfig';
+import { network, orgSecret } from '../../config/cavosConfig';
 
 interface CavosTransactionCall {
   contractAddress: string;
@@ -64,17 +64,15 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
         }))
       });
 
-      // Initialize CavosAuth with app ID (frontend configuration)
-      const cavosAuth = new CavosAuth({
-        appId: appId,
-        baseURL: 'https://services.cavos.xyz/api/v1/external',
-        network: network
-      });
-
-      const result = await cavosAuth.executeTransaction({
+      // Use static method for executeTransaction (as instructed by Cavos team)
+      console.log('🧪 Testing CavosAuth.executeTransaction as static method...');
+      
+      const result = await CavosAuth.executeTransaction(
         accessToken,
-        calls
-      });
+        calls,
+        orgSecret,
+        network
+      );
 
       console.log('✅ Cavos transaction successful:', result);
       return result.transaction_hash;
