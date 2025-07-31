@@ -85,9 +85,23 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
     // const transactionId = uuidv4(); // Not needed for Cavos
     
     try {
-      console.log('🔍 Checking if player exists for wallet:', walletAddress);
+      console.log('🔍 Checking player initialization requirements for wallet:', walletAddress);
       
-      // Check if player already exists
+      // Check if this is a new user from Cavos auth data
+      const storedAuth = localStorage.getItem('cavos_auth_data');
+      let isNewUser = false;
+      
+      if (storedAuth) {
+        try {
+          const authData = JSON.parse(storedAuth);
+          isNewUser = authData.isNewUser || false;
+          console.log(`👤 User type: ${isNewUser ? 'NEW USER' : 'EXISTING USER'}`);
+        } catch {
+          console.log('⚠️ Could not parse cavos auth data');
+        }
+      }
+      
+      // Check if player already exists in blockchain
       await refetchPlayer();
       await new Promise(resolve => setTimeout(resolve, 1000));
       
@@ -95,12 +109,17 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       const playerExists = storePlayer !== null && storePlayer.address === walletAddress;
 
       if (playerExists) {
-        console.log('✅ Player already exists');
+        console.log('✅ Player already exists in blockchain');
         setCompleted(true);
         setIsInitializing(false);
         return { success: true, playerExists: true };
       }
 
+      // Only spawn player if it's a new user or doesn't exist in blockchain
+      if (!isNewUser && !playerExists) {
+        console.log('⚠️ Existing user but no player found - this is unexpected but proceeding with spawn');
+      }
+      
       console.log('🥚 Player does not exist - spawning new player...');
       
       // For Cavos, construct the call manually using contract address from manifest
@@ -129,6 +148,18 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       // Poll for player data
       const playerDataFound = await waitForPlayerData(walletAddress, 8);
       
+      // Clear the isNewUser flag after successful spawn
+      if (storedAuth) {
+        try {
+          const authData = JSON.parse(storedAuth);
+          authData.isNewUser = false; // Clear the flag
+          localStorage.setItem('cavos_auth_data', JSON.stringify(authData));
+          console.log('🧹 Cleared isNewUser flag after successful spawn');
+        } catch {
+          console.log('⚠️ Could not clear isNewUser flag');
+        }
+      }
+
       if (playerDataFound) {
         console.log('✅ Player data successfully indexed!');
         setCompleted(true);

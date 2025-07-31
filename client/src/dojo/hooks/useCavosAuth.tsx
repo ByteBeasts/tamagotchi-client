@@ -77,26 +77,43 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(false);
   };
 
-  // Login with existing user instead of creating new account
+  // Smart login/registration flow
   const handleLogin = async () => {
     setLoading(true);
     setError(null);
     
-    console.log('🔐 Starting Cavos login...', {
-      email: 'testuser1753973789963@bytebeasts.com',
+    const email = HARDCODED_CREDENTIALS.email;
+    const password = HARDCODED_CREDENTIALS.password;
+    
+    console.log('🔐 Starting Cavos authentication flow...', {
+      email,
       orgSecret: orgSecret ? 'LOADED' : 'MISSING',
       network
     });
     
     try {
-      console.log('🔑 Logging in with existing Cavos account...');
+      let result;
+      let isNewUser = false;
       
-      // Use CavosAuth.signIn static method (3 parameters only)
-      const result = await CavosAuth.signIn(
-        'testuser1753973789963@bytebeasts.com',
-        'ByteBeasts2024!',
-        orgSecret
-      );
+      // First, try to login with existing account
+      try {
+        console.log('🔑 Attempting login with existing account...');
+        result = await CavosAuth.signIn(email, password, orgSecret);
+        console.log('✅ Login successful - user exists');
+      } catch (loginError) {
+        console.log('⚠️ Login failed, attempting registration...', loginError);
+        
+        // If login fails, try registration
+        try {
+          console.log('📝 Creating new Cavos account...');
+          result = await CavosAuth.signUp(email, password, orgSecret, network);
+          isNewUser = true;
+          console.log('✅ Registration successful - new user created');
+        } catch (registrationError) {
+          console.error('❌ Both login and registration failed:', registrationError);
+          throw registrationError;
+        }
+      }
       
       // Extract the actual user and wallet data from the response
       const userData = result.data || result.user || result;
@@ -134,11 +151,12 @@ export function useCavosAuth(): UseCavosAuthReturn {
       if (userData && walletData) {
         localStorage.setItem('cavos_auth_data', JSON.stringify({
           user: userData,
-          wallet: walletData
+          wallet: walletData,
+          isNewUser // Flag to indicate if user was just registered
         }));
       }
       
-      console.log('✅ Cavos login successful:', {
+      console.log(`✅ Cavos authentication successful (${isNewUser ? 'NEW USER' : 'EXISTING USER'}):`, {
         userExists: !!userData,
         walletExists: !!walletData,
         walletAddress: walletData?.address,
