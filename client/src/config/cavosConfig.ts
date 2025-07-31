@@ -15,6 +15,14 @@ console.log('🔧 Cavos Config Debug:', {
   networkRaw: import.meta.env.VITE_CAVOS_DEFAULT_NETWORK
 });
 
+// Chain verification
+console.log(`⛓️ Current Chain: ${network.toUpperCase()} ${network === 'sepolia' ? '🧪' : '🌐'}`);
+console.log(`📍 Chain Details:`, {
+  isMainnet: network === 'mainnet',
+  isSepolia: network === 'sepolia',
+  envValue: import.meta.env.VITE_CAVOS_DEFAULT_NETWORK
+});
+
 // Hardcoded credentials for testing
 export const HARDCODED_CREDENTIALS = {
   email: `testuser${Date.now()}@bytebeasts.com`, // Use unique email to avoid conflicts

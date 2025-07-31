@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CavosAuth } from 'cavos-service-sdk';
-import { HARDCODED_CREDENTIALS, orgSecret, appId, network } from '../../config/cavosConfig';
+import { HARDCODED_CREDENTIALS, orgSecret, network } from '../../config/cavosConfig';
 
 interface UseCavosAuthReturn {
   user: any;
@@ -77,27 +77,25 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(false);
   };
 
-  // Simple registration-only flow to avoid login conflicts
+  // Login with existing user instead of creating new account
   const handleLogin = async () => {
     setLoading(true);
     setError(null);
     
-    console.log('🔐 Starting Cavos authentication...', {
-      email: HARDCODED_CREDENTIALS.email,
+    console.log('🔐 Starting Cavos login...', {
+      email: 'testuser1753973789963@bytebeasts.com',
       orgSecret: orgSecret ? 'LOADED' : 'MISSING',
       network
     });
     
-    // For testing, go straight to registration with unique email
     try {
-      console.log('📝 Creating new Cavos account...');
+      console.log('🔑 Logging in with existing Cavos account...');
       
-      // Usar método estático como funciona ahora  
-      const result = await CavosAuth.signUp(
-        HARDCODED_CREDENTIALS.email,
-        HARDCODED_CREDENTIALS.password,
-        orgSecret,
-        network
+      // Use CavosAuth.signIn static method (3 parameters only)
+      const result = await CavosAuth.signIn(
+        'testuser1753973789963@bytebeasts.com',
+        'ByteBeasts2024!',
+        orgSecret
       );
       
       // Extract the actual user and wallet data from the response
@@ -140,7 +138,7 @@ export function useCavosAuth(): UseCavosAuthReturn {
         }));
       }
       
-      console.log('✅ Cavos account created successfully:', {
+      console.log('✅ Cavos login successful:', {
         userExists: !!userData,
         walletExists: !!walletData,
         walletAddress: walletData?.address,
@@ -171,9 +169,9 @@ export function useCavosAuth(): UseCavosAuthReturn {
       });
       
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Cavos authentication failed';
+      const errorMsg = error instanceof Error ? error.message : 'Cavos login failed';
       setError(errorMsg);
-      console.error('❌ Cavos authentication failed:', error);
+      console.error('❌ Cavos login failed:', error);
     }
     setLoading(false);
   };

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { CavosAuth } from 'cavos-service-sdk';
-import { network, orgSecret } from '../../config/cavosConfig';
+import { network } from '../../config/cavosConfig';
 
 interface CavosTransactionCall {
   contractAddress: string;
@@ -30,6 +29,7 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
       const accessToken = localStorage.getItem('accessToken');
       
       console.log('📋 AccessToken found:', !!accessToken, accessToken?.substring(0, 20) + '...');
+      console.log('🔑 FULL ACCESS TOKEN:', accessToken);
       
       if (!accessToken) {
         console.log('❌ No accessToken found in localStorage. Keys available:', Object.keys(localStorage));
@@ -64,15 +64,33 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
         }))
       });
 
-      // Use static method for executeTransaction (as instructed by Cavos team)
-      console.log('🧪 Testing CavosAuth.executeTransaction as static method...');
+      // Use direct API call to /execute/session endpoint instead of SDK
+      console.log('🧪 Making direct API call to Cavos /execute/session endpoint...');
       
-      const result = await CavosAuth.executeTransaction(
-        accessToken,
-        calls,
-        orgSecret,
-        network
-      );
+      const response = await fetch('https://services.cavos.xyz/api/v1/external/execute/session', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          address,
+          org_id: "113",
+          calls,
+          network
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorData}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Transaction execution failed');
+      }
 
       console.log('✅ Cavos transaction successful:', result);
       return result.transaction_hash;
