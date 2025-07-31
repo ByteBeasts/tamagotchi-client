@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { CavosAuth } from 'cavos-service-sdk';
-import { HARDCODED_CREDENTIALS, orgSecret, network } from '../../config/cavosConfig';
+import { HARDCODED_CREDENTIALS, network } from '../../config/cavosConfig';
 
 interface UseCavosAuthReturn {
   user: any;
@@ -28,28 +27,36 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(true);
     setError(null);
     try {
-      // Usar método estático como funciona ahora
-      const result = await CavosAuth.signUp(
-        HARDCODED_CREDENTIALS.email,
-        HARDCODED_CREDENTIALS.password,
-        orgSecret,
-        network
-      );
+      // Use REST API for registration
+      const response = await fetch('https://services.cavos.xyz/api/v1/external/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: HARDCODED_CREDENTIALS.email,
+          password: HARDCODED_CREDENTIALS.password,
+          network
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Registration failed: ${errorData}`);
+      }
+
+      const result = await response.json();
       
-      // Extract the actual user and wallet data from the response
-      const userData = result.data || result.user || result;
-      const walletData = result.data?.wallet || result.wallet;
+      // Extract user and wallet data from REST API response
+      const userData = result.user;
+      const walletData = result.wallet;
       
       setUser(userData);
       setWallet(walletData);
       
-      // Store tokens if available from the response (check multiple possible locations)
-      const accessToken = result.authData?.accessToken || result.authData?.access_token || 
-                         result.data?.authData?.accessToken || result.data?.authData?.access_token ||
-                         result.access_token || result.data?.access_token;
-      const refreshToken = result.authData?.refreshToken || result.authData?.refresh_token ||
-                          result.data?.authData?.refreshToken || result.data?.authData?.refresh_token ||
-                          result.refresh_token || result.data?.refresh_token;
+      // Extract tokens from REST API response
+      const accessToken = result.authData?.accessToken;
+      const refreshToken = result.authData?.refreshToken;
       
       if (accessToken) {
         console.log('💾 Storing accessToken in localStorage:', accessToken.substring(0, 20) + '...');
@@ -77,7 +84,7 @@ export function useCavosAuth(): UseCavosAuthReturn {
     setLoading(false);
   };
 
-  // Smart login/registration flow
+  // Smart registration/login flow using REST API
   const handleLogin = async () => {
     setLoading(true);
     setError(null);
@@ -85,9 +92,8 @@ export function useCavosAuth(): UseCavosAuthReturn {
     const email = HARDCODED_CREDENTIALS.email;
     const password = HARDCODED_CREDENTIALS.password;
     
-    console.log('🔐 Starting Cavos authentication flow...', {
+    console.log('🔐 Starting Cavos REST API authentication flow...', {
       email,
-      orgSecret: orgSecret ? 'LOADED' : 'MISSING',
       network
     });
     
@@ -95,40 +101,75 @@ export function useCavosAuth(): UseCavosAuthReturn {
       let result;
       let isNewUser = false;
       
-      // First, try to login with existing account
+      // First, try registration (wallet gets deployed automatically)
       try {
-        console.log('🔑 Attempting login with existing account...');
-        result = await CavosAuth.signIn(email, password, orgSecret);
-        console.log('✅ Login successful - user exists');
-      } catch (loginError) {
-        console.log('⚠️ Login failed, attempting registration...', loginError);
+        console.log('📝 Attempting registration (wallet deploy)...');
         
-        // If login fails, try registration
+        const registerResponse = await fetch('https://services.cavos.xyz/api/v1/external/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            network
+          })
+        });
+
+        if (!registerResponse.ok) {
+          const errorData = await registerResponse.text();
+          throw new Error(`Registration failed: ${errorData}`);
+        }
+
+        result = await registerResponse.json();
+        isNewUser = true;
+        console.log('✅ Registration successful - new user created with deployed wallet');
+        
+      } catch (registrationError) {
+        console.log('⚠️ Registration failed, attempting login...', registrationError);
+        
+        // If registration fails (user exists), try login
         try {
-          console.log('📝 Creating new Cavos account...');
-          result = await CavosAuth.signUp(email, password, orgSecret, network);
-          isNewUser = true;
-          console.log('✅ Registration successful - new user created');
-        } catch (registrationError) {
-          console.error('❌ Both login and registration failed:', registrationError);
-          throw registrationError;
+          console.log('🔑 Attempting login with existing account...');
+          
+          const loginResponse = await fetch('https://services.cavos.xyz/api/v1/external/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              network
+            })
+          });
+
+          if (!loginResponse.ok) {
+            const errorData = await loginResponse.text();
+            throw new Error(`Login failed: ${errorData}`);
+          }
+
+          result = await loginResponse.json();
+          isNewUser = false;
+          console.log('✅ Login successful - existing user');
+          
+        } catch (loginError) {
+          console.error('❌ Both registration and login failed:', loginError);
+          throw loginError;
         }
       }
       
-      // Extract the actual user and wallet data from the response
-      const userData = result.data || result.user || result;
-      const walletData = result.data?.wallet || result.wallet;
+      // Extract user and wallet data from REST API response
+      const userData = result.user;
+      const walletData = result.wallet;
       
       setUser(userData);
       setWallet(walletData);
       
-      // Store tokens if available from the response (check multiple possible locations)
-      const accessToken = result.authData?.accessToken || result.authData?.access_token || 
-                         result.data?.authData?.accessToken || result.data?.authData?.access_token ||
-                         result.access_token || result.data?.access_token;
-      const refreshToken = result.authData?.refreshToken || result.authData?.refresh_token ||
-                          result.data?.authData?.refreshToken || result.data?.authData?.refresh_token ||
-                          result.refresh_token || result.data?.refresh_token;
+      // Extract tokens from REST API response
+      const accessToken = result.authData?.accessToken;
+      const refreshToken = result.authData?.refreshToken;
       
       if (accessToken) {
         console.log('💾 Storing accessToken in localStorage:', accessToken.substring(0, 20) + '...');
@@ -206,9 +247,8 @@ export function useCavosAuth(): UseCavosAuthReturn {
 
   // Debug function to test Cavos connection
   const testCavosConnection = async () => {
-    console.log('🧪 Testing Cavos connection...', {
+    console.log('🧪 Testing Cavos REST API connection...', {
       email: HARDCODED_CREDENTIALS.email,
-      orgSecret: orgSecret,
       network: network,
       envVars: {
         VITE_CAVOS_APP_ID: import.meta.env.VITE_CAVOS_APP_ID,
