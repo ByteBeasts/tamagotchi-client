@@ -103,13 +103,16 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
 
       console.log('🥚 Player does not exist - spawning new player...');
       
-      // For Cavos, we need to construct the call manually since we don't have an Account object
-      // The spawn_player function typically doesn't need parameters
+      // For Cavos, construct the call manually using contract address from manifest
+      const playerContractAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      
       const calls = [{
-        contractAddress: client.client.contractAddresses.player,
+        contractAddress: playerContractAddress,
         entrypoint: 'spawn_player',
-        calldata: [] // spawn_player typically doesn't need parameters
+        calldata: [] // spawn_player doesn't need parameters
       }];
+
+      console.log('📋 Prepared spawn player call:', calls);
 
       console.log('📤 Executing spawn player transaction via Cavos...');
       
