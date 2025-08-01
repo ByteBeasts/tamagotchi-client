@@ -108,11 +108,27 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
       return { success: false, error };
     }
 
-    // Validation: Check if player exists
+    // Validation: Check if player exists (with fallback refetch)
     if (!storePlayer) {
-      const error = "Player not found. Please spawn player first.";
-      setSpawnState(prev => ({ ...prev, error }));
-      return { success: false, error };
+      console.log('⚠️ Player not found in store, attempting refetch...');
+      try {
+        await refetchPlayer();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const refreshedPlayer = useAppStore.getState().player;
+        
+        if (!refreshedPlayer) {
+          const error = "Player not found. Please complete player creation first.";
+          console.log('❌ Player still not found after refetch');
+          setSpawnState(prev => ({ ...prev, error }));
+          return { success: false, error };
+        }
+        console.log('✅ Player found after refetch:', refreshedPlayer.address);
+      } catch (refetchError) {
+        console.error('❌ Failed to refetch player:', refetchError);
+        const error = "Could not verify player. Please try again.";
+        setSpawnState(prev => ({ ...prev, error }));
+        return { success: false, error };
+      }
     }
 
     // Validation: Check beast parameters

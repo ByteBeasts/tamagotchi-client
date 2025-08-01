@@ -38,25 +38,38 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
   /**
    * Wait for player data to be indexed by Torii
    */
-  const waitForPlayerData = useCallback(async (walletAddress: string, maxAttempts = 8): Promise<boolean> => {
+  const waitForPlayerData = useCallback(async (walletAddress: string, maxAttempts = 12): Promise<boolean> => {
     console.log('🔄 Waiting for player data to be indexed...', { walletAddress, maxAttempts });
     
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       console.log(`🔍 Player polling attempt ${attempt}/${maxAttempts}`);
       
       try {
+        // Force refetch from Torii
         await refetchPlayer();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Give more time for the refetch to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         const storePlayer = useAppStore.getState().player;
         
+        console.log(`🔍 Polling attempt ${attempt} - Player state:`, {
+          hasStorePlayer: !!storePlayer,
+          storePlayerAddress: storePlayer?.address,
+          targetAddress: walletAddress,
+          addressMatch: storePlayer?.address === walletAddress
+        });
+        
         if (storePlayer && storePlayer.address === walletAddress) {
-          console.log('✅ Player data found and verified');
+          console.log('✅ Player data found and verified!');
           return true;
         }
         
+        // Exponential backoff: start with 2s, increase gradually
         if (attempt < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          const waitTime = Math.min(2000 + (attempt * 500), 5000); // 2s, 2.5s, 3s, 3.5s, 4s, max 5s
+          console.log(`⏳ Waiting ${waitTime}ms before next attempt...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
         }
       } catch (error) {
         console.error(`❌ Error in polling attempt ${attempt}:`, error);
@@ -66,6 +79,7 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       }
     }
     
+    console.log('❌ Player data polling completed without success');
     return false;
   }, [refetchPlayer]);
 
@@ -87,19 +101,16 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
     try {
       console.log('🔍 Checking player initialization requirements for wallet:', walletAddress);
       
-      // Check if this is a new user from Cavos auth data
-      const storedAuth = localStorage.getItem('cavos_auth_data');
-      let isNewUser = false;
+      // Check if this is a new user from Cavos store
+      const cavosAuth = useAppStore.getState().cavos;
+      const isNewUser = !cavosAuth.user?.created_at || 
+                       (Date.now() - new Date(cavosAuth.user.created_at).getTime()) < 60000; // Less than 1 minute old
       
-      if (storedAuth) {
-        try {
-          const authData = JSON.parse(storedAuth);
-          isNewUser = authData.isNewUser || false;
-          console.log(`👤 User type: ${isNewUser ? 'NEW USER' : 'EXISTING USER'}`);
-        } catch {
-          console.log('⚠️ Could not parse cavos auth data');
-        }
-      }
+      console.log(`👤 User type: ${isNewUser ? 'NEW USER' : 'EXISTING USER'}`, {
+        userCreated: cavosAuth.user?.created_at,
+        timeSinceCreation: cavosAuth.user?.created_at ? 
+          Date.now() - new Date(cavosAuth.user.created_at).getTime() : 'unknown'
+      });
       
       // Check if player already exists in blockchain
       await refetchPlayer();
@@ -145,20 +156,10 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       console.log('⏳ Waiting for transaction to be processed and indexed...');
       await new Promise(resolve => setTimeout(resolve, 3500));
       
-      // Poll for player data
-      const playerDataFound = await waitForPlayerData(walletAddress, 8);
+      // Poll for player data with more attempts
+      const playerDataFound = await waitForPlayerData(walletAddress, 12);
       
-      // Clear the isNewUser flag after successful spawn
-      if (storedAuth) {
-        try {
-          const authData = JSON.parse(storedAuth);
-          authData.isNewUser = false; // Clear the flag
-          localStorage.setItem('cavos_auth_data', JSON.stringify(authData));
-          console.log('🧹 Cleared isNewUser flag after successful spawn');
-        } catch {
-          console.log('⚠️ Could not clear isNewUser flag');
-        }
-      }
+      // No need to clear flags since we use timestamp-based detection
 
       if (playerDataFound) {
         console.log('✅ Player data successfully indexed!');
