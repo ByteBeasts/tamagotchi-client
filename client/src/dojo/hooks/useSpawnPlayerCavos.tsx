@@ -38,7 +38,7 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
   /**
    * Wait for player data to be indexed by Torii
    */
-  const waitForPlayerData = useCallback(async (walletAddress: string, maxAttempts = 12): Promise<boolean> => {
+  const waitForPlayerData = useCallback(async (walletAddress: string, maxAttempts = 20): Promise<boolean> => {
     console.log('🔄 Waiting for player data to be indexed...', { walletAddress, maxAttempts });
     
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -65,9 +65,16 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
           return true;
         }
         
-        // Exponential backoff: start with 2s, increase gradually
+        // More aggressive polling: shorter waits initially, then longer
         if (attempt < maxAttempts) {
-          const waitTime = Math.min(2000 + (attempt * 500), 5000); // 2s, 2.5s, 3s, 3.5s, 4s, max 5s
+          let waitTime;
+          if (attempt <= 5) {
+            waitTime = 2000; // First 5 attempts: 2s
+          } else if (attempt <= 10) {
+            waitTime = 3000; // Next 5 attempts: 3s
+          } else {
+            waitTime = 5000; // Final attempts: 5s
+          }
           console.log(`⏳ Waiting ${waitTime}ms before next attempt...`);
           await new Promise(resolve => setTimeout(resolve, waitTime));
         }
@@ -154,10 +161,14 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       
       // Wait for transaction to be processed and indexed
       console.log('⏳ Waiting for transaction to be processed and indexed...');
-      await new Promise(resolve => setTimeout(resolve, 3500));
+      console.log('🔗 Transaction hash:', transactionHash);
+      console.log('📍 Target wallet address:', walletAddress);
+      console.log('🌐 Expected to index player for address:', walletAddress);
+      
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Increased wait time
       
       // Poll for player data with more attempts
-      const playerDataFound = await waitForPlayerData(walletAddress, 12);
+      const playerDataFound = await waitForPlayerData(walletAddress, 20);
       
       // No need to clear flags since we use timestamp-based detection
 

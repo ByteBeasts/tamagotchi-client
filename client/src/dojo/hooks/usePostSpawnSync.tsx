@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useCavosAccount } from './useCavosAccount';
 import { useLiveBeast } from './useLiveBeast';
 import useAppStore from '../../zustand/store';
 import fetchStatus from '../../utils/fetchStatus';
@@ -12,7 +11,8 @@ interface PostSpawnSyncResult {
 }
 
 export const usePostSpawnSync = () => {
-  const { account } = useCavosAccount();
+  // Get Cavos wallet address instead of Starknet account
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   
   // Use correct function name from useLiveBeast
   const { forceRefetch: refetchLiveBeast } = useLiveBeast();
@@ -28,12 +28,12 @@ export const usePostSpawnSync = () => {
       expectedParams 
     });
     
-    if (!account) {
+    if (!cavosWallet?.address) {
       return {
         success: false,
         syncType: 'failed',
         finalBeastId: null,
-        error: 'No account available'
+        error: 'No Cavos wallet available'
       };
     }
     
@@ -53,8 +53,8 @@ export const usePostSpawnSync = () => {
       
       while (contractRetries > 0 && !contractBeastId) {
         try {
-          // Use direct fetchStatus
-          const contractStatus = await fetchStatus(account);
+          // Use direct fetchStatus with Cavos wallet address
+          const contractStatus = await fetchStatus(cavosWallet);
           
           // Handle fetchStatus results properly
           if (contractStatus && contractStatus.length >= 10) {
@@ -184,7 +184,7 @@ export const usePostSpawnSync = () => {
         error: errorMessage
       };
     }
-  }, [account, refetchLiveBeast, clearRealTimeStatus, setRealTimeStatus]);
+  }, [cavosWallet?.address, refetchLiveBeast, clearRealTimeStatus, setRealTimeStatus]);
   
   return { syncAfterSpawn };
 };

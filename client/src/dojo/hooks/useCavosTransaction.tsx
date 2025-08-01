@@ -83,8 +83,24 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
           accessToken
         );
 
-        console.log('✅ Cavos transaction successful:', result);
-        return result.transaction_hash;
+        console.log('📦 Cavos transaction result:', result);
+        
+        // Check if result contains an error first
+        if (result && typeof result === 'object' && result.error) {
+          console.error('❌ Cavos transaction failed with error:', result.error);
+          throw new Error(`Transaction failed: ${result.error}`);
+        }
+
+        // Extract transaction hash
+        const transactionHash = result?.transaction_hash || result;
+        
+        if (!transactionHash || typeof transactionHash !== 'string') {
+          console.error('❌ No valid transaction hash returned:', result);
+          throw new Error('No valid transaction hash returned');
+        }
+
+        console.log('✅ Cavos transaction successful:', transactionHash);
+        return transactionHash;
 
       } catch (err) {
         // Check if it's an authentication error
@@ -101,8 +117,24 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
               accessToken
             );
 
-            console.log('✅ Cavos transaction successful after token refresh:', result);
-            return result.transaction_hash;
+            console.log('📦 Cavos transaction result after token refresh:', result);
+            
+            // Check if result contains an error first
+            if (result && typeof result === 'object' && result.error) {
+              console.error('❌ Cavos transaction failed with error after refresh:', result.error);
+              throw new Error(`Transaction failed: ${result.error}`);
+            }
+
+            // Extract transaction hash
+            const transactionHash = result?.transaction_hash || result;
+            
+            if (!transactionHash || typeof transactionHash !== 'string') {
+              console.error('❌ No valid transaction hash returned after refresh:', result);
+              throw new Error('No valid transaction hash returned');
+            }
+
+            console.log('✅ Cavos transaction successful after token refresh:', transactionHash);
+            return transactionHash;
 
           } catch (refreshError) {
             console.error('❌ Token refresh failed:', refreshError);

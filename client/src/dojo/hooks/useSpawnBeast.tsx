@@ -59,7 +59,7 @@ interface UseSpawnBeastReturn {
  * includes definitive sync solution for contract-Torii alignment
  */
 export const useSpawnBeast = (): UseSpawnBeastReturn => {
-  const { useDojoStore, client } = useDojoSDK();
+  const { useDojoStore } = useDojoSDK();
   const state = useDojoStore((state) => state);
   const { executeTransaction } = useCavosTransaction();
   
@@ -153,19 +153,30 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
 
       console.log('🥚 Executing spawn_beast transaction...', params);
       
+      // Use hardcoded game contract address (more reliable than client.contractAddresses)
+      const gameContractAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      
       // Construct Cavos transaction call
+      // Use empty string as default name (represents null without passing null)
+      const defaultName = "";
+      
       const calls = [{
-        contractAddress: client.contractAddresses.game,
+        contractAddress: gameContractAddress,
         entrypoint: 'spawn_beast',
         calldata: [
           params.specie.toString(),
           params.beast_type.toString(),
-          params.name.toString()
+          defaultName // Empty string as felt252 (0x0)
         ]
       }];
       
       // Execute transaction using Cavos
       const transactionHash = await executeTransaction(calls);
+      
+      // Validate transaction hash
+      if (!transactionHash) {
+        throw new Error('Transaction execution failed - no transaction hash returned');
+      }
       
       // Create a compatible response object
       const tx = {
@@ -302,7 +313,7 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
         syncSuccess: false
       };
     }
-  }, [storePlayer, client, state, refetchLiveBeast, refetchPlayer, syncAfterSpawn, cavosAuth.isAuthenticated, cavosAuth.wallet, cavosAuth.accessToken, executeTransaction]);
+  }, [storePlayer, state, refetchLiveBeast, refetchPlayer, syncAfterSpawn, cavosAuth.isAuthenticated, cavosAuth.wallet, cavosAuth.accessToken, executeTransaction]);
 
   /**
    * Spawn beast with optional parameters
