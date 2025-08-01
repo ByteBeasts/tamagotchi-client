@@ -33,9 +33,10 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
       throw new Error('No refresh token found. Please login again.');
     }
 
-    console.log('🔄 Refreshing access token with SDK...');
+    console.log('🔄 Refreshing access token with SDK instance...');
     
     try {
+      // Use instance method for refreshToken
       const result = await cavosAuth.refreshToken(
         cavos.refreshToken,
         orgSecret
