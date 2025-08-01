@@ -15,7 +15,7 @@ import useAppStore from "../../../../zustand/store";
 // Assets
 import menuIcon from "../../../../assets/icons/menu/icon-menu.webp";
 import closeIcon from "../../../../assets/icons/extras/icon-close.png";
-import profileIcon from "../../../../assets/icons/menu/svg/icon-profile.svg";
+//import profileIcon from "../../../../assets/icons/menu/svg/icon-profile.svg";
 import shareIcon from "../../../../assets/icons/menu/svg/icon-share.svg";
 import logoutIcon from "../../../../assets/icons/menu/svg/icon-logout.svg";
 import soundOnIcon from "../../../../assets/icons/menu/svg/icon-sound-on.svg";
