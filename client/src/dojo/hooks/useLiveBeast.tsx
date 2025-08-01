@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { useAccount } from "@starknet-react/core";
 import { addAddressPadding } from "starknet";
 import { dojoConfig } from "../dojoConfig";
 import { Beast, BeastStatus } from '../models.gen';
@@ -180,7 +179,9 @@ const fetchLiveBeastData = async (playerAddress: string): Promise<{
 export const useLiveBeast = (): UseLiveBeastReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { account } = useAccount();
+  
+  // Get Cavos wallet address instead of Starknet account
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   
   // Single ref to prevent multiple refetches
   const isRefetchingRef = useRef(false);
@@ -190,10 +191,10 @@ export const useLiveBeast = (): UseLiveBeastReturn => {
   const setLiveBeast = useAppStore(state => state.setLiveBeast);
   const clearLiveBeast = useAppStore(state => state.clearLiveBeast);
 
-  // Stable userAddress
+  // Stable userAddress using Cavos wallet
   const userAddress = useMemo(() => 
-    account ? addAddressPadding(account.address).toLowerCase() : '', 
-    [account?.address]
+    cavosWallet?.address ? addAddressPadding(cavosWallet.address).toLowerCase() : '', 
+    [cavosWallet?.address]
   );
 
   // Extract data from store
@@ -283,15 +284,15 @@ export const useLiveBeast = (): UseLiveBeastReturn => {
     }
   }, [userAddress]);
 
-  // Effect para limpieza cuando no hay account
+  // Effect para limpieza cuando no hay Cavos wallet
   useEffect(() => {
-    if (!account) {
+    if (!cavosWallet?.address) {
       clearLiveBeast();
       setError(null);
       setIsLoading(false);
       isRefetchingRef.current = false;
     }
-  }, [account, clearLiveBeast]);
+  }, [cavosWallet?.address, clearLiveBeast]);
 
   return {
     liveBeast,

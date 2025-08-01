@@ -1,7 +1,7 @@
 import type { CircleType } from '../../../types/login.types';
 import { SVGDefinitions, BackgroundElements } from './SVGComponents';
 import { InteractiveCircles } from './InteractiveCircles';
-import { useStarknetConnect } from '../../../../dojo/hooks/useStarknetConnect';
+import useAppStore from '../../../../zustand/store';
 
 interface VennDiagramProps {
   currentCircle: CircleType;
@@ -9,8 +9,9 @@ interface VennDiagramProps {
 }
 
 export const VennDiagram = ({ currentCircle, onConnect }: VennDiagramProps) => {
-  // Get connection state for button styling
-  const { status, isConnecting } = useStarknetConnect();
+  // Get connection state for button styling from Cavos store
+  const isAuthenticated = useAppStore(state => state.cavos.isAuthenticated);
+  const isLoading = useAppStore(state => state.cavos.loading);
 
   const handleConnect = () => {
     console.log('🎮 ByteBeasts Connect button clicked');
@@ -19,11 +20,11 @@ export const VennDiagram = ({ currentCircle, onConnect }: VennDiagramProps) => {
 
   // Determine button state and text
   const getButtonState = () => {
-    if (isConnecting || status === 'connecting') {
+    if (isLoading) {
       return { text: 'CONNECTING...', disabled: true };
     }
     
-    if (status === 'connected') {
+    if (isAuthenticated) {
       return { text: 'CONNECTED', disabled: true };
     }
     
@@ -77,7 +78,7 @@ export const VennDiagram = ({ currentCircle, onConnect }: VennDiagramProps) => {
         </div>
 
         {/* Loading indicator for connecting state */}
-        {isConnecting && (
+        {isLoading && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center space-x-2 text-text-primary/80">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-text-primary"></div>

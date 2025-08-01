@@ -1,3 +1,4 @@
+// vite.config.ts
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import topLevelAwait from "vite-plugin-top-level-await";
@@ -147,6 +148,15 @@ export default defineConfig(({ command }) => {
         host: true,
         cors: true,
       }),
+      // Proxy para Cavos API
+      proxy: {
+        '/api/v1/external': {
+          target: 'https://services.cavos.xyz',
+          changeOrigin: true,
+          secure: true,
+          logLevel: 'debug'
+        },
+      },
     },
     define: {
       global: 'globalThis',

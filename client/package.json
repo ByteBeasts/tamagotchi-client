@@ -33,6 +33,7 @@
     "@tsparticles/slim": "^3.8.1",
     "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^10.0.0",
+    "cavos-service-sdk": "^1.2.27",
     "dexie": "^4.0.11",
     "framer-motion": "^12.15.0",
     "gsap": "^3.13.0",

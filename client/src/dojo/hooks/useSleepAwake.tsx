@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useCavosTransaction } from './useCavosTransaction';
 import { toast } from 'react-hot-toast';
 import useAppStore from '../../zustand/store';
 
@@ -37,8 +36,11 @@ interface UseSleepAwakeReturn {
  * Hook for managing Sleep/Awake transactions
  */
 export const useSleepAwake = (): UseSleepAwakeReturn => {
-  const { account } = useAccount();
-  const { client } = useDojoSDK();
+  const { executeTransaction } = useCavosTransaction();
+  
+  // Get Cavos auth state for validation
+  const cavosAuth = useAppStore(state => state.cavos);
+  const player = useAppStore(state => state.player);
   
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast());
   const realTimeStatus = useAppStore(state => state.realTimeStatus);
@@ -55,19 +57,30 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
     : null;
   
   const canToggleSleep = Boolean(
-    account &&
+    cavosAuth.isAuthenticated &&
+    cavosAuth.wallet &&
+    cavosAuth.accessToken &&
+    player &&
     hasLiveBeast &&
     !sleepAwakeTransaction.isInProgress &&
     currentBeastAwakeStatus !== null
   );
   
   const putToSleep = useCallback(async (): Promise<SleepAwakeResult> => {
-    // Validation
-    if (!account) {
-      const error = 'Wallet not connected';
-      toast.error(error);
+    // Validation: Check if Cavos is authenticated
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      const error = 'Please login with ByteBeasts to put your beast to sleep.';
+      toast.error('Please login with ByteBeasts');
       return { success: false, error };
     }
+    
+    // Validation: Check if player exists
+    if (!player) {
+      const error = 'No player data found';
+      toast.error('Player data not found');
+      return { success: false, error };
+    }
+    
     if (!hasLiveBeast) {
       const error = 'No live beast found';
       toast.error(error);
@@ -93,9 +106,25 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       });
       
       console.log('🌙 Executing sleep transaction...');
-      const tx = await client.game.sleep(account);
       
-      if (tx?.transaction_hash) {
+      // Execute transaction using Cavos with hardcoded contract address
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      
+      const calls = [{
+        contractAddress: gameContractAddress,
+        entrypoint: 'sleep',
+        calldata: []
+      }];
+      
+      const transactionHash = await executeTransaction(calls);
+      
+      // Create a compatible response object
+      const tx = {
+        transaction_hash: transactionHash,
+        code: "SUCCESS"
+      };
+      
+      if (tx && tx.code === "SUCCESS") {
         console.log('✅ Sleep transaction submitted:', tx.transaction_hash);
         setSleepAwakeTransaction({
           isInProgress: false,
@@ -108,7 +137,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
           transactionHash: tx.transaction_hash,
         };
       } else {
-        throw new Error('Transaction returned no hash');
+        throw new Error("Sleep transaction failed with code: " + tx?.code);
       }
       
     } catch (err: any) {
@@ -126,15 +155,23 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
         error: errorMessage,
       };
     }
-  }, [account, hasLiveBeast, sleepAwakeTransaction.isInProgress, currentBeastAwakeStatus, client]);
+  }, [cavosAuth.isAuthenticated, cavosAuth.wallet, cavosAuth.accessToken, player, hasLiveBeast, sleepAwakeTransaction.isInProgress, currentBeastAwakeStatus, executeTransaction]);
   
   const wakeUp = useCallback(async (): Promise<SleepAwakeResult> => {
-    // Validation
-    if (!account) {
-      const error = 'Wallet not connected';
-      toast.error(error);
+    // Validation: Check if Cavos is authenticated
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      const error = 'Please login with ByteBeasts to wake up your beast.';
+      toast.error('Please login with ByteBeasts');
       return { success: false, error };
     }
+    
+    // Validation: Check if player exists
+    if (!player) {
+      const error = 'No player data found';
+      toast.error('Player data not found');
+      return { success: false, error };
+    }
+    
     if (!hasLiveBeast) {
       const error = 'No live beast found';
       toast.error(error);
@@ -160,9 +197,25 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       });
       
       console.log('🔥 Executing awake transaction...');
-      const tx = await client.game.awake(account);
       
-      if (tx?.transaction_hash) {
+      // Execute transaction using Cavos with hardcoded contract address
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      
+      const calls = [{
+        contractAddress: gameContractAddress,
+        entrypoint: 'awake',
+        calldata: []
+      }];
+      
+      const transactionHash = await executeTransaction(calls);
+      
+      // Create a compatible response object
+      const tx = {
+        transaction_hash: transactionHash,
+        code: "SUCCESS"
+      };
+      
+      if (tx && tx.code === "SUCCESS") {
         console.log('✅ Awake transaction submitted:', tx.transaction_hash);
         setSleepAwakeTransaction({
           isInProgress: false,
@@ -175,7 +228,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
           transactionHash: tx.transaction_hash,
         };
       } else {
-        throw new Error('Transaction returned no hash');
+        throw new Error("Awake transaction failed with code: " + tx?.code);
       }
       
     } catch (err: any) {
@@ -193,7 +246,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
         error: errorMessage,
       };
     }
-  }, [account, hasLiveBeast, sleepAwakeTransaction.isInProgress, currentBeastAwakeStatus, client]);
+  }, [cavosAuth.isAuthenticated, cavosAuth.wallet, cavosAuth.accessToken, player, hasLiveBeast, sleepAwakeTransaction.isInProgress, currentBeastAwakeStatus, executeTransaction]);
   
   const resetTransaction = useCallback(() => {
     setSleepAwakeTransaction({

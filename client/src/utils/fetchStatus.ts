@@ -1,4 +1,19 @@
-import { AccountInterface } from 'starknet';
+import { AccountInterface, CallData, RpcProvider } from 'starknet';
+
+// Type for simple account objects from Cavos
+interface SimpleAccount {
+  address: string;
+  chainId: string;
+}
+
+// Type for Cavos wallet objects
+interface CavosWallet {
+  address: string;
+  // Add other Cavos wallet properties if needed
+}
+
+// Union type to accept either full AccountInterface, simple account, or Cavos wallet
+type AccountLike = AccountInterface | SimpleAccount | CavosWallet;
 
 /**
  * Converts hex array to decimal numbers
@@ -9,24 +24,47 @@ const hexToDecimalArray = (hexArray: string[] | undefined): number[] | undefined
 };
 
 /**
+ * Check if account is a full AccountInterface with callContract method
+ */
+const isFullAccount = (account: AccountLike): account is AccountInterface => {
+  return 'callContract' in account && typeof account.callContract === 'function';
+};
+
+/**
  * Fetches real-time beast status from contract using read call
  * This is a gas-free call that can be made frequently
  * 
  * Enhanced to handle the "Option::unwrap failed" error gracefully
  * This error occurs when a player has no live beast, which is a valid state
  * 
- * @param account - Connected Starknet account interface
+ * @param account - Connected Starknet account interface or simple account object
  * @returns Array of status values as numbers, undefined if no beast exists, or null if error
  */
-const fetchStatus = async (account: AccountInterface): Promise<number[] | undefined | null> => {
+const fetchStatus = async (account: AccountLike): Promise<number[] | undefined | null> => {
   console.info('📡 Fetching real-time status for:', String(account?.address));
   
   try {
-    const response = await account?.callContract({
-      contractAddress: "0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e",
-      entrypoint: "get_timestamp_based_status_with_address",
-      calldata: [String(account?.address)],
-    });
+    let response: string[];
+
+    if (isFullAccount(account)) {
+      // Use the full account's callContract method
+      response = await account.callContract({
+        contractAddress: "0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e",
+        entrypoint: "get_timestamp_based_status_with_address", 
+        calldata: [String(account.address)],
+      });
+    } else {
+      // Use RpcProvider for simple account objects
+      const provider = new RpcProvider({
+        nodeUrl: import.meta.env.VITE_PUBLIC_NODE_URL || "https://starknet-sepolia.public.blastapi.io/rpc/v0_7",
+      });
+
+      response = await provider.callContract({
+        contractAddress: "0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e",
+        entrypoint: "get_timestamp_based_status_with_address",
+        calldata: CallData.compile([account.address])
+      });
+    }
     
     const result = hexToDecimalArray(response);
     return result;

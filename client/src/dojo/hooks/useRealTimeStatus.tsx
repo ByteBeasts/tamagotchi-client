@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
 import useAppStore from '../../zustand/store';
 import fetchStatus from '../../utils/fetchStatus';
 
@@ -35,7 +34,8 @@ interface UseRealTimeStatusReturn {
  * Handles periodic fetching, optimistic updates, and UI integration
  */
 export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
-  const { account } = useAccount();
+  // Get Cavos wallet address instead of Starknet account
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   
   // Store selectors
   const realTimeStatus = useAppStore(state => state.realTimeStatus);
@@ -58,8 +58,8 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
    * Fetch latest status from contract
    */
   const fetchLatestStatus = useCallback(async (skipSync = false) => {
-    if (!account || !hasLiveBeast) {
-      console.log('⏸️ Skipping status fetch - no account or live beast');
+    if (!cavosWallet?.address || !hasLiveBeast) {
+      console.log('⏸️ Skipping status fetch - no Cavos wallet or live beast');
       return;
     }
     
@@ -69,7 +69,7 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
       // Set loading state
       useAppStore.setState({ isStatusLoading: true });
       
-      const newStatus = await fetchStatus(account);
+      const newStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'sepolia' });
       
       if (newStatus && newStatus.length >= 10) {
         // Validate that status belongs to current beast
@@ -96,7 +96,7 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
       console.error('❌ Failed to fetch real-time status:', error);
       useAppStore.setState({ isStatusLoading: false });
     }
-  }, [account, hasLiveBeast, validateStatusForCurrentBeast, setRealTimeStatus]);
+  }, [cavosWallet?.address, hasLiveBeast, validateStatusForCurrentBeast, setRealTimeStatus]);
   
   /**
    * Start polling for status updates
@@ -149,11 +149,11 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
     updateStatusOptimistic(statusUpdate);
   }, [updateStatusOptimistic]);
   
-  // Auto-start polling when account and beast are available
+  // Auto-start polling when Cavos wallet and beast are available
   useEffect(() => {
-    if (account && hasLiveBeast && !isPollingRef.current) {
+    if (cavosWallet?.address && hasLiveBeast && !isPollingRef.current) {
       startPolling();
-    } else if ((!account || !hasLiveBeast) && isPollingRef.current) {
+    } else if ((!cavosWallet?.address || !hasLiveBeast) && isPollingRef.current) {
       stopPolling();
       clearRealTimeStatus();
     }
@@ -161,7 +161,7 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
     return () => {
       stopPolling();
     };
-  }, [account, hasLiveBeast, startPolling, stopPolling, clearRealTimeStatus]);
+  }, [cavosWallet?.address, hasLiveBeast, startPolling, stopPolling, clearRealTimeStatus]);
   
   // Cleanup on unmount
   useEffect(() => {

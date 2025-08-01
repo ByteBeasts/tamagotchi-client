@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { Account } from 'starknet';
 import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useCavosTransaction } from './useCavosTransaction';
 
 // Hooks imports
 import { useLiveBeast } from './useLiveBeast';
 import { usePlayer } from './usePlayer';
-import { useStarknetConnect } from './useStarknetConnect';
 import { usePostSpawnSync } from './usePostSpawnSync'; 
 
 // Helpers imports
@@ -61,10 +59,12 @@ interface UseSpawnBeastReturn {
  * includes definitive sync solution for contract-Torii alignment
  */
 export const useSpawnBeast = (): UseSpawnBeastReturn => {
-  const { useDojoStore, client } = useDojoSDK();
+  const { useDojoStore } = useDojoSDK();
   const state = useDojoStore((state) => state);
-  const { account } = useAccount();
-  const { status } = useStarknetConnect();
+  const { executeTransaction } = useCavosTransaction();
+  
+  // Get Cavos auth state for validation
+  const cavosAuth = useAppStore(state => state.cavos);
   
   // Use optimized hooks for data management
   const { refetch: refetchLiveBeast } = useLiveBeast();
@@ -92,25 +92,43 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
    * Internal spawn beast function with comprehensive sync
    */
   const executeSpawnBeast = useCallback(async (params: BeastSpawnParams): Promise<SpawnResult> => {
-    // Validation: Check if wallet is connected
-    if (status !== "connected") {
-      const error = "Wallet not connected. Please connect your wallet first.";
+    // Debug: Log current Cavos auth state
+    console.log('🔍 Spawn Beast Validation - Cavos Auth State:', {
+      isAuthenticated: cavosAuth.isAuthenticated,
+      hasWallet: !!cavosAuth.wallet,
+      hasAccessToken: !!cavosAuth.accessToken,
+      walletAddress: cavosAuth.wallet?.address
+    });
+
+    // Validation: Check if Cavos is authenticated (PRIMARY check)
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      const error = "Please login with ByteBeasts to spawn your beast.";
+      console.log('❌ Spawn Beast validation failed:', error);
       setSpawnState(prev => ({ ...prev, error }));
       return { success: false, error };
     }
 
-    // Validation: Check if account exists
-    if (!account) {
-      const error = "No account found. Please connect your wallet.";
-      setSpawnState(prev => ({ ...prev, error }));
-      return { success: false, error };
-    }
-
-    // Validation: Check if player exists
+    // Validation: Check if player exists (with fallback refetch)
     if (!storePlayer) {
-      const error = "Player not found. Please spawn player first.";
-      setSpawnState(prev => ({ ...prev, error }));
-      return { success: false, error };
+      console.log('⚠️ Player not found in store, attempting refetch...');
+      try {
+        await refetchPlayer();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const refreshedPlayer = useAppStore.getState().player;
+        
+        if (!refreshedPlayer) {
+          const error = "Player not found. Please complete player creation first.";
+          console.log('❌ Player still not found after refetch');
+          setSpawnState(prev => ({ ...prev, error }));
+          return { success: false, error };
+        }
+        console.log('✅ Player found after refetch:', refreshedPlayer.address);
+      } catch (refetchError) {
+        console.error('❌ Failed to refetch player:', refetchError);
+        const error = "Could not verify player. Please try again.";
+        setSpawnState(prev => ({ ...prev, error }));
+        return { success: false, error };
+      }
     }
 
     // Validation: Check beast parameters
@@ -135,12 +153,36 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
 
       console.log('🥚 Executing spawn_beast transaction...', params);
       
-      const tx = await client.game.spawnBeast(
-        account as Account,
-        params.specie,
-        params.beast_type,
-        params.name
-      );
+      // Use hardcoded game contract address (more reliable than client.contractAddresses)
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      
+      // Construct Cavos transaction call
+      // Use "0" as default name (represents null/empty in felt252)
+      const defaultName = "0";
+      
+      const calls = [{
+        contractAddress: gameContractAddress,
+        entrypoint: 'spawn_beast',
+        calldata: [
+          params.specie.toString(),
+          params.beast_type.toString(),
+          defaultName // "0" as felt252
+        ]
+      }];
+      
+      // Execute transaction using Cavos
+      const transactionHash = await executeTransaction(calls);
+      
+      // Validate transaction hash
+      if (!transactionHash) {
+        throw new Error('Transaction execution failed - no transaction hash returned');
+      }
+      
+      // Create a compatible response object
+      const tx = {
+        transaction_hash: transactionHash,
+        code: "SUCCESS"
+      };
       
       setSpawnState(prev => ({
         ...prev,
@@ -271,7 +313,7 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
         syncSuccess: false
       };
     }
-  }, [account, status, storePlayer, client, state, refetchLiveBeast, refetchPlayer, syncAfterSpawn]);
+  }, [storePlayer, state, refetchLiveBeast, refetchPlayer, syncAfterSpawn, cavosAuth.isAuthenticated, cavosAuth.wallet, cavosAuth.accessToken, executeTransaction]);
 
   /**
    * Spawn beast with optional parameters

@@ -1,7 +1,5 @@
 import { useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
-import { Account } from 'starknet';
-import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useCavosTransaction } from './useCavosTransaction';
 import toast from 'react-hot-toast';
 
 // Store imports
@@ -9,9 +7,6 @@ import useAppStore from '../../zustand/store';
 
 // Types imports
 import { CleanTransactionState } from '../../components/types/clean.types';
-
-// Hooks imports
-import { useStarknetConnect } from './useStarknetConnect';
 
 // Hook return interface
 interface UseCleanBeastReturn {
@@ -40,9 +35,10 @@ interface CleanActionResult {
  * Follows the same pattern as useFeedBeast for consistency
  */
 export const useCleanBeast = (): UseCleanBeastReturn => {
-  const { client } = useDojoSDK();
-  const { account } = useAccount();
-  const { status } = useStarknetConnect();
+  const { executeTransaction } = useCavosTransaction();
+  
+  // Get Cavos auth state for validation
+  const cavosAuth = useAppStore(state => state.cavos);
   
   // Store state and actions
   const cleanTransaction = useAppStore(state => state.cleanTransaction);
@@ -53,17 +49,10 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
 
   // Execute clean beast transaction
   const cleanBeast = useCallback(async (): Promise<CleanActionResult> => {
-    // Validation: Check if wallet is connected
-    if (status !== "connected") {
-      const error = 'Wallet not connected. Please connect your wallet first.';
-      toast.error('Please connect your wallet first');
-      return { success: false, error };
-    }
-
-    // Validation: Check if account exists
-    if (!account) {
-      const error = 'No account found. Please connect your wallet.';
-      toast.error('Please connect your wallet');
+    // Validation: Check if Cavos is authenticated
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      const error = 'Please login with ByteBeasts to clean your beast.';
+      toast.error('Please login with ByteBeasts');
       return { success: false, error };
     }
 
@@ -96,8 +85,22 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
         error: null,
       });
 
-      // Execute transaction (no loading toast - handled by UI)
-      const tx = await client.game.clean(account as Account);
+      // Execute transaction using Cavos with hardcoded contract address
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      
+      const calls = [{
+        contractAddress: gameContractAddress,
+        entrypoint: 'clean',
+        calldata: []
+      }];
+      
+      const transactionHash = await executeTransaction(calls);
+      
+      // Create a compatible response object
+      const tx = {
+        transaction_hash: transactionHash,
+        code: "SUCCESS"
+      };
       
       // Check transaction result
       if (tx && tx.code === "SUCCESS") {
@@ -148,13 +151,14 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
       };
     }
   }, [
-    account,
-    status,
+    cavosAuth.isAuthenticated,
+    cavosAuth.wallet,
+    cavosAuth.accessToken,
     player,
     hasLiveBeast,
     cleanTransaction.isCleaningInProgress,
     setCleanTransaction,
-    client.game
+    executeTransaction
   ]);
 
   // Reset transaction state
@@ -164,8 +168,9 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
 
   // Computed values with proper boolean types
   const canClean = Boolean(
-    status === "connected" &&
-    account &&
+    cavosAuth.isAuthenticated &&
+    cavosAuth.wallet &&
+    cavosAuth.accessToken &&
     player &&
     hasLiveBeast() &&
     !cleanTransaction.isCleaningInProgress

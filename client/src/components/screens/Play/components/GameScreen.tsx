@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { GameId } from '../.../../../../types/play.types';
-import { getGameById } from '../components/data/miniGames';
+import { GameId } from '../../../types/play.types';
+import { getGameById } from './data/miniGames';
 import { useBeastDisplay } from '../../../../dojo/hooks/useBeastDisplay';
-import { useDojoSDK } from '@dojoengine/sdk/react';
-import { useAccount } from "@starknet-react/core";
+import useAppStore from '../../../../zustand/store';
 
 // Game Components
-import FlappyBeastsScreen from '../components/minigames/flappybeast/FlappyBeastsScreen';
+import FlappyBeastsScreen from './minigames/flappybeast/FlappyBeastsScreen';
 
 interface GameScreenProps {
   gameId: GameId;
@@ -14,34 +13,19 @@ interface GameScreenProps {
 }
 
 export const GameScreen = ({ gameId, onExitGame }: GameScreenProps) => {
-  const { account } = useAccount();
+  // Get Cavos auth state
+  const cavosAuth = useAppStore(state => state.cavos);
   const { currentBeastDisplay, hasLiveBeast, isLoading } = useBeastDisplay();
   
   // Track if the game has been successfully initialized to prevent interruption
   const [gameInitialized, setGameInitialized] = useState(false);
   // Store initial beast data to prevent loss during game
   const [initialBeastData, setInitialBeastData] = useState<typeof currentBeastDisplay | null>(null);
-  
-  // Get Dojo client using your existing pattern
-  const { client } = useDojoSDK();
-
-  // Create handleAction function similar to your existing pattern
-  const handleAction = async (actionName: string, actionFn: () => Promise<any>) => {
-    try {
-      console.log(`🎯 Executing ${actionName}...`);
-      const result = await actionFn();
-      console.log(`✅ ${actionName} completed:`, result);
-      return result;
-    } catch (error) {
-      console.error(`❌ ${actionName} failed:`, error);
-      throw error;
-    }
-  };
 
   // Debug: Check what we have
   console.log('🔍 GameScreen Debug:', {
-    account: account?.address,
-    hasClient: !!client,
+    cavosWallet: cavosAuth.wallet?.address,
+    isAuthenticated: cavosAuth.isAuthenticated,
     gameId,
     hasLiveBeast,
     currentBeastDisplay: !!currentBeastDisplay,
@@ -66,14 +50,14 @@ export const GameScreen = ({ gameId, onExitGame }: GameScreenProps) => {
     };
   }, []);
 
-  // No account available
-  if (!account) {
+  // No Cavos authentication available
+  if (!cavosAuth.isAuthenticated || !cavosAuth.wallet) {
     return (
       <div className="w-full h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">🔑</div>
-          <h2 className="text-xl font-bold text-white mb-4">Wallet Not Connected</h2>
-          <p className="text-gray-300 mb-6">Please connect your wallet to play games</p>
+          <h2 className="text-xl font-bold text-white mb-4">Not Logged In</h2>
+          <p className="text-gray-300 mb-6">Please login with ByteBeasts to play games</p>
           <button
             onClick={onExitGame}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -162,11 +146,7 @@ export const GameScreen = ({ gameId, onExitGame }: GameScreenProps) => {
             beastId={beastData.beast_id}
             beastImage={beastData.asset}
             beastDisplayName={beastData.displayName}
-            playerAddress={account.address}
-            // Real Dojo props using your existing pattern:
-            handleAction={handleAction}
-            client={client}
-            account={account}
+            playerAddress={cavosAuth.wallet?.address || ""}
           />
         );
       

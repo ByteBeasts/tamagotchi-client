@@ -18,11 +18,11 @@ import { GameId } from "../components/types/play.types";
 import { generateRandomBeastParams } from "../utils/beastHelpers";
 import type { BeastSpawnParams } from "../utils/beastHelpers";
 
-// Sleep logic for navigation blocking
-import { useSleepLogic } from "../components/screens/Sleep/components/hooks/useSleepLogic";
+// Sleep logic for navigation blocking - temporarily disabled for Cavos migration
+// import { useSleepLogic } from "../components/screens/Sleep/components/hooks/useSleepLogic";
 
-// Wallet and cache management
-import { useAccount } from "@starknet-react/core";
+// Wallet and cache management  
+import { useCavosAccount } from "../dojo/hooks/useCavosAccount";
 import useAppStore from "../zustand/store";
 
 function AppContent() {
@@ -33,11 +33,13 @@ function AppContent() {
   // State for predefined beast parameters
   const [pendingBeastParams, setPendingBeastParams] = useState<BeastSpawnParams | null>(null);
 
-  // Get sleep logic for navigation blocking
-  const { shouldBlockNavigation } = useSleepLogic();
+  // Get sleep logic for navigation blocking - temporarily disabled
+  // const { shouldBlockNavigation } = useSleepLogic();
+  const shouldBlockNavigation = false; // Temporary fix
 
   // Wallet and cache management
-  const { account } = useAccount();
+  const { account } = useCavosAccount();
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   const resetStore = useAppStore(state => state.resetStore);
 
   // Clear cache on wallet change
@@ -203,7 +205,7 @@ function AppContent() {
       {currentScreen === "home" && (
         <HomeScreen
           onNavigation={handleNavigation}
-          playerAddress={playerAddress}
+          playerAddress={cavosWallet?.address || ""}
         />
       )}
 
@@ -230,7 +232,7 @@ function AppContent() {
       {currentScreen === "play" && (
         <PlayScreen
           onNavigation={handleNavigation}
-          playerAddress={playerAddress}
+          playerAddress={cavosWallet?.address || ""}
         />
       )}
 
@@ -252,8 +254,7 @@ function AppContent() {
       {currentScreen !== "cover" && 
        currentScreen !== "login" && 
        currentScreen !== "hatch" && 
-       currentScreen !== "game" && 
-       currentScreen !== "market" && (
+       currentScreen !== "game" && (
         <NavBar
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}

@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useAccount } from '@starknet-react/core';
 import { useLiveBeast } from './useLiveBeast';
 import useAppStore from '../../zustand/store';
 import fetchStatus from '../../utils/fetchStatus';
@@ -12,7 +11,8 @@ interface PostSpawnSyncResult {
 }
 
 export const usePostSpawnSync = () => {
-  const { account } = useAccount();
+  // Get Cavos wallet address instead of Starknet account
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   
   // Use correct function name from useLiveBeast
   const { forceRefetch: refetchLiveBeast } = useLiveBeast();
@@ -28,12 +28,12 @@ export const usePostSpawnSync = () => {
       expectedParams 
     });
     
-    if (!account) {
+    if (!cavosWallet?.address) {
       return {
         success: false,
         syncType: 'failed',
         finalBeastId: null,
-        error: 'No account available'
+        error: 'No Cavos wallet available'
       };
     }
     
@@ -42,19 +42,19 @@ export const usePostSpawnSync = () => {
       console.log('🧹 Clearing previous state...');
       clearRealTimeStatus();
       
-      // Wait for transaction confirmation
+      // Wait for transaction confirmation (increased wait time)
       console.log('⏳ Waiting for transaction processing...');
-      await new Promise(resolve => setTimeout(resolve, 4000));
+      await new Promise(resolve => setTimeout(resolve, 8000)); // Increased from 4s to 8s
       
-      // Fetch fresh contract state (with retry)
+      // Fetch fresh contract state (with more retries)
       console.log('📡 Fetching fresh contract status...');
-      let contractRetries = 3;
+      let contractRetries = 6; // Increased from 3 to 6
       let contractBeastId = null;
       
       while (contractRetries > 0 && !contractBeastId) {
         try {
-          // Use direct fetchStatus
-          const contractStatus = await fetchStatus(account);
+          // Use direct fetchStatus with Cavos wallet address
+          const contractStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'sepolia' });
           
           // Handle fetchStatus results properly
           if (contractStatus && contractStatus.length >= 10) {
@@ -80,13 +80,13 @@ export const usePostSpawnSync = () => {
           contractRetries--;
           if (contractRetries > 0) {
             console.log(`⚠️ Contract data not ready, retrying... (${contractRetries} left)`);
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Increased from 2s to 3s
           }
         } catch (error) {
           contractRetries--;
           console.log(`❌ Contract fetch failed, retrying... (${contractRetries} left)`, error);
           if (contractRetries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Increased from 2s to 3s
           }
         }
       }
@@ -98,9 +98,9 @@ export const usePostSpawnSync = () => {
       // Small delay to stabilize
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Refetch Torii data (with smart retry)
+      // Refetch Torii data (with aggressive retry for beast indexing)
       console.log('🔄 Refetching beast data from Torii...');
-      let toriiRetries = 4;
+      let toriiRetries = 10; // More attempts
       let toriiSuccess = false;
       
       while (toriiRetries > 0 && !toriiSuccess) {
@@ -111,6 +111,13 @@ export const usePostSpawnSync = () => {
           const currentState = useAppStore.getState();
           const hasLiveBeast = currentState.hasLiveBeast();
           const storeBeastId = currentState.getCurrentBeastId();
+          
+          console.log(`🔍 Torii sync check (attempt ${10 - toriiRetries + 1}):`, {
+            hasLiveBeast,
+            storeBeastId,
+            contractBeastId,
+            match: storeBeastId === contractBeastId
+          });
           
           if (hasLiveBeast && storeBeastId === contractBeastId) {
             console.log('✅ Torii data synchronized successfully:', {
@@ -123,14 +130,16 @@ export const usePostSpawnSync = () => {
           
           toriiRetries--;
           if (toriiRetries > 0) {
-            console.log(`⚠️ Torii not synchronized yet, retrying... (${toriiRetries} left)`);
-            await new Promise(resolve => setTimeout(resolve, 2500));
+            // Shorter wait times for faster response
+            const waitTime = toriiRetries > 5 ? 1500 : 2000; // 1.5s first 5, then 2s
+            console.log(`⚠️ Torii not synchronized yet, retrying... (${toriiRetries} left) - waiting ${waitTime}ms`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
           }
         } catch (error) {
           toriiRetries--;
           console.log(`❌ Torii refetch failed, retrying... (${toriiRetries} left)`, error);
           if (toriiRetries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 2500));
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Shorter wait on error
           }
         }
       }
@@ -160,11 +169,18 @@ export const usePostSpawnSync = () => {
           finalBeastId: finalBeastId
         };
       } else {
-        // Partial success - contract OK but Torii lag
-        if (contractBeastId && !toriiSuccess) {
+        // Partial success - contract OK but Torii lag (contract-first approach)
+        if (contractBeastId && realTimeStatusValid) {
           console.log('✅ Partial success: Contract OK, Torii will sync eventually');
+          console.log('📊 Beast will be available - forcing UI update with contract data');
+          
+          // The real-time status is already set from contract, this will trigger UI updates
+          if (realTimeStatusValid) {
+            console.log('🔄 Real-time status already updated for UI');
+          }
+          
           return {
-            success: true, // Contract-first approach: this is enough
+            success: true, // Contract-first approach: this is enough for UI
             syncType: 'partial',
             finalBeastId: contractBeastId
           };
@@ -184,7 +200,7 @@ export const usePostSpawnSync = () => {
         error: errorMessage
       };
     }
-  }, [account, refetchLiveBeast, clearRealTimeStatus, setRealTimeStatus]);
+  }, [cavosWallet?.address, refetchLiveBeast, clearRealTimeStatus, setRealTimeStatus]);
   
   return { syncAfterSpawn };
 };

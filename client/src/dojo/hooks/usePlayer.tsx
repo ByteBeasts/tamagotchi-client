@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useAccount } from '@starknet-react/core';
 import { addAddressPadding } from 'starknet';
 
 // Store import
@@ -63,6 +62,8 @@ const hexToNumber = (hexValue: string | number): number => {
 // API Functions
 const fetchPlayerData = async (playerAddress: string): Promise<Player | null> => {
   try {
+    console.log('🌐 fetchPlayerData: Querying Torii for address:', playerAddress);
+    console.log('🌐 fetchPlayerData: Torii URL:', TORII_URL);
     
     const response = await fetch(TORII_URL, {
       method: "POST",
@@ -75,7 +76,15 @@ const fetchPlayerData = async (playerAddress: string): Promise<Player | null> =>
 
     const result = await response.json();
     
+    console.log('🌐 fetchPlayerData: Torii response:', {
+      hasData: !!result.data,
+      hasPlayerModels: !!result.data?.tamagotchiPlayerModels,
+      edgesCount: result.data?.tamagotchiPlayerModels?.edges?.length || 0,
+      totalCount: result.data?.tamagotchiPlayerModels?.totalCount || 0
+    });
+    
     if (!result.data?.tamagotchiPlayerModels?.edges?.length) {
+      console.log('❌ fetchPlayerData: No player found in Torii for address:', playerAddress);
       return null; // Player not found
     }
 
@@ -108,21 +117,24 @@ const fetchPlayerData = async (playerAddress: string): Promise<Player | null> =>
 export const usePlayer = (): UsePlayerReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { account } = useAccount();
   
   // Get and set player from/to store
   const storePlayer = useAppStore(state => state.player);
   const setPlayer = useAppStore(state => state.setPlayer);
+  
+  // Get Cavos wallet address instead of Starknet account
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
 
-  // Memoize the formatted user address
+  // Memoize the formatted user address from Cavos wallet
   const userAddress = useMemo(() => 
-    account ? addAddressPadding(account.address).toLowerCase() : '', 
-    [account]
+    cavosWallet?.address ? addAddressPadding(cavosWallet.address).toLowerCase() : '', 
+    [cavosWallet?.address]
   );
 
   // Function to fetch and update player data
   const refetch = async () => {
     if (!userAddress) {
+      console.log('⚠️ usePlayer: No user address available for fetching');
       setIsLoading(false);
       return;
     }
@@ -131,7 +143,10 @@ export const usePlayer = (): UsePlayerReturn => {
       setIsLoading(true);
       setError(null);
       
+      console.log('🔍 usePlayer: Fetching player data for address:', userAddress);
       const playerData = await fetchPlayerData(userAddress);
+      
+      console.log('📊 usePlayer: Player data fetched:', playerData ? 'FOUND' : 'NOT FOUND', playerData);
       
       // Update store with player data
       setPlayer(playerData);
@@ -153,14 +168,14 @@ export const usePlayer = (): UsePlayerReturn => {
     }
   }, [userAddress]);
 
-  // Effect to sync with account changes
+  // Effect to sync with Cavos wallet changes
   useEffect(() => {
-    if (!account) {
+    if (!cavosWallet?.address) {
       setPlayer(null);
       setError(null);
       setIsLoading(false);
     }
-  }, [account, setPlayer]);
+  }, [cavosWallet?.address, setPlayer]);
 
   return {
     player: storePlayer,

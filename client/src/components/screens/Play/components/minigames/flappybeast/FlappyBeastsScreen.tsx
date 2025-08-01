@@ -52,9 +52,6 @@ const GAME_NAME = "Flappy Beasts";
 const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   onExitGame,
   beastImage,
-  handleAction,
-  client,
-  account,
 }, ref) => {
   // === Business logic hook ===
   const {
@@ -64,7 +61,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
     showEnergyToast,
     setShowEnergyToast,
     isProcessingResults
-  } = useFlappyGameLogic({ handleAction, client, account });
+  } = useFlappyGameLogic();
 
   // === UI State ===
   const [gameActive, setGameActive] = useState(false);
