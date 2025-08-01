@@ -62,18 +62,33 @@ export function useCavosAuth(): UseCavosAuthReturn {
         orgSecret
       );
       
+      console.log('🔍 Raw signUp response:', result);
+      
+      // Extract data from nested structure
+      const userData = {
+        email: result.data?.email,
+        user_id: result.data?.user_id,
+        organization: result.data?.organization,
+        user_metadata: result.data?.user_metadata,
+        created_at: result.data?.created_at
+      };
+      
+      const walletData = result.data?.wallet;
+      const accessToken = result.data?.authData?.accessToken;
+      const refreshToken = result.data?.authData?.refreshToken;
+      
       console.log('✅ Registration successful:', {
-        userEmail: result.user?.email,
-        walletAddress: result.wallet?.address,
-        hasTokens: !!(result.access_token && result.refresh_token)
+        userEmail: userData.email,
+        walletAddress: walletData?.address,
+        hasTokens: !!(accessToken && refreshToken)
       });
       
       // Update Zustand store with auth data
       setCavosAuth(
-        result.user,
-        result.wallet,
-        result.access_token,
-        result.refresh_token
+        userData,
+        walletData,
+        accessToken,
+        refreshToken
       );
       
       console.log('✅ Registration and wallet deployment completed successfully');
@@ -101,18 +116,33 @@ export function useCavosAuth(): UseCavosAuthReturn {
         orgSecret
       );
       
+      console.log('🔍 Raw signIn response:', result);
+      
+      // Extract data from nested structure (same as signUp)
+      const userData = {
+        email: result.data?.email,
+        user_id: result.data?.user_id,
+        organization: result.data?.organization,
+        user_metadata: result.data?.user_metadata,
+        created_at: result.data?.created_at
+      };
+      
+      const walletData = result.data?.wallet;
+      const accessToken = result.data?.authData?.accessToken;
+      const refreshToken = result.data?.authData?.refreshToken;
+      
       console.log('✅ Login successful - existing user:', {
-        userEmail: result.user?.email,
-        walletAddress: result.wallet?.address,
-        hasTokens: !!(result.access_token && result.refresh_token)
+        userEmail: userData.email,
+        walletAddress: walletData?.address,
+        hasTokens: !!(accessToken && refreshToken)
       });
       
       // Update Zustand store with auth data
       setCavosAuth(
-        result.user,
-        result.wallet,
-        result.access_token,
-        result.refresh_token
+        userData,
+        walletData,
+        accessToken,
+        refreshToken
       );
       
     } catch (error) {
