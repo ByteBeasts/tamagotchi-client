@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef } from 'react';
-import { useCavosAccount } from './useCavosAccount';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import useAppStore from '../../zustand/store';
 import { useRealTimeStatus } from './useRealTimeStatus';
@@ -28,7 +27,7 @@ interface UseUpdateBeastReturn {
  * Executes update_beast contract calls without blocking UI
  */
 export const useUpdateBeast = (): UseUpdateBeastReturn => {
-  const { account } = useCavosAccount();
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   const { client } = useDojoSDK();
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast());
   const { fetchLatestStatus } = useRealTimeStatus();
@@ -50,8 +49,8 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
    */
   const updateBeast = useCallback(async (): Promise<boolean> => {
     // Early returns for invalid states
-    if (!account || !hasLiveBeast) {
-      console.log('⏸️ Skipping update_beast - no account or live beast');
+    if (!cavosWallet?.address || !hasLiveBeast) {
+      console.log('⏸️ Skipping update_beast - no wallet or live beast');
       return false;
     }
     
@@ -69,7 +68,7 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
       }));
       
       // Execute the contract transaction
-      const tx = await client.game.updateBeast(account);
+      const tx = await client.game.updateBeast(cavosWallet);
       
       if (tx) {
         console.log('✅ update_beast transaction submitted:', tx.transaction_hash);
@@ -107,15 +106,15 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
     } finally {
       isUpdatingRef.current = false;
     }
-  }, [account, hasLiveBeast, client, fetchLatestStatus]);
+  }, [cavosWallet, hasLiveBeast, client, fetchLatestStatus]);
   
   /**
    * Fire-and-forget update for navigation
    * Executes update_beast in background without blocking UI
    */
   const triggerUpdate = useCallback(() => {
-    if (!account || !hasLiveBeast) {
-      console.log('⏸️ Skipping trigger update - no account or live beast');
+    if (!cavosWallet?.address || !hasLiveBeast) {
+      console.log('⏸️ Skipping trigger update - no wallet or live beast');
       return;
     }
     
@@ -131,7 +130,7 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
     }).catch(error => {
       console.error('❌ Background update_beast error (non-blocking):', error);
     });
-  }, [updateBeast, account, hasLiveBeast]);
+  }, [updateBeast, cavosWallet, hasLiveBeast]);
   
   /**
    * Reset error state

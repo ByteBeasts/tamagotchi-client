@@ -6,8 +6,14 @@ interface SimpleAccount {
   chainId: string;
 }
 
-// Union type to accept either full AccountInterface or simple account
-type AccountLike = AccountInterface | SimpleAccount;
+// Type for Cavos wallet objects
+interface CavosWallet {
+  address: string;
+  // Add other Cavos wallet properties if needed
+}
+
+// Union type to accept either full AccountInterface, simple account, or Cavos wallet
+type AccountLike = AccountInterface | SimpleAccount | CavosWallet;
 
 /**
  * Converts hex array to decimal numbers
