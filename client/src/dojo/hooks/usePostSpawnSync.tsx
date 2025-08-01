@@ -54,7 +54,7 @@ export const usePostSpawnSync = () => {
       while (contractRetries > 0 && !contractBeastId) {
         try {
           // Use direct fetchStatus with Cavos wallet address
-          const contractStatus = await fetchStatus(cavosWallet);
+          const contractStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'sepolia' });
           
           // Handle fetchStatus results properly
           if (contractStatus && contractStatus.length >= 10) {
@@ -174,11 +174,9 @@ export const usePostSpawnSync = () => {
           console.log('✅ Partial success: Contract OK, Torii will sync eventually');
           console.log('📊 Beast will be available - forcing UI update with contract data');
           
-          // Force update the store with contract data to unblock UI
-          const setRealTimeStatus = useAppStore.getState().setRealTimeStatus;
+          // The real-time status is already set from contract, this will trigger UI updates
           if (realTimeStatusValid) {
-            console.log('🔄 Forcing real-time status update for UI');
-            // The real-time status is already set, this will trigger UI updates
+            console.log('🔄 Real-time status already updated for UI');
           }
           
           return {
