@@ -14,6 +14,31 @@ import {
 import { FeedTransactionState } from '../components/types/feed.types';
 import { CleanTransactionState } from '../components/types/clean.types';
 
+// Cavos state interfaces
+interface CavosUser {
+  email: string;
+  user_id: string;
+  [key: string]: any;
+}
+
+interface CavosWallet {
+  address: string;
+  network: string;
+  private_key?: string;
+  public_key?: string;
+  [key: string]: any;
+}
+
+interface CavosAuthState {
+  user: CavosUser | null;
+  wallet: CavosWallet | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
+}
+
 // Simplified Beast State - only what we actually need
 interface LiveBeastData {
   beast: Beast | null;
@@ -35,6 +60,9 @@ interface AppStore {
   // Transaction states
   feedTransaction: FeedTransactionState;
   cleanTransaction: CleanTransactionState;
+  
+  // Cavos authentication state
+  cavos: CavosAuthState;
   
   // Scores state
   highestScores: HighestScore[];
@@ -114,6 +142,14 @@ interface AppStore {
 
   // Simple getter to check if any actions are in progress
   canFeedBeast: () => boolean;
+  
+  // Cavos actions
+  setCavosAuth: (user: CavosUser | null, wallet: CavosWallet | null, accessToken: string | null, refreshToken: string | null) => void;
+  setCavosTokens: (accessToken: string | null, refreshToken: string | null) => void;
+  setCavosLoading: (loading: boolean) => void;
+  setCavosError: (error: string | null) => void;
+  clearCavosAuth: () => void;
+  getCavosData: () => CavosAuthState;
 }
 
 // Initial state
@@ -137,6 +173,17 @@ const initialState = {
   cleanTransaction: {
     isCleaningInProgress: false,
     transactionHash: null,
+    error: null,
+  },
+  
+  // Cavos initial state
+  cavos: {
+    user: null,
+    wallet: null,
+    accessToken: null,
+    refreshToken: null,
+    isAuthenticated: false,
+    loading: false,
     error: null,
   },
   
@@ -441,6 +488,63 @@ const useAppStore = create<AppStore>()(
                state.foods.some(food => food.amount > 0);
       },
       
+      // Cavos actions
+      setCavosAuth: (user, wallet, accessToken, refreshToken) => {
+        set((state) => ({
+          cavos: {
+            ...state.cavos,
+            user,
+            wallet,
+            accessToken,
+            refreshToken,
+            isAuthenticated: !!(user && wallet && accessToken),
+            loading: false,
+            error: null,
+          }
+        }));
+      },
+      
+      setCavosTokens: (accessToken, refreshToken) => {
+        set((state) => ({
+          cavos: {
+            ...state.cavos,
+            accessToken,
+            refreshToken,
+            isAuthenticated: !!(state.cavos.user && state.cavos.wallet && accessToken),
+          }
+        }));
+      },
+      
+      setCavosLoading: (loading) => {
+        set((state) => ({
+          cavos: { ...state.cavos, loading }
+        }));
+      },
+      
+      setCavosError: (error) => {
+        set((state) => ({
+          cavos: { ...state.cavos, error, loading: false }
+        }));
+      },
+      
+      clearCavosAuth: () => {
+        set(() => ({
+          cavos: {
+            user: null,
+            wallet: null,
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
+            loading: false,
+            error: null,
+          }
+        }));
+      },
+      
+      getCavosData: () => {
+        return get().cavos;
+      },
+      
       // Utility actions
       resetStore: () => set(initialState),
     }),
@@ -455,6 +559,7 @@ const useAppStore = create<AppStore>()(
         isConnected: state.isConnected,
         realTimeStatus: state.realTimeStatus,
         lastStatusUpdate: state.lastStatusUpdate,
+        cavos: state.cavos, // Persist Cavos auth state
       }),
     }
   )
