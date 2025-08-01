@@ -2,8 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Toaster } from "react-hot-toast";
 
-// Dojo hooks
-import { useCavosAccount } from "../../../dojo/hooks/useCavosAccount";
+// Market purchase hook migrated to Cavos internally
 
 // Market purchase hook
 import { useMarketPurchase } from "./hooks/useMarketPurchase";
@@ -44,8 +43,7 @@ interface MarketScreenProps {
 }
 
 export function MarketScreen({onNavigation}: MarketScreenProps) {
-  // Account and responsive state
-  const { account } = useCavosAccount();
+  // Responsive state
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
   
   // Toast position based on screen size
@@ -53,7 +51,6 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
   
   // Market purchase hook
   const { purchaseFood, isPurchasing, canPurchase } = useMarketPurchase({ 
-    account, 
     toastPosition: position 
   });
   

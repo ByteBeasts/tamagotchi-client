@@ -5,7 +5,6 @@ import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
 import { lookupAddresses } from '@cartridge/controller';
-import { useCavosAccount } from "../../../dojo/hooks/useCavosAccount";
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -27,8 +26,8 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
   
-  // Account from Starknet
-  const { account } = useCavosAccount();
+  // Get Cavos wallet address instead of Starknet account
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
 
   // Music context
   const { setCurrentScreen } = useMusic();
@@ -46,22 +45,22 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     setCurrentScreen("home");
   }, [setCurrentScreen]);
 
-  // Username lookup effect
+  // Username lookup effect using Cavos wallet
   useEffect(() => {
     const fetchPlayerName = async () => {
-      if (!account?.address) {
+      if (!cavosWallet?.address) {
         setPlayerName('Player');
         return;
       }
 
       try {
-        console.log("🔍 Looking up username for address:", account.address);
+        console.log("🔍 Looking up username for Cavos address:", cavosWallet.address);
         
-        // Use lookupAddresses with the current account address
-        const addressMap = await lookupAddresses([account.address]);
+        // Use lookupAddresses with the Cavos wallet address
+        const addressMap = await lookupAddresses([cavosWallet.address]);
         
         // Get the username from the map
-        const username = addressMap.get(account.address);
+        const username = addressMap.get(cavosWallet.address);
         
         console.log("📋 Username lookup result:", username);
         
@@ -69,19 +68,19 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
           setPlayerName(username);
         } else {
           // Fallback to truncated address if no username found
-          const truncated = account.address.slice(0, 6) + '...' + account.address.slice(-4);
+          const truncated = cavosWallet.address.slice(0, 6) + '...' + cavosWallet.address.slice(-4);
           setPlayerName(truncated);
         }
       } catch (error) {
         console.error("❌ Error looking up username:", error);
         // Fallback to truncated address on error
-        const truncated = account.address.slice(0, 6) + '...' + account.address.slice(-4);
+        const truncated = cavosWallet.address.slice(0, 6) + '...' + cavosWallet.address.slice(-4);
         setPlayerName(truncated);
       }
     };
 
     fetchPlayerName();
-  }, [account?.address]);
+  }, [cavosWallet?.address]);
 
   // Store data
   const storePlayer = useAppStore(state => state.player);

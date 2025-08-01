@@ -1,6 +1,4 @@
 import { useCallback } from 'react';
-import { useCavosAccount } from './useCavosAccount';
-import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useCavosTransaction } from './useCavosTransaction';
 import toast from 'react-hot-toast';
 
@@ -9,9 +7,6 @@ import useAppStore from '../../zustand/store';
 
 // Types imports
 import { FeedTransactionState } from '../../components/types/feed.types';
-
-// Hooks imports
-import { useStarknetConnect } from './useStarknetConnect';
 
 // Hook return interface
 interface UseFeedBeastReturn {
@@ -40,10 +35,10 @@ interface FeedActionResult {
  * Handles contract interactions, optimistic updates, and error recovery
  */
 export const useFeedBeast = (): UseFeedBeastReturn => {
-  const { client } = useDojoSDK();
-  const { account } = useCavosAccount();
-  const { status } = useStarknetConnect();
   const { executeTransaction } = useCavosTransaction();
+  
+  // Get Cavos auth state for validation
+  const cavosAuth = useAppStore(state => state.cavos);
   
   // Store state and actions
   const feedTransaction = useAppStore(state => state.feedTransaction);
@@ -55,17 +50,10 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
 
   // Execute feed beast transaction
   const feedBeast = useCallback(async (foodId: number): Promise<FeedActionResult> => {
-    // Validation: Check if wallet is connected
-    if (status !== "connected") {
-      const error = 'Wallet not connected. Please connect your wallet first.';
-      toast.error('Please connect your wallet first');
-      return { success: false, foodId, error };
-    }
-
-    // Validation: Check if account exists
-    if (!account) {
-      const error = 'No account found. Please connect your wallet.';
-      toast.error('Please connect your wallet');
+    // Validation: Check if Cavos is authenticated
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      const error = 'Please login with ByteBeasts to feed your beast.';
+      toast.error('Please login with ByteBeasts');
       return { success: false, foodId, error };
     }
 
@@ -99,9 +87,11 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
         error: null,
       });
 
-      // Execute transaction using Cavos
+      // Execute transaction using Cavos with hardcoded contract address
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      
       const calls = [{
-        contractAddress: client.client.contractAddresses.game,
+        contractAddress: gameContractAddress,
         entrypoint: 'feed',
         calldata: [foodId.toString()]
       }];
@@ -167,13 +157,14 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
       };
     }
   }, [
-    account,
-    status,
+    cavosAuth.isAuthenticated,
+    cavosAuth.wallet,
+    cavosAuth.accessToken,
     player,
     hasLiveBeast,
     feedTransaction.isFeeding,
     setFeedTransaction,
-    client.game
+    executeTransaction
   ]);
 
   // Reset transaction state
@@ -183,8 +174,9 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
 
   // Computed values with proper boolean types
   const canFeed = Boolean(
-    status === "connected" &&
-    account &&
+    cavosAuth.isAuthenticated &&
+    cavosAuth.wallet &&
+    cavosAuth.accessToken &&
     player &&
     hasLiveBeast() &&
     !feedTransaction.isFeeding

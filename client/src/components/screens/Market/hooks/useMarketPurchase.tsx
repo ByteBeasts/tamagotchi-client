@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-// import { AccountInterface } from 'starknet'; // Not needed for Cavos
 
-// Dojo hooks
-import { useDojoSDK } from '@dojoengine/sdk/react';
+// Cavos transaction hook
+import { useCavosTransaction } from '../../../../dojo/hooks/useCavosTransaction';
 import { usePlayer } from '../../../../dojo/hooks/usePlayer';
 
 // Types
@@ -13,7 +12,6 @@ import { MarketFoodItem } from '../../../../constants/foodMarket.constants';
 import useAppStore from '../../../../zustand/store';
 
 interface UseMarketPurchaseProps {
-  account?: any; // Simple account object from Cavos
   toastPosition?: 'top-center' | 'top-right' | 'bottom-center';
 }
 
@@ -24,11 +22,13 @@ interface UseMarketPurchaseReturn {
 }
 
 export const useMarketPurchase = ({ 
-  account, 
   toastPosition = 'top-right' 
-}: UseMarketPurchaseProps): UseMarketPurchaseReturn => {
-  const { client } = useDojoSDK();
+}: UseMarketPurchaseProps = {}): UseMarketPurchaseReturn => {
+  const { executeTransaction } = useCavosTransaction();
   const { refetch: refetchPlayer } = usePlayer();
+  
+  // Get Cavos auth state and player data
+  const cavosAuth = useAppStore(state => state.cavos);
   const storePlayer = useAppStore(state => state.player);
   
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -37,7 +37,7 @@ export const useMarketPurchase = ({
    * Check if player can purchase a food item
    */
   const canPurchase = (food: MarketFoodItem): boolean => {
-    if (!account || !client) return false;
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) return false;
     
     const playerBalance = storePlayer?.total_coins || 0;
     return playerBalance >= food.price;
@@ -48,8 +48,8 @@ export const useMarketPurchase = ({
    */
   const purchaseFood = async (food: MarketFoodItem): Promise<boolean> => {
     // Validation checks
-    if (!account || !client) {
-      toast.error("Please connect your wallet first", { position: toastPosition });
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      toast.error("Please login with ByteBeasts to make purchases", { position: toastPosition });
       return false;
     }
 
@@ -84,13 +84,27 @@ export const useMarketPurchase = ({
         useAppStore.getState().setPlayer(optimisticPlayer);
       }
       
-      // Execute blockchain transaction
-      const result = await client.player.addOrUpdateFoodAmount(
-        account, 
-        food.id,      // food ID
-        1,            // amount (buying 1 unit)
-        food.price    // price in coins
-      );
+      // Execute blockchain transaction using Cavos
+      const playerSystemAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      
+      const calls = [{
+        contractAddress: playerSystemAddress,
+        entrypoint: 'add_or_update_food_amount',
+        calldata: [
+          food.id.toString(),      // food ID
+          '1',                     // amount (buying 1 unit)
+          food.price.toString()    // price in coins
+        ]
+      }];
+      
+      console.log('🛒 Executing purchase transaction...', {
+        food: food.name,
+        price: food.price,
+        coins_before: storePlayer?.total_coins
+      });
+      
+      const transactionHash = await executeTransaction(calls);
+      const result = { transaction_hash: transactionHash };
 
       console.log("🛒 [MarketPurchase] Transaction result:", result);
       
@@ -98,8 +112,24 @@ export const useMarketPurchase = ({
       // This will correct any discrepancies after Torii updates
       setTimeout(async () => {
         console.log("🔄 [MarketPurchase] Background sync with blockchain...");
+        
+        // Get current store state before refetch
+        const currentPlayerBeforeRefetch = useAppStore.getState().player;
+        console.log("💰 [MarketPurchase] Player coins before refetch:", currentPlayerBeforeRefetch?.total_coins);
+        
         await refetchPlayer();
-      }, 3000); // Wait 3 seconds for Torii to process
+        
+        // Log after refetch to see what happened
+        const currentPlayerAfterRefetch = useAppStore.getState().player;
+        console.log("💰 [MarketPurchase] Player coins after refetch:", currentPlayerAfterRefetch?.total_coins);
+        
+        // If blockchain hasn't processed yet, keep optimistic state
+        if (currentPlayerAfterRefetch && currentPlayerBeforeRefetch && 
+            currentPlayerAfterRefetch.total_coins > currentPlayerBeforeRefetch.total_coins) {
+          console.log("⚠️ [MarketPurchase] Blockchain not processed yet, keeping optimistic state");
+          useAppStore.getState().setPlayer(currentPlayerBeforeRefetch);
+        }
+      }, 8000); // Wait 8 seconds for Torii to process
       
       // Success notification
       toast.success(`${food.name} purchased successfully!`, { 

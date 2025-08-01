@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useCavosAccount } from './useCavosAccount';
 import { addAddressPadding } from 'starknet';
 
 // Store and config imports
@@ -97,16 +96,18 @@ const fetchFoodInventory = async (playerAddress: string): Promise<Food[]> => {
 export const useFoodInventory = (): UseFoodInventoryReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { account } = useCavosAccount();
+  
+  // Get Cavos wallet address instead of Starknet account
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   
   // Store state and actions
   const storeFoods = useAppStore(state => state.foods);
   const setStoreFoods = useAppStore(state => state.setFoods);
   
-  // Memoize the formatted user address
+  // Memoize the formatted user address using Cavos wallet
   const userAddress = useMemo(() => 
-    account ? addAddressPadding(account.address) : null,
-    [account]
+    cavosWallet?.address ? addAddressPadding(cavosWallet.address) : null,
+    [cavosWallet?.address]
   );
 
   // Fetch food inventory from blockchain

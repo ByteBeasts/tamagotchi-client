@@ -7,8 +7,13 @@ import { GAME_IDS } from '../../../../../types/game.types';
 
 // Services
 import CoinGemRewardService from '../../../../../utils/coinGemRewardService';
-import { AccountInterface } from 'starknet';
 import fetchStatus from '../../../../../../utils/fetchStatus';
+
+// Cavos transaction hook
+import { useCavosTransaction } from '../../../../../../dojo/hooks/useCavosTransaction';
+
+// Store import
+import useAppStore from '../../../../../../zustand/store';
 
 // high score hook
 import { useHighScore } from '../../../../../../dojo/hooks/useHighScore';
@@ -19,11 +24,7 @@ import { usePlayer } from '../../../../../../dojo/hooks/usePlayer';
 // Constants
 const ENERGY_REQUIREMENT = 20;
 
-interface UseFlappyGameLogicProps {
-  handleAction?: (actionName: string, actionFn: () => Promise<any>) => Promise<any>;
-  client?: any;
-  account?: AccountInterface;
-}
+// No props needed - using Cavos SDK internally
 
 interface UseFlappyGameLogicReturn {
   // Energy management
@@ -43,11 +44,12 @@ interface UseFlappyGameLogicReturn {
   isProcessingResults: boolean;
 }
 
-export const useFlappyGameLogic = ({ 
-  handleAction, 
-  client, 
-  account 
-}: UseFlappyGameLogicProps): UseFlappyGameLogicReturn => {
+export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
+  const { executeTransaction } = useCavosTransaction();
+  
+  // Get Cavos auth state for validation
+  const cavosAuth = useAppStore(state => state.cavos);
+  const player = useAppStore(state => state.player);
   // simple high score hook
   const {
     flappyBirdScore,
@@ -69,13 +71,17 @@ export const useFlappyGameLogic = ({
    * Check if beast has enough energy to play using real-time data
    */
   const checkEnergyRequirement = async (): Promise<boolean> => {
-    if (!account) {
-      console.warn("No account available for energy check");
+    // Validation: Check if Cavos is authenticated
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      console.warn("No Cavos wallet available for energy check");
       return false;
     }
 
     try {
-      const statusResponse = await fetchStatus(account);
+      const statusResponse = await fetchStatus({ 
+        address: cavosAuth.wallet.address, 
+        chainId: 'sepolia' 
+      });
       
       if (statusResponse === null) {
         console.error("Error fetching beast status");
@@ -105,15 +111,32 @@ export const useFlappyGameLogic = ({
    */
   const consumeEnergy = async (): Promise<boolean> => {
     try {
-      if (!handleAction || !client || !account) {
-        console.warn("Missing Dojo dependencies for energy consumption");
+      // Validation: Check if Cavos is authenticated
+      if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+        console.warn("No Cavos authentication for energy consumption");
+        toast.error("Please login with ByteBeasts to play");
         return false;
       }
 
-      await handleAction(
-        "Play",
-        async () => await client.game.play(account)
-      );
+      // Validation: Check if player exists
+      if (!player) {
+        console.warn("No player data found");
+        toast.error("Player data not found");
+        return false;
+      }
+
+      // Execute transaction using Cavos with hardcoded contract address
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      
+      const calls = [{
+        contractAddress: gameContractAddress,
+        entrypoint: 'play',
+        calldata: []
+      }];
+      
+      console.log('🎮 Executing play transaction (consume energy)...');
+      await executeTransaction(calls);
+      console.log('✅ Energy consumed successfully');
 
       return true;
     } catch (error) {
@@ -128,42 +151,58 @@ export const useFlappyGameLogic = ({
    */
   const saveGameResults = async (score: number, isNewHigh: boolean): Promise<void> => {
     try {
-      if (!handleAction || !client || !account) {
-        console.warn("Cannot save game results - missing required dependencies");
+      // Validation: Check if Cavos is authenticated
+      if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+        console.warn("Cannot save game results - no Cavos authentication");
+        return;
+      }
+
+      // Validation: Check if player exists
+      if (!player) {
+        console.warn("Cannot save game results - no player data");
         return;
       }
 
       // Calculate rewards for the blockchain transactions
       const rewards = calculateRewards(score);
       
-      await handleAction(
-        "SaveGameResults",
-        async () => {
-          // Update total points
-          await client.player.updatePlayerTotalPoints(account, score);
-          
-          // Update total coins
-          await client.player.updatePlayerTotalCoins(account, rewards.coins);
-          
-          // Update total gems
-          await client.player.updatePlayerTotalGems(account, rewards.gems);
-          
-          // Achievement for playing
-          await client.achieve.achievePlayerNewTotalPoints(account);
-          
-          // Update high score
-          await client.player.updatePlayerMinigameHighestScore(
-            account, 
-            score, 
-            GAME_IDS.FLAPPY_BEASTS
-          );
-          
-          // High score achievement
-          if (isNewHigh) {
-            await client.achieve.achieveFlappyBeastHighscore(account, score);
-          }
+      // Execute multiple transactions using Cavos with correct contract addresses
+      const playerSystemAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      
+      const calls = [
+        // Update total points (player system)
+        {
+          contractAddress: playerSystemAddress,
+          entrypoint: 'update_player_total_points',
+          calldata: [score.toString()]
+        },
+        // Update total coins (player system)
+        {
+          contractAddress: playerSystemAddress,
+          entrypoint: 'update_player_total_coins',
+          calldata: [rewards.coins.toString()]
+        },
+        // Update total gems (player system)
+        {
+          contractAddress: playerSystemAddress,
+          entrypoint: 'update_player_total_gems',
+          calldata: [rewards.gems.toString()]
+        },
+        // Update high score (player system)
+        {
+          contractAddress: playerSystemAddress,
+          entrypoint: 'update_player_minigame_highest_score',
+          calldata: [score.toString(), GAME_IDS.FLAPPY_BEASTS.toString()]
         }
-      );
+      ];
+      
+      console.log('💾 Executing save game results transaction...', {
+        score,
+        rewards: rewards.coins + ' coins, ' + rewards.gems + ' gems',
+        isNewHighScore: isNewHigh
+      });
+      await executeTransaction(calls);
+      console.log('✅ Game results saved successfully');
 
       // Refresh high scores after saving
       await refetchHighScores();

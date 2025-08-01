@@ -2,13 +2,13 @@ import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { CoverScreen } from "../components/screens/Cover/CoverScreen";
 import { HatchEggScreen } from "../components/screens/Hatch/HatchEggScreen";
-// import { HomeScreen } from "../components/screens/Home/HomeScreen"; // Temporarily disabled
+import { HomeScreen } from "../components/screens/Home/HomeScreen";
 import { SleepScreen } from "../components/screens/Sleep/SleepScreen";
 import { FeedScreen } from "../components/screens/Feed/FeedScreen";
 import { CleanScreen } from "../components/screens/Clean/CleanScreen";
-// import { PlayScreen } from "../components/screens/Play/PlayScreen"; // Temporarily disabled
-// import { GameScreen } from "../components/screens/Play/components/GameScreen"; // Temporarily disabled
-// import { MarketScreen } from "../components/screens/Market/MarketScreen"; // Temporarily disabled
+import { PlayScreen } from "../components/screens/Play/PlayScreen";
+import { GameScreen } from "../components/screens/Play/components/GameScreen";
+import { MarketScreen } from "../components/screens/Market/MarketScreen";
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
 import type { Screen } from "../components/types/screens";
@@ -39,6 +39,7 @@ function AppContent() {
 
   // Wallet and cache management
   const { account } = useCavosAccount();
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   const resetStore = useAppStore(state => state.resetStore);
 
   // Clear cache on wallet change
@@ -137,11 +138,11 @@ function AppContent() {
   };
 
   // Handle exiting games back to play screen
-  // const handleExitGame = useCallback(() => {
-  //   console.log('🔙 Exiting game, returning to play screen');
-  //   setCurrentGameId(null);
-  //   setCurrentScreenState("play");
-  // }, []); // Commented out during Cavos migration
+  const handleExitGame = useCallback(() => {
+    console.log('🔙 Exiting game, returning to play screen');
+    setCurrentGameId(null);
+    setCurrentScreenState("play");
+  }, []);
 
   // Callback for when Login completes - dynamic navigation based on beast status
   const handleLoginComplete = useCallback((destination: 'hatch' | 'cover') => {
@@ -202,10 +203,10 @@ function AppContent() {
       )}
 
       {currentScreen === "home" && (
-        <div style={{padding: '20px', textAlign: 'center'}}>
-          <h2>Home Screen</h2>
-          <p>Temporarily disabled during Cavos migration</p>
-        </div>
+        <HomeScreen
+          onNavigation={handleNavigation}
+          playerAddress={cavosWallet?.address || ""}
+        />
       )}
 
       {currentScreen === "sleep" && (
@@ -229,33 +230,31 @@ function AppContent() {
       )}
 
       {currentScreen === "play" && (
-        <div style={{padding: '20px', textAlign: 'center'}}>
-          <h2>Play Screen</h2>
-          <p>Temporarily disabled during Cavos migration</p>
-        </div>
+        <PlayScreen
+          onNavigation={handleNavigation}
+          playerAddress={cavosWallet?.address || ""}
+        />
       )}
 
       {/* Game Screen for mini-games */}
       {currentScreen === "game" && currentGameId && (
-        <div style={{padding: '20px', textAlign: 'center'}}>
-          <h2>Game Screen</h2>
-          <p>Temporarily disabled during Cavos migration</p>
-        </div>
+        <GameScreen
+          gameId={currentGameId}
+          onExitGame={handleExitGame}
+        />
       )}
 
       {currentScreen === "market" && (
-        <div style={{padding: '20px', textAlign: 'center'}}>
-          <h2>Market Screen</h2>
-          <p>Temporarily disabled during Cavos migration</p>
-        </div>
+        <MarketScreen
+          onNavigation={handleNavigation}
+        />
       )}
 
       {/* NavBar - Hide on game screen for fullscreen experience */}
       {currentScreen !== "cover" && 
        currentScreen !== "login" && 
        currentScreen !== "hatch" && 
-       currentScreen !== "game" && 
-       currentScreen !== "market" && (
+       currentScreen !== "game" && (
         <NavBar
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}
