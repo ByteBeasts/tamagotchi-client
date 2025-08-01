@@ -154,11 +154,11 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
       console.log('🥚 Executing spawn_beast transaction...', params);
       
       // Use hardcoded game contract address (more reliable than client.contractAddresses)
-      const gameContractAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
       
       // Construct Cavos transaction call
-      // Use empty string as default name (represents null without passing null)
-      const defaultName = "";
+      // Use "0" as default name (represents null/empty in felt252)
+      const defaultName = "0";
       
       const calls = [{
         contractAddress: gameContractAddress,
@@ -166,7 +166,7 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
         calldata: [
           params.specie.toString(),
           params.beast_type.toString(),
-          defaultName // Empty string as felt252 (0x0)
+          defaultName // "0" as felt252
         ]
       }];
       
