@@ -57,8 +57,8 @@ importers:
         specifier: ^10.0.0
         version: 10.0.0
       cavos-service-sdk:
-        specifier: ^1.2.27
-        version: 1.2.27
+        specifier: ^1.2.28
+        version: 1.2.28
       dexie:
         specifier: ^4.0.11
         version: 4.0.11
@@ -2066,8 +2066,8 @@ packages:
     resolution: {integrity: sha512-JSr5eOgoEymtYHBjNWyjrMqet9Am2miJhlfKNdqLp6zoeAh0KN5dRAcxlecj5mAJrmQomgiOBj35xHLrFjqBpw==}
     hasBin: true
 
-  cavos-service-sdk@1.2.27:
-    resolution: {integrity: sha512-t3g2YA51anb/sDDMGMncTeuy/J96PXZmzKh2zKDHgnmSJ63uKSYA2mtPWPoVE8nmOpqKLp4FciUHPMAR3x3vpQ==}
+  cavos-service-sdk@1.2.28:
+    resolution: {integrity: sha512-8F+kk9qfPUx3FJqA17tDR/IIbohLYBlTviY6LmExaadtbyXOupMq4sXPwLxrp+e4u7tB8chu+Bx2dQum6qqlZA==}
 
   cbor-extract@2.2.0:
     resolution: {integrity: sha512-Ig1zM66BjLfTXpNgKpvBePq271BPOvu8MR0Jl080yG7Jsl+wAZunfrwiwA+9ruzm/WEdIV5QF/bjDZTqyAIVHA==}
@@ -6041,7 +6041,7 @@ snapshots:
       ansicolors: 0.3.2
       redeyed: 2.1.1
 
-  cavos-service-sdk@1.2.27:
+  cavos-service-sdk@1.2.28:
     dependencies:
       react: 19.1.1
 

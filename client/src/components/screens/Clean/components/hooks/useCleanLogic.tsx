@@ -118,16 +118,7 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
    * Returns success state for CleanScreen to handle success feedback
    */
   const handleCloudClick = useCallback(async (): Promise<boolean> => {
-    // Validate if cleaning is possible
-    if (!canClean) {
-      toast.error('Cannot clean right now. Check wallet and beast status.', {
-        duration: 3000,
-        position: 'top-center',
-      });
-      return false;
-    }
-    
-    // Only block if blockchain transaction is active
+    // Only block if blockchain transaction is already active
     if (isCleaningInProgress) {
       toast.error('Blockchain transaction in progress, please wait!', {
         duration: 2000,
@@ -139,7 +130,7 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
     try {
       setIsProcessingClean(true);
       
-      // Execute the cleaning sequence
+      // Execute the cleaning sequence - let cleanBeast handle specific validations
       const success = await handleSuccessfulClean();
       
       return success;
@@ -151,7 +142,6 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
       return false;
     }
   }, [
-    canClean,
     isCleaningInProgress,
     handleSuccessfulClean
   ]);

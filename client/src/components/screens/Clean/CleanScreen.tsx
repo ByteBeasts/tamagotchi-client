@@ -51,9 +51,9 @@ export const CleanScreen = ({
   // Integrated clean logic hook
   const {
     isRainActive,
-    canClean,
     handleCloudClick,
-    isInteractionDisabled
+    isInteractionDisabled,
+    isProcessingClean
   } = useCleanLogic(rainDuration);
 
   // Cloud frames for animation
@@ -176,20 +176,19 @@ export const CleanScreen = ({
           beastImage={currentBeastDisplay.asset}
           altText={`${currentBeastDisplay.displayName} ready for cleaning`}
         />
-
-        {/* Status indicator */}
-        {!canClean && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="text-center pointer-events-auto"
+        
+        {/* Loading indicator when processing */}
+        {isProcessingClean && !isRainActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="mt-4"
           >
-            <p className="text-red-300 text-sm font-medium drop-shadow-lg">
-              ⚠️ Cannot clean right now
-            </p>
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-white/30 border-t-white mx-auto"></div>
           </motion.div>
         )}
+
       </div>
     </div>
   );

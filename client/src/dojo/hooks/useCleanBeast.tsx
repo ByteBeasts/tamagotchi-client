@@ -52,28 +52,28 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
     // Validation: Check if Cavos is authenticated
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
       const error = 'Please login with ByteBeasts to clean your beast.';
-      toast.error('Please login with ByteBeasts');
+      toast.error('Please connect to play!');
       return { success: false, error };
     }
 
     // Validation: Check if player exists
     if (!player) {
       const error = 'No player data found';
-      toast.error('Player data not found');
+      toast.error('Unable to find your game data!');
       return { success: false, error };
     }
 
     // Validation: Check if beast is live
     if (!hasLiveBeast()) {
       const error = 'No live beast found';
-      toast.error('You need a live beast to clean');
+      toast.error('You need a beast to clean!');
       return { success: false, error };
     }
 
     // Validation: Check if already cleaning
     if (cleanTransaction.isCleaningInProgress) {
       const error = 'Clean transaction already in progress';
-      toast.error('Please wait for current cleaning to complete');
+      toast.error('Your beast is still being cleaned!');
       return { success: false, error };
     }
 
@@ -132,7 +132,7 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
       });
 
       // Show error toast
-      toast.error(`Failed to clean beast: ${errorMessage}`, {
+      toast.error('Unable to clean your beast. Try again!', {
         duration: 4000,
         position: 'top-center',
         style: {

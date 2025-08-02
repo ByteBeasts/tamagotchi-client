@@ -3,7 +3,7 @@ import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerIniti
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
 import { VennDiagram } from './components/VennDiagram';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import useAppStore from '../../../zustand/store'; 
 
@@ -18,6 +18,7 @@ interface LoginScreenProps {
  */
 export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   const { view, currentCircle } = useLoginAnimations();
+  const [isConnecting, setIsConnecting] = useState(false);
   
   // Integrate Cavos authentication hook
   const { 
@@ -48,10 +49,12 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
 
   // Handle connect button click - trigger Cavos authentication
   const handleConnect = async () => {
+    setIsConnecting(true);
     try {
       await handleLogin();
     } catch (error) {
       console.error('Cavos authentication failed:', error);
+      setIsConnecting(false);
     }
   };
 
@@ -68,7 +71,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
       hasInitialized.current = true;
       
       // Enhanced: Show validation loading toast
-      toast.loading('Validating player and beast status...', {
+      toast.loading('Setting up your game...', {
         id: 'init-validation',
         duration: 0
       });
@@ -77,11 +80,11 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
         console.log('✅ initializeComplete promise resolved');
         // Enhanced: Dismiss loading toast and show success
         toast.dismiss('init-validation');
-        toast.success('Validation completed!', { duration: 2000 });
+        toast.success('Welcome back!', { duration: 2000 });
       }).catch(error => {
         console.error("❌ Initialization failed:", error);
         toast.dismiss('init-validation');
-        toast.error('Validation failed');
+        toast.error('Something went wrong. Please try again!');
         hasInitialized.current = false; // Reset on error
       });
     }
@@ -140,10 +143,11 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   useEffect(() => {
     if (connectionError) {
       console.error('Connection error:', connectionError);
-      toast.error(`Connection failed: ${connectionError}`, {
+      toast.error('Unable to connect. Please try again!', {
         duration: 4000,
         position: 'top-center'
       });
+      setIsConnecting(false);
     }
   }, [connectionError]);
 
@@ -153,7 +157,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   useEffect(() => {
     if (initializationError && initializationError !== "Already initializing") {
       console.error('Initialization error:', initializationError);
-      toast.error(`Initialization failed: ${initializationError}`, {
+      toast.error('Having trouble loading your game. Please refresh!', {
         duration: 4000,
         position: 'top-center'
       });
@@ -165,12 +169,12 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
    */
   useEffect(() => {
     if (playerSpawnTxHash && playerSpawnTxStatus === 'SUCCESS') {
-      toast.success('Player spawned successfully!', {
+      toast.success('Your adventure begins!', {
         duration: 3000,
         position: 'top-center'
       });
     } else if (playerSpawnTxHash && playerSpawnTxStatus === 'REJECTED') {
-      toast.error('Transaction failed', {
+      toast.error('Unable to start your adventure. Please try again!', {
         duration: 4000,
         position: 'top-center'
       });
@@ -183,12 +187,12 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   useEffect(() => {
     if (completed) {
       if (hasLiveBeast) {
-        toast.success('🐾 Beast validated and ready!', {
+        toast.success('🐾 Your beast is waiting for you!', {
           duration: 2000,
           position: 'top-center'
         });
       } else {
-        toast('🥚 No live beast found. Time to hatch!', {
+        toast('🥚 Time to hatch your first beast!', {
           duration: 2000,
           position: 'top-center',
           icon: '🥚'
@@ -209,6 +213,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
           <VennDiagram 
             currentCircle={currentCircle} 
             onConnect={handleConnect}
+            isConnecting={isConnecting}
           />
           
           {/* Enhanced Toast Container with loading support */}

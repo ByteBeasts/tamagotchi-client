@@ -189,7 +189,7 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
           success: true,
           playerExists: false,
           transactionHash,
-          error: "Player spawn succeeded but data sync incomplete. Please refresh the page."
+          error: "Game is taking a bit longer to load. Please refresh the page!"
         };
       }
 

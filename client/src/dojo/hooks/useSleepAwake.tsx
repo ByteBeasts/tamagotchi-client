@@ -70,30 +70,30 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
     // Validation: Check if Cavos is authenticated
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
       const error = 'Please login with ByteBeasts to put your beast to sleep.';
-      toast.error('Please login with ByteBeasts');
+      toast.error('Please connect to play!');
       return { success: false, error };
     }
     
     // Validation: Check if player exists
     if (!player) {
       const error = 'No player data found';
-      toast.error('Player data not found');
+      toast.error('Unable to find your game data!');
       return { success: false, error };
     }
     
     if (!hasLiveBeast) {
       const error = 'No live beast found';
-      toast.error(error);
+      toast.error('You need a beast first!');
       return { success: false, error };
     }
     if (sleepAwakeTransaction.isInProgress) {
       const error = 'Sleep/Awake transaction already in progress';
-      toast.error(error);
+      toast.error('Please wait a moment!');
       return { success: false, error };
     }
     if (currentBeastAwakeStatus === false) {
       const error = 'Beast is already sleeping';
-      toast.error(error);
+      toast.error('Your beast is already sleeping!');
       return { success: false, error };
     }
     
@@ -149,7 +149,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
         transactionHash: null,
         error: errorMessage,
       });
-      toast.error(`Sleep failed: ${errorMessage}`);
+      toast.error('Unable to put your beast to sleep. Try again!');
       return {
         success: false,
         error: errorMessage,
@@ -161,30 +161,30 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
     // Validation: Check if Cavos is authenticated
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
       const error = 'Please login with ByteBeasts to wake up your beast.';
-      toast.error('Please login with ByteBeasts');
+      toast.error('Please connect to play!');
       return { success: false, error };
     }
     
     // Validation: Check if player exists
     if (!player) {
       const error = 'No player data found';
-      toast.error('Player data not found');
+      toast.error('Unable to find your game data!');
       return { success: false, error };
     }
     
     if (!hasLiveBeast) {
       const error = 'No live beast found';
-      toast.error(error);
+      toast.error('You need a beast first!');
       return { success: false, error };
     }
     if (sleepAwakeTransaction.isInProgress) {
       const error = 'Sleep/Awake transaction already in progress';
-      toast.error(error);
+      toast.error('Please wait a moment!');
       return { success: false, error };
     }
     if (currentBeastAwakeStatus === true) {
       const error = 'Beast is already awake';
-      toast.error(error);
+      toast.error('Your beast is already awake!');
       return { success: false, error };
     }
     
@@ -240,7 +240,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
         transactionHash: null,
         error: errorMessage,
       });
-      toast.error(`Wake up failed: ${errorMessage}`);
+      toast.error('Unable to wake your beast. Try again!');
       return {
         success: false,
         error: errorMessage,
