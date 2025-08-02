@@ -3,7 +3,7 @@ import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerIniti
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
 import { VennDiagram } from './components/VennDiagram';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import useAppStore from '../../../zustand/store'; 
 
@@ -18,6 +18,7 @@ interface LoginScreenProps {
  */
 export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   const { view, currentCircle } = useLoginAnimations();
+  const [isConnecting, setIsConnecting] = useState(false);
   
   // Integrate Cavos authentication hook
   const { 
@@ -48,10 +49,12 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
 
   // Handle connect button click - trigger Cavos authentication
   const handleConnect = async () => {
+    setIsConnecting(true);
     try {
       await handleLogin();
     } catch (error) {
       console.error('Cavos authentication failed:', error);
+      setIsConnecting(false);
     }
   };
 
@@ -144,6 +147,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
         duration: 4000,
         position: 'top-center'
       });
+      setIsConnecting(false);
     }
   }, [connectionError]);
 
@@ -209,6 +213,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
           <VennDiagram 
             currentCircle={currentCircle} 
             onConnect={handleConnect}
+            isConnecting={isConnecting}
           />
           
           {/* Enhanced Toast Container with loading support */}
