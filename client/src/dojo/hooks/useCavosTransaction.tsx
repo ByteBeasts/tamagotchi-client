@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { CavosAuth } from 'cavos-service-sdk';
-import { network, appId, orgSecret } from '../../config/cavosConfig';
+import { network, appId } from '../../config/cavosConfig';
 import useAppStore from '../../zustand/store';
 
 interface CavosTransactionCall {
@@ -39,7 +39,7 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
       // Use instance method for refreshToken
       const result = await cavosAuth.refreshToken(
         cavos.refreshToken,
-        orgSecret
+        network
       );
       
       console.log('✅ Access token refreshed successfully');
