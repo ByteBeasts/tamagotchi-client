@@ -148,15 +148,13 @@ export default defineConfig(({ command }) => {
         host: true,
         cors: true,
       }),
-      // Proxy para Cavos API
-      proxy: {
-        '/api/v1/external': {
-          target: 'https://services.cavos.xyz',
-          changeOrigin: true,
-          secure: true,
-          logLevel: 'debug'
-        },
-      },
+      // Allow Cloudflare tunnel hosts
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        '.trycloudflare.com',
+        '.vercel.app'
+      ],
     },
     define: {
       global: 'globalThis',

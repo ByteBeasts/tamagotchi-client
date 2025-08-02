@@ -150,6 +150,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.21(postcss@8.5.3)
+      eruda:
+        specifier: ^3.4.3
+        version: 3.4.3
       eslint:
         specifier: ^9.20.1
         version: 9.27.0(jiti@1.21.7)
@@ -2279,6 +2282,9 @@ packages:
 
   enquire.js@2.1.6:
     resolution: {integrity: sha512-/KujNpO+PT63F7Hlpu4h3pE3TokKRHN26JYmQpPyjkRD/N57R7bPDNojMXdi7uveAKjYB7yQnartCxZnFWr0Xw==}
+
+  eruda@3.4.3:
+    resolution: {integrity: sha512-J2TsF4dXSspOXev5bJ6mljv0dRrxj21wklrDzbvPmYaEmVoC+2psylyRi70nUPFh1mTQfIBsSusUtAMZtUN+/w==}
 
   es-abstract@1.24.0:
     resolution: {integrity: sha512-WSzPgsdLtTcQwm4CROfS5ju2Wa1QQcVeT37jFjYzdFz1r9ahadC8B8/a4qxJxM+09F18iumCdRmlr96ZYkQvEg==}
@@ -6340,6 +6346,8 @@ snapshots:
       iconv-lite: 0.6.3
 
   enquire.js@2.1.6: {}
+
+  eruda@3.4.3: {}
 
   es-abstract@1.24.0:
     dependencies:

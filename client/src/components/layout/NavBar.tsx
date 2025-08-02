@@ -33,11 +33,11 @@ export function NavBar({
   }, [activeTab]);
 
   const navItems: { id: Screen; src: string; label: string }[] = [
-    { id: 'sleep',  src: SleepIcon,  label: 'Sleep'  },
-    { id: 'feed',    src: FeedIcon,    label: 'Feed'    },
-    { id: 'home', src: HomeIcon, label: 'Home' },
-    { id: 'clean', src: CleanIcon, label: 'Clean' },
-    { id: 'play', src: PlayIcon, label: 'Play' },
+    { id: 'sleep',  src: SleepIcon,  label: ''  },
+    { id: 'feed',    src: FeedIcon,    label: ''    },
+    { id: 'home', src: HomeIcon, label: '' },
+    { id: 'clean', src: CleanIcon, label: '' },
+    { id: 'play', src: PlayIcon, label: '' },
   ];
 
   const handleClick = (id: Screen) => {

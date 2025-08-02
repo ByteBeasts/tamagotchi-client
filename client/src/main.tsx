@@ -4,6 +4,7 @@ import { posthogInstance } from "./context/PosthogConfig";
 import { PostHogProvider } from 'posthog-js/react';
 import { MusicProvider } from "./context/MusicContext";
 import { MiniKitProvider } from '@worldcoin/minikit-js/minikit-provider';
+import { MiniKit } from '@worldcoin/minikit-js';
 
 // Dojo 
 import { init } from "@dojoengine/sdk";
@@ -19,6 +20,23 @@ import Main from "../src/app/App";
 import "./global.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+
+// Eruda for debugging (especially useful in World App)
+if (typeof window !== 'undefined') {
+  // Force Eruda in World App or development
+  const isWorldApp = navigator.userAgent.includes('WorldApp') || navigator.userAgent.includes('World App');
+  const isDev = import.meta.env.DEV;
+  
+  if (isWorldApp || isDev) {
+    console.log('🔧 Loading Eruda for debugging...');
+    import('eruda').then((eruda: any) => {
+      eruda.default.init();
+      console.log('✅ Eruda initialized');
+    }).catch((err: any) => {
+      console.log('❌ Failed to load Eruda:', err);
+    });
+  }
+}
 
 // PWA Service Worker
 if ("serviceWorker" in navigator) {
@@ -52,6 +70,12 @@ async function main() {
 
   const rootElement = document.getElementById("root");
   if (!rootElement) throw new Error("Root element not found");
+
+  // Install MiniKit before rendering
+  if (typeof window !== 'undefined') {
+    MiniKit.install();
+    console.log('🌍 MiniKit.install() called');
+  }
 
   createRoot(rootElement).render(
     <StrictMode>
