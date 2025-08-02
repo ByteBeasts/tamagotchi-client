@@ -53,28 +53,28 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
     // Validation: Check if Cavos is authenticated
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
       const error = 'Please login with ByteBeasts to feed your beast.';
-      toast.error('Please login with ByteBeasts');
+      toast.error('Please connect to play!');
       return { success: false, foodId, error };
     }
 
     // Validation: Check if player exists
     if (!player) {
       const error = 'No player data found';
-      toast.error('Player data not found');
+      toast.error('Unable to find your game data!');
       return { success: false, foodId, error };
     }
 
     // Validation: Check if beast is live
     if (!hasLiveBeast()) {
       const error = 'No live beast found';
-      toast.error('You need a live beast to feed');
+      toast.error('You need a beast to feed!');
       return { success: false, foodId, error };
     }
 
     // Validation: Check if already feeding
     if (feedTransaction.isFeeding) {
       const error = 'Feed transaction already in progress';
-      toast.error('Please wait for current feeding to complete');
+      toast.error('Your beast is still eating!');
       return { success: false, foodId, error };
     }
 
@@ -137,7 +137,7 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
       });
 
       // Show error toast
-      toast.error(`Failed to feed beast: ${errorMessage}`, {
+      toast.error('Unable to feed your beast. Try again!', {
         duration: 4000,
         position: 'top-center',
         style: {
