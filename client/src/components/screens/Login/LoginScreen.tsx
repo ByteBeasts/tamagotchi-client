@@ -1,8 +1,9 @@
-import { useCavosAuth } from '../../../dojo/hooks/useCavosAuth';
+import { useWorldcoinCavosAuth } from '../../../dojo/hooks/useWorldcoinCavosAuth';
 import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerInitializationCavos';
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
 import { VennDiagram } from './components/VennDiagram';
+import { BrowserLoginModal } from './components/BrowserLoginModal';
 import { useEffect, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import useAppStore from '../../../zustand/store'; 
@@ -19,14 +20,19 @@ interface LoginScreenProps {
 export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   const { view, currentCircle } = useLoginAnimations();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [showBrowserModal, setShowBrowserModal] = useState(false);
   
-  // Integrate Cavos authentication hook
+  // Integrate Worldcoin + Cavos authentication hook
   const { 
     error: connectionError,
     address,
     handleLogin,
-    isConnected
-  } = useCavosAuth();
+    handleBrowserLogin,
+    isConnected,
+    loading: authLoading,
+    isWorldApp,
+    worldcoinCredentials
+  } = useWorldcoinCavosAuth();
 
   // Integrate real Cavos player initialization
   const { 
@@ -47,14 +53,35 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   // Ref to prevent multiple initializations 
   const hasInitialized = useRef(false);
 
-  // Handle connect button click - trigger Cavos authentication
+  // Handle connect button click - show modal for browser or trigger Worldcoin for World App
   const handleConnect = async () => {
+    if (isWorldApp) {
+      // World App: Use Worldcoin authentication
+      setIsConnecting(true);
+      try {
+        await handleLogin();
+      } catch (error) {
+        console.error('Worldcoin authentication failed:', error);
+        setIsConnecting(false);
+      }
+    } else {
+      // Browser: Show login modal
+      setShowBrowserModal(true);
+    }
+  };
+
+  // Handle browser modal form submission
+  const handleBrowserModalSubmit = async (email: string, password: string) => {
+    // Hide modal immediately and show normal loading spinner
+    setShowBrowserModal(false);
     setIsConnecting(true);
+    
     try {
-      await handleLogin();
+      await handleBrowserLogin(email, password);
     } catch (error) {
-      console.error('Cavos authentication failed:', error);
+      console.error('Browser login failed:', error);
       setIsConnecting(false);
+      // Could show toast error here if needed
     }
   };
 
@@ -213,7 +240,9 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
           <VennDiagram 
             currentCircle={currentCircle} 
             onConnect={handleConnect}
-            isConnecting={isConnecting}
+            isConnecting={isConnecting || authLoading}
+            isWorldApp={isWorldApp}
+            worldcoinCredentials={worldcoinCredentials}
           />
           
           {/* Enhanced Toast Container with loading support */}
@@ -230,6 +259,14 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
                 iconTheme: { primary: '#3B82F6', secondary: '#FFFFFF' }
               }
             }}
+          />
+
+          {/* Browser Login Modal */}
+          <BrowserLoginModal
+            isOpen={showBrowserModal}
+            onClose={() => setShowBrowserModal(false)}
+            onSubmit={handleBrowserModalSubmit}
+            isLoading={false}
           />
         </>
       );

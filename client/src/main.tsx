@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { posthogInstance } from "./context/PosthogConfig";
 import { PostHogProvider } from 'posthog-js/react';
 import { MusicProvider } from "./context/MusicContext";
+import { MiniKitProvider } from '@worldcoin/minikit-js/minikit-provider';
 
 // Dojo 
 import { init } from "@dojoengine/sdk";
@@ -54,6 +55,7 @@ async function main() {
 
   createRoot(rootElement).render(
     <StrictMode>
+      <MiniKitProvider>
         <DojoSdkProvider sdk={sdk} dojoConfig={dojoConfig} clientFn={setupWorld}>
           <MusicProvider>
             {posthogInstance.initialized && posthogInstance.client ? (
@@ -65,6 +67,7 @@ async function main() {
             )}
           </MusicProvider>
         </DojoSdkProvider>
+      </MiniKitProvider>
     </StrictMode>
   );
 }

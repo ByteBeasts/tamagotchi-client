@@ -8,9 +8,11 @@ interface VennDiagramProps {
   currentCircle: CircleType;
   onConnect?: () => void;
   isConnecting?: boolean;
+  isWorldApp?: boolean;
+  worldcoinCredentials?: any;
 }
 
-export const VennDiagram = ({ currentCircle, onConnect, isConnecting }: VennDiagramProps) => {
+export const VennDiagram = ({ currentCircle, onConnect, isConnecting, isWorldApp, worldcoinCredentials }: VennDiagramProps) => {
   // Get connection state for button styling from Cavos store
   const isAuthenticated = useAppStore(state => state.cavos.isAuthenticated);
   const isLoading = useAppStore(state => state.cavos.loading);
@@ -41,11 +43,31 @@ export const VennDiagram = ({ currentCircle, onConnect, isConnecting }: VennDiag
         
         {/* Main title */}
         <h1 
-          className="font-luckiest text-3xl sm:text-4xl text-center text-text-primary mb-8 opacity-0 translate-y-8 animate-fadeInUp"
+          className="font-luckiest text-3xl sm:text-4xl text-center text-text-primary mb-4 opacity-0 translate-y-8 animate-fadeInUp"
           style={{ animationDelay: '0.2s' }}
         >
           Beasts Awaits You!
         </h1>
+        
+        {/* World App indicator */}
+        {isWorldApp && (
+          <p 
+            className="text-center text-text-secondary mb-4 opacity-0 translate-y-8 animate-fadeInUp"
+            style={{ animationDelay: '0.3s' }}
+          >
+            🌍 Running in World App
+          </p>
+        )}
+        
+        {/* Worldcoin credentials indicator */}
+        {worldcoinCredentials && (
+          <p 
+            className="text-center text-text-secondary text-sm mb-4 opacity-0 translate-y-8 animate-fadeInUp"
+            style={{ animationDelay: '0.35s' }}
+          >
+            ✅ Worldcoin authenticated: {worldcoinCredentials.email}
+          </p>
+        )}
         
         {/* Interactive diagram */}
         <div 
