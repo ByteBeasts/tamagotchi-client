@@ -26,7 +26,11 @@ interface UseWorldcoinCavosAuthReturn {
  */
 export function useWorldcoinCavosAuth(): UseWorldcoinCavosAuthReturn {
   const [worldcoinCredentials, setWorldcoinCredentials] = useState<WorldcoinCredentials | undefined>();
-  const [isWorldApp] = useState(() => isRunningInWorldApp());
+  const [isWorldApp] = useState(() => {
+    const worldAppDetected = isRunningInWorldApp();
+    console.log('🚀 useWorldcoinCavosAuth initialized - World App detected:', worldAppDetected);
+    return worldAppDetected;
+  });
   
   const {
     cavos,

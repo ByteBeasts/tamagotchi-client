@@ -14,7 +14,8 @@
     "dev:https": "VITE_LOCAL_HTTPS=true vite",
     "dev:http": "VITE_LOCAL_HTTPS=false vite",
     "preview:https": "VITE_LOCAL_HTTPS=true vite preview",
-    "mkcert": "mkcert -key-file dev-key.pem -cert-file dev.pem localhost 127.0.0.1 ::1"
+    "mkcert": "mkcert -key-file dev-key.pem -cert-file dev.pem localhost 127.0.0.1 ::1",
+    "tunnel": "cloudflared tunnel --url http://localhost:3002"
   },
   "dependencies": {
     "@cartridge/connector": "0.5.9",
@@ -66,6 +67,7 @@
     "@types/slick-carousel": "^1.6.40",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "eruda": "^3.4.3",
     "eslint": "^9.20.1",
     "eslint-plugin-react-hooks": "5.1.0-rc-fb9a90fa48-20240614",
     "eslint-plugin-react-refresh": "^0.4.19",

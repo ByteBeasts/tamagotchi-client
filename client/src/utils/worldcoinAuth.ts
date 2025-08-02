@@ -144,5 +144,27 @@ export async function authenticateWithWorldcoin(): Promise<{
  * @returns boolean indicating if MiniKit is available
  */
 export function isRunningInWorldApp(): boolean {
-  return MiniKit.isInstalled();
+  try {
+    console.log('🌍 === WORLD APP DETECTION ===');
+    console.log('🔍 typeof MiniKit:', typeof MiniKit);
+    console.log('🔍 MiniKit available:', !!MiniKit);
+    console.log('🔍 MiniKit.isInstalled available:', typeof MiniKit?.isInstalled);
+    
+    if (MiniKit && typeof MiniKit.isInstalled === 'function') {
+      try {
+        const isInstalled = MiniKit.isInstalled();
+        console.log('🔍 MiniKit.isInstalled() result:', isInstalled);
+        return isInstalled;
+      } catch (miniKitError) {
+        console.log('🔧 MiniKit.isInstalled() threw error:', miniKitError);
+        return false;
+      }
+    } else {
+      console.log('❌ MiniKit.isInstalled not available');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error in World App detection:', error);
+    return false;
+  }
 }
