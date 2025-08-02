@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useCavosTransaction } from './useCavosTransaction';
 import useAppStore from '../../zustand/store';
 import { useRealTimeStatus } from './useRealTimeStatus';
 
@@ -28,7 +28,7 @@ interface UseUpdateBeastReturn {
  */
 export const useUpdateBeast = (): UseUpdateBeastReturn => {
   const cavosWallet = useAppStore(state => state.cavos.wallet);
-  const { client } = useDojoSDK();
+  const { executeTransaction } = useCavosTransaction();
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast());
   const { fetchLatestStatus } = useRealTimeStatus();
   
@@ -67,11 +67,19 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
         error: null 
       }));
       
-      // Execute the contract transaction
-      const tx = await client.game.updateBeast(cavosWallet);
+      // Execute the contract transaction using Cavos
+      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
       
-      if (tx) {
-        console.log('✅ update_beast transaction submitted:', tx.transaction_hash);
+      const calls = [{
+        contractAddress: gameContractAddress,
+        entrypoint: 'update_beast',
+        calldata: []
+      }];
+      
+      const transactionHash = await executeTransaction(calls);
+      
+      if (transactionHash) {
+        console.log('✅ update_beast transaction submitted:', transactionHash);
         
         setState(prev => ({
           ...prev,
@@ -106,7 +114,7 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
     } finally {
       isUpdatingRef.current = false;
     }
-  }, [cavosWallet, hasLiveBeast, client, fetchLatestStatus]);
+  }, [cavosWallet, hasLiveBeast, executeTransaction, fetchLatestStatus]);
   
   /**
    * Fire-and-forget update for navigation
