@@ -82,7 +82,6 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
     isSpawning,
     completed: spawnCompleted,
     error: spawnError,
-    currentStep,
     txHash,
     txStatus,
     syncSuccess,
@@ -100,26 +99,26 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
       if (result.success) {
         if (result.syncSuccess) {
           toast.success(
-            `🐾 ${beastDisplayInfo.displayName} spawned and ready!`,
-            { duration: 3000, position: 'top-center' }
+            `🎉 Your ${beastDisplayInfo.displayName} is born and ready to play!`,
+            { duration: 3000, position: 'bottom-center' }
           );
         } else if (result.transactionHash) {
           toast.success(
-            `🐾 ${beastDisplayInfo.displayName} spawned! (Syncing...)`,
-            { duration: 4000, position: 'top-center' }
+            `🥚 Your ${beastDisplayInfo.displayName} is hatching... Almost ready!`,
+            { duration: 4000, position: 'bottom-center' }
           );
         }
       } else {
         toast.error(
-          `Spawn failed: ${result.error}`,
-          { duration: 4000, position: 'top-center' }
+          `Oops! Something went wrong creating your beast. Please try again.`,
+          { duration: 4000, position: 'bottom-center' }
         );
       }
     } catch (error) {
       console.error('❌ Beast spawn error:', error);
       toast.error(
-        "Beast spawn failed. Please try again.",
-        { duration: 4000, position: 'top-center' }
+        "Hmm, we couldn't hatch your beast. Give it another tap!",
+        { duration: 4000, position: 'bottom-center' }
       );
     }
   }, [canClick, isSpawning, startEggHatching, spawnBeast, beastParams, beastDisplayInfo]);
@@ -130,19 +129,19 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
     const hasBeast = state.hasLiveBeast();
 
     if (!spawnCompleted && !hasBeast) {
-      toast("Please wait for beast spawn to complete", {
+      toast("Your beast is still being created... Almost there!", {
         duration: 2000,
-        position: 'top-center',
-        icon: '⏳'
+        position: 'bottom-center',
+        icon: '🥚'
       });
       return;
     }
 
     if (!syncSuccess && !hasBeast) {
-      toast("Beast is syncing... Please wait a moment", {
+      toast("Just finishing up... Your beast will be ready in a moment!", {
         duration: 3000,
-        position: 'top-center',
-        icon: '🔄'
+        position: 'bottom-center',
+        icon: '✨'
       });
       return;
     }
@@ -154,14 +153,14 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
   // Transaction status effects
   useEffect(() => {
     if (txHash && txStatus === 'SUCCESS') {
-      toast.success('Transaction confirmed!', {
+      toast.success('Perfect! Your beast is being finalized...', {
         duration: 2000,
-        position: 'top-center'
+        position: 'bottom-center'
       });
     } else if (txHash && txStatus === 'REJECTED') {
-      toast.error('Transaction failed!', {
+      toast.error('Transaction was cancelled. Try hatching again!', {
         duration: 4000,
-        position: 'top-center'
+        position: 'bottom-center'
       });
     }
   }, [txHash, txStatus]);
@@ -170,8 +169,8 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
   useEffect(() => {
     if (spawnError) {
       toast.error(
-        `Beast spawn error: ${spawnError}`,
-        { duration: 4000, position: 'top-center' }
+        `Something went wrong while creating your beast. Let's try again!`,
+        { duration: 4000, position: 'bottom-center' }
       );
     }
   }, [spawnError]);
@@ -192,9 +191,6 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
     // OR if beast is already detected in store (full sync completed)
     return eggRevealed && (spawnCompleted || hasLive);
   }, [eggState, showBeast, spawnCompleted]);
-
-  const showSpawnProgress = isSpawning || (txHash && txStatus === 'PENDING');
-  const showSyncProgress = spawnCompleted && !syncSuccess && currentStep === 'syncing';
 
   return (
     <div
@@ -230,31 +226,6 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
           eggState={eggState}
         />
 
-        {/* Spawn Progress Indicator */}
-        {showSpawnProgress && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gray-200 shadow-lg">
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-              <span className="text-sm font-medium text-gray-700">
-                {isSpawning
-                  ? `Spawning ${beastDisplayInfo.displayName}... (${currentStep})`
-                  : 'Transaction pending...'}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Sync Progress Indicator */}
-        {showSyncProgress && (
-          <div className="bg-blue-50/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-blue-200 shadow-lg">
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-              <span className="text-sm font-medium text-blue-700">
-                Synchronizing beast data...
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Egg Display */}
         {!showBeast && (
@@ -281,17 +252,6 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
         {/* Continue Button */}
         {canContinueCalc && <ContinueButton onContinue={handleContinue} />}
 
-        {/* Wait messages with sync awareness */}
-        {eggState === 'revealing' && showBeast && !spawnCompleted && !canContinueCalc && (
-          <div className="bg-amber-100 border border-amber-400 rounded-lg px-4 py-2">
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
-              <span className="text-sm font-medium text-amber-800">
-                Finalizing {beastDisplayInfo.displayName} creation...
-              </span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Toast Container */}

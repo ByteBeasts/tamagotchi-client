@@ -12,6 +12,7 @@ interface UseWorldcoinCavosAuthReturn {
   address?: string;
   handleRegister: () => Promise<void>;
   handleLogin: () => Promise<void>;
+  handleBrowserLogin: (email: string, password: string) => Promise<void>;
   handleDisconnect: () => void;
   isConnected: boolean;
   testCavosConnection: () => Promise<void>;
@@ -190,44 +191,61 @@ export function useWorldcoinCavosAuth(): UseWorldcoinCavosAuthReturn {
   };
 
   /**
-   * Main login function - combines Worldcoin auth + Cavos login
+   * Main login function - only for World App (Worldcoin auth + Cavos login)
    */
   const handleLogin = async () => {
     setCavosLoading(true);
     setCavosError(null);
     
     try {
-      let credentials: WorldcoinCredentials;
+      if (!isWorldApp) {
+        throw new Error('World App authentication not available in browser');
+      }
+
+      // Use Worldcoin authentication
+      console.log('🌍 Running in World App, starting Worldcoin authentication...');
+      const worldcoinResult = await authenticateWithWorldcoin();
       
-      if (isWorldApp) {
-        // If running in World App, use Worldcoin authentication
-        console.log('🌍 Running in World App, starting Worldcoin authentication...');
-        const worldcoinResult = await authenticateWithWorldcoin();
-        
-        if (!worldcoinResult.success || !worldcoinResult.credentials) {
-          throw new Error(worldcoinResult.error || 'Worldcoin authentication failed');
-        }
-        
-        credentials = worldcoinResult.credentials;
-        setWorldcoinCredentials(credentials);
-        
-      } else {
-        // Fallback for development/browser - use timestamp-based credentials
-        console.log('🖥️ Running in browser, using fallback credentials...');
-        credentials = {
-          email: `testuser${Date.now()}@bytebeasts.com`,
-          password: 'ByteBeasts2024!',
-          walletAddress: '',
-          nullifierHash: ''
-        };
+      if (!worldcoinResult.success || !worldcoinResult.credentials) {
+        throw new Error(worldcoinResult.error || 'Worldcoin authentication failed');
       }
       
+      const credentials = worldcoinResult.credentials;
+      setWorldcoinCredentials(credentials);
       await handleCavosLogin(credentials);
       
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Login failed';
       setCavosError(errorMsg);
-      console.error('❌ Combined login failed:', error);
+      console.error('❌ Worldcoin login failed:', error);
+    } finally {
+      setCavosLoading(false);
+    }
+  };
+
+  /**
+   * Browser login function - uses provided credentials for Cavos
+   */
+  const handleBrowserLogin = async (email: string, password: string) => {
+    setCavosLoading(true);
+    setCavosError(null);
+    
+    try {
+      console.log('🖥️ Browser login with provided credentials...', { email });
+      
+      const credentials: WorldcoinCredentials = {
+        email,
+        password,
+        walletAddress: '',
+        nullifierHash: ''
+      };
+      
+      await handleCavosLogin(credentials);
+      
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Browser login failed';
+      setCavosError(errorMsg);
+      console.error('❌ Browser login failed:', error);
     } finally {
       setCavosLoading(false);
     }
@@ -265,6 +283,7 @@ export function useWorldcoinCavosAuth(): UseWorldcoinCavosAuthReturn {
     address: cavos.wallet?.address || undefined,
     handleRegister,
     handleLogin,
+    handleBrowserLogin,
     handleDisconnect,
     isConnected: cavos.isAuthenticated,
     testCavosConnection,
