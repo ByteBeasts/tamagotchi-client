@@ -1,4 +1,4 @@
-import { useCavosAuth } from '../../../dojo/hooks/useCavosAuth';
+import { useWorldcoinCavosAuth } from '../../../dojo/hooks/useWorldcoinCavosAuth';
 import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerInitializationCavos';
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
@@ -20,13 +20,15 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   const { view, currentCircle } = useLoginAnimations();
   const [isConnecting, setIsConnecting] = useState(false);
   
-  // Integrate Cavos authentication hook
+  // Integrate Worldcoin + Cavos authentication hook
   const { 
     error: connectionError,
     address,
     handleLogin,
-    isConnected
-  } = useCavosAuth();
+    isConnected,
+    isWorldApp,
+    worldcoinCredentials
+  } = useWorldcoinCavosAuth();
 
   // Integrate real Cavos player initialization
   const { 
@@ -214,6 +216,8 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
             currentCircle={currentCircle} 
             onConnect={handleConnect}
             isConnecting={isConnecting}
+            isWorldApp={isWorldApp}
+            worldcoinCredentials={worldcoinCredentials}
           />
           
           {/* Enhanced Toast Container with loading support */}
