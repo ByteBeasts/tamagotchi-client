@@ -80,7 +80,7 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
     try {
       const statusResponse = await fetchStatus({ 
         address: cavosAuth.wallet.address, 
-        chainId: 'sepolia' 
+        chainId: 'mainnet' 
       });
       
       if (statusResponse === null) {

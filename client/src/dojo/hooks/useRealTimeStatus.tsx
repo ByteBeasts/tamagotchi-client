@@ -69,7 +69,7 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
       // Set loading state
       useAppStore.setState({ isStatusLoading: true });
       
-      const newStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'sepolia' });
+      const newStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'mainnet' });
       
       if (newStatus && newStatus.length >= 10) {
         // Validate that status belongs to current beast

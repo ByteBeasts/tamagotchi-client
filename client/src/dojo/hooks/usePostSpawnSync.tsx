@@ -54,8 +54,8 @@ export const usePostSpawnSync = () => {
       while (contractRetries > 0 && !contractBeastId) {
         try {
           // Use direct fetchStatus with Cavos wallet address
-          const contractStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'sepolia' });
-          
+          const contractStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'mainnet' });
+
           // Handle fetchStatus results properly
           if (contractStatus && contractStatus.length >= 10) {
             contractBeastId = contractStatus[1];

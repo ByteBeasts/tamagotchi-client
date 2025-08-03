@@ -30,7 +30,7 @@ export function useCavosAccount() {
   const account = address ? {
     address,
     // Add other properties that hooks might expect
-    chainId: 'SN_SEPOLIA', // or SN_MAIN based on network
+    chainId: 'SN_MAIN', // or SN_MAIN based on network
   } : undefined;
 
   return {

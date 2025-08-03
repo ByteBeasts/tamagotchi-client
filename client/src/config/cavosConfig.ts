@@ -1,5 +1,5 @@
 // Network configuration
-export const network = import.meta.env.VITE_CAVOS_DEFAULT_NETWORK === 'mainnet' ? 'mainnet' : 'sepolia';
+export const network = import.meta.env.VITE_CAVOS_DEFAULT_NETWORK || 'mainnet';
 
 // Organization secret from environment (backend only)
 export const orgSecret = import.meta.env.VITE_CAVOS_ORG_SECRET;

@@ -56,7 +56,7 @@ const fetchStatus = async (account: AccountLike): Promise<number[] | undefined |
     } else {
       // Use RpcProvider for simple account objects
       const provider = new RpcProvider({
-        nodeUrl: import.meta.env.VITE_PUBLIC_NODE_URL || "https://starknet-sepolia.public.blastapi.io/rpc/v0_7",
+        nodeUrl: import.meta.env.VITE_PUBLIC_NODE_URL || "https://api.cartridge.gg/x/starknet/mainnet",
       });
 
       response = await provider.callContract({
