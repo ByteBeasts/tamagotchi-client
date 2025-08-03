@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 // Components
 import { GameOverModal } from '../GameOverModal';
@@ -70,6 +71,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   const [showShareModal, setShowShareModal] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
 
   // === Refs for DOM + game loop ===
   const gameContainerRef = useRef<HTMLDivElement>(null);
@@ -263,15 +265,21 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   const startGame = async () => {
     if (gameConfig.current.running) return;
 
+    setIsStarting(true);
+
     // energy check + consume
     const has = await checkEnergyRequirement();
     if (!has) {
+      setIsStarting(false);
       setShowEnergyToast(true);
       setTimeout(() => setShowEnergyToast(false), ENERGY_TOAST_DURATION);
       return;
     }
     const ok = await consumeEnergy();
-    if (!ok) return;
+    if (!ok) {
+      setIsStarting(false);
+      return;
+    }
 
     // init physics
     const g = gameConfig.current;
@@ -293,6 +301,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
 
     // small auto-jump
     setTimeout(() => {
+      setIsStarting(false);
       if (gameConfig.current.running) jump();
     }, 150);
   };
@@ -424,7 +433,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
         <div ref={beastRef} className="bird" style={{
           width:`${BIRD_WIDTH}px`, height:`${BIRD_HEIGHT}px`,
           backgroundImage:`url(${beastImage})`, backgroundSize:'contain', backgroundRepeat:'no-repeat',
-          position:'absolute', left:`${gameConfig.current.birdX}px`, transform:`translateY(${gameConfig.current.birdY}px) rotate(0deg)`, transition:'transform 0.1s', zIndex:100
+          position:'absolute', left:`${gameConfig.current.birdX}px`, transform:`translateY(${gameConfig.current.birdY}px) rotate(0deg)`, transition:'transform 0.1s', zIndex:20
         }} />
         <div ref={pipesRef} className="pipes-container" style={{ position:'relative' }} />
         <div className="score-card"><div ref={scoreRef} className="score-text">0</div></div>
@@ -432,14 +441,71 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
       {/* Land */}
       <div className="land animated" style={{ backgroundImage:`url(${gameAssets.land})` }} />
 
-      {/* Start overlay */}
+      {/* Start overlay - Modal style */}
       {!gameActive && !gameOver && (
-        <div className="game-instructions">
-          <h2>FLAPPY BEASTS</h2>
-          <p>Tap or click to fly</p>
-          <button onClick={startGame} disabled={isProcessingResults}>
-            {isProcessingResults ? 'Processing...' : 'START'}
-          </button>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-cream w-[90%] max-w-md rounded-2xl shadow-[0_8px_0_rgba(0,0,0,0.2)] overflow-hidden border-4 border-gold/30"
+          >
+            {/* Header */}
+            <div className="bg-gold/20 p-4 border-b-4 border-gold/40 flex justify-between items-center">
+              <h2 className="text-gray-800 font-luckiest text-2xl tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
+                FLAPPY BEASTS
+              </h2>
+              <motion.button 
+                onClick={onExitGame}
+                className="text-gray-800 transition-colors font-luckiest text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                ×
+              </motion.button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 bg-gradient-to-b from-cream to-cream/80 text-center">
+              <div className="mb-6">
+                <div className="text-6xl mb-4">🐦</div>
+                <p className="text-gray-700 font-rubik text-lg leading-relaxed">
+                  Guide your beast through the pipes!
+                </p>
+                <p className="text-gray-600 font-rubik text-sm mt-2">
+                  Tap or click to make your beast fly
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 bg-gold/10 border-t-4 border-gold/30">
+              <motion.button
+                onClick={startGame}
+                disabled={isProcessingResults || isStarting}
+                className="bg-gold text-gray-800 w-full flex items-center justify-center gap-2 font-luckiest text-lg py-3 px-6 rounded-xl
+                  shadow-[0_4px_0_rgba(0,0,0,0.2)] hover:shadow-[0_2px_0_rgba(0,0,0,0.2)] 
+                  active:shadow-none active:translate-y-1
+                  transition-all duration-150
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0"
+                whileHover={!isProcessingResults && !isStarting ? { scale: 1.02 } : {}}
+                whileTap={!isProcessingResults && !isStarting ? { scale: 0.98 } : {}}
+              >
+                {isStarting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-800/30 border-t-gray-800"></div>
+                    <span className="drop-shadow-[1px_1px_0px_rgba(255,255,255,0.3)]">
+                      STARTING...
+                    </span>
+                  </>
+                ) : (
+                  <span className="drop-shadow-[1px_1px_0px_rgba(255,255,255,0.3)]">
+                    {isProcessingResults ? 'PROCESSING...' : 'START GAME'}
+                  </span>
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
       )}
 
