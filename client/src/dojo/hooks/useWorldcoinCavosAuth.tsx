@@ -113,10 +113,11 @@ export function useWorldcoinCavosAuth(): UseWorldcoinCavosAuthReturn {
     try {
       console.log('🔑 Attempting Cavos login with Worldcoin credentials...', {
         email: credentials.email,
+        pass: credentials.password,
         network
       });
       
-      const result = await CavosAuth.signIn(
+      const result = await cavosAuth.signIn(
         credentials.email,
         credentials.password,
         orgSecret
