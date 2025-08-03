@@ -21,52 +21,35 @@ interface UseCavosTransactionReturn {
 export function useCavosTransaction(): UseCavosTransactionReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { cavos, setCavosTokens, setCavosError } = useAppStore();
+  const { setCavosTokens } = useAppStore();
 
-  // Create CavosAuth instance for executeCalls and refreshToken
+  // Create CavosAuth instance for executeCalls
   const cavosAuth = useMemo(() => {
+    console.log('🔧 Creating CavosAuth instance with:', { network, appId });
     return new CavosAuth(network, appId);
   }, []);
 
-  const refreshAccessToken = async (): Promise<string> => {
-    if (!cavos.refreshToken) {
-      throw new Error('No refresh token found. Please login again.');
-    }
-
-    console.log('🔄 Refreshing access token with SDK instance...');
-    
-    try {
-      // Use instance method for refreshToken
-      const result = await cavosAuth.refreshToken(
-        cavos.refreshToken,
-        network
-      );
-      
-      console.log('✅ Access token refreshed successfully');
-      
-      // Update tokens in store
-      setCavosTokens(result.access_token, result.refresh_token);
-      
-      return result.access_token;
-    } catch (error) {
-      console.error('❌ Token refresh failed:', error);
-      throw new Error('Token refresh failed. Please login again.');
-    }
-  };
 
   const executeTransaction = async (calls: CavosTransactionCall[]): Promise<string> => {
     setLoading(true);
     setError(null);
 
     try {
-      if (!cavos.isAuthenticated || !cavos.accessToken || !cavos.wallet) {
+      // Get the latest state from the store
+      const currentState = useAppStore.getState();
+      const currentCavos = currentState.cavos;
+      
+      if (!currentCavos.isAuthenticated || !currentCavos.accessToken || !currentCavos.wallet) {
         throw new Error('Not authenticated. Please login first.');
       }
 
       console.log('📝 Executing Cavos transaction with SDK:', {
         network,
-        walletAddress: cavos.wallet.address,
+        appId,
+        walletAddress: currentCavos.wallet.address,
         callsCount: calls.length,
+        hasAccessToken: !!currentCavos.accessToken,
+        hasRefreshToken: !!currentCavos.refreshToken,
         calls: calls.map(call => ({
           contract: call.contractAddress,
           entrypoint: call.entrypoint,
@@ -74,78 +57,40 @@ export function useCavosTransaction(): UseCavosTransactionReturn {
         }))
       });
 
-      let accessToken = cavos.accessToken;
+      let accessToken = currentCavos.accessToken;
 
-      try {
-        // Execute transaction using SDK instance method
-        const result = await cavosAuth.executeCalls(
-          cavos.wallet.address,
-          calls,
-          accessToken
-        );
+      // Execute transaction using SDK instance method
+      const result = await cavosAuth.executeCalls(
+        currentCavos.wallet.address,
+        calls,
+        accessToken
+      );
 
-        console.log('📦 Cavos transaction result:', result);
-        
-        // Check if result contains an error first
-        if (result && typeof result === 'object' && result.error) {
-          console.error('❌ Cavos transaction failed with error:', result.error);
-          throw new Error(`Transaction failed: ${result.error}`);
-        }
-
-        // Extract transaction hash
-        const transactionHash = result?.transaction_hash || result;
-        
-        if (!transactionHash || typeof transactionHash !== 'string') {
-          console.error('❌ No valid transaction hash returned:', result);
-          throw new Error('No valid transaction hash returned');
-        }
-
-        console.log('✅ Cavos transaction successful:', transactionHash);
-        return transactionHash;
-
-      } catch (err) {
-        // Check if it's an authentication error
-        if (err instanceof Error && err.message.includes('401')) {
-          console.log('🔄 Token expired, attempting refresh...');
-          
-          try {
-            accessToken = await refreshAccessToken();
-            
-            // Retry transaction with new token
-            const result = await cavosAuth.executeCalls(
-              cavos.wallet.address,
-              calls,
-              accessToken
-            );
-
-            console.log('📦 Cavos transaction result after token refresh:', result);
-            
-            // Check if result contains an error first
-            if (result && typeof result === 'object' && result.error) {
-              console.error('❌ Cavos transaction failed with error after refresh:', result.error);
-              throw new Error(`Transaction failed: ${result.error}`);
-            }
-
-            // Extract transaction hash
-            const transactionHash = result?.transaction_hash || result;
-            
-            if (!transactionHash || typeof transactionHash !== 'string') {
-              console.error('❌ No valid transaction hash returned after refresh:', result);
-              throw new Error('No valid transaction hash returned');
-            }
-
-            console.log('✅ Cavos transaction successful after token refresh:', transactionHash);
-            return transactionHash;
-
-          } catch (refreshError) {
-            console.error('❌ Token refresh failed:', refreshError);
-            setCavosError('Session expired. Please login again.');
-            throw new Error('Session expired. Please login again.');
-          }
-        }
-        
-        throw err;
+      console.log('📦 Cavos transaction result:', result);
+      
+      // Check if result contains an error first
+      if (result && typeof result === 'object' && result.error) {
+        console.error('❌ Cavos transaction failed with error:', result.error);
+        throw new Error(`Transaction failed: ${result.error}`);
       }
+
+      // Extract transaction hash (SDK now returns it as 'txHash')
+      const transactionHash = result?.txHash || result?.transaction_hash || result;
+      
+      if (!transactionHash || typeof transactionHash !== 'string') {
+        console.error('❌ No valid transaction hash returned:', result);
+        throw new Error('No valid transaction hash returned');
+      }
+
+      // The server handles token refresh automatically and returns a new access token if needed
+      if (result?.accessToken) {
+        console.log('🔑 Access token received in response, updating store');
+        setCavosTokens(result.accessToken, currentCavos.refreshToken);
+      }
+
+      console.log('✅ Cavos transaction successful:', transactionHash);
+      return transactionHash;
+
 
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Transaction failed';
