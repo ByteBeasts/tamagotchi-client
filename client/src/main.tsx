@@ -5,6 +5,7 @@ import { PostHogProvider } from 'posthog-js/react';
 import { MusicProvider } from "./context/MusicContext";
 import { MiniKitProvider } from '@worldcoin/minikit-js/minikit-provider';
 import { MiniKit } from '@worldcoin/minikit-js';
+import { checkCacheVersion, listenForUpdates } from './utils/cacheManager';
 
 // Dojo 
 import { init } from "@dojoengine/sdk";
@@ -38,13 +39,36 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// PWA Service Worker
+// PWA Service Worker with update handling
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js", { type: "module" })
       .then((registration) => {
         console.log("ServiceWorker registration successful:", registration);
+        
+        // Check for updates every 5 minutes in WorldApp
+        if (navigator.userAgent.includes('WorldApp') || navigator.userAgent.includes('World App')) {
+          setInterval(() => {
+            registration.update();
+          }, 5 * 60 * 1000);
+        }
+        
+        // Handle updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                console.log('🔄 New service worker activated, reload needed');
+                // In WorldApp, auto-reload
+                if (navigator.userAgent.includes('WorldApp') || navigator.userAgent.includes('World App')) {
+                  window.location.reload();
+                }
+              }
+            });
+          }
+        });
       })
       .catch((error) => {
         console.log("ServiceWorker registration failed:", error);
@@ -54,6 +78,11 @@ if ("serviceWorker" in navigator) {
 
 // Init Dojo
 async function main() {
+  // Check cache version and clear if needed (especially important for WorldApp)
+  await checkCacheVersion();
+  
+  // Listen for service worker updates
+  listenForUpdates();
   const sdk = await init<SchemaType>({
     client: {
       toriiUrl: dojoConfig.toriiUrl,

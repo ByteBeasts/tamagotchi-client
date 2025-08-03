@@ -6,6 +6,12 @@ import wasm from "vite-plugin-wasm";
 import { VitePWA } from "vite-plugin-pwa";
 import fs from "fs";
 import path from "path";
+import { readFileSync } from 'fs';
+
+// Read version from package.json for cache busting
+const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
+const appVersion = packageJson.version || '0.0.0';
+const buildTimestamp = Date.now();
 
 export default defineConfig(({ command }) => {
   const isDev = command === 'serve';
@@ -43,9 +49,17 @@ export default defineConfig(({ command }) => {
         devOptions: {
           enabled: isDev
         },
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
         workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
+          cleanupOutdatedCaches: true,
+          // Add version to force cache update
+          cacheId: `bytebeasts-v${appVersion}-${buildTimestamp}`,
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
-          globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,ttf,eot,jpeg,jpg}"],
+          globPatterns: ["**/*.{js,css,ico,png,svg,woff,woff2,ttf,eot,jpeg,jpg}"],
+          // Exclude HTML from precaching to always get fresh version
+          navigateFallback: null,
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -75,10 +89,19 @@ export default defineConfig(({ command }) => {
             },
             {
               urlPattern: /\.(?:js|css)$/,
-              handler: "StaleWhileRevalidate",
+              handler: "NetworkFirst",
               options: {
                 cacheName: "static-resources",
-                expiration: { maxEntries: 60, maxAgeSeconds: 24 * 60 * 60 },
+                networkTimeoutSeconds: 3,
+                expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 }, // 1 hour only
+              },
+            },
+            {
+              urlPattern: /^\/(index\.html)?$/,
+              handler: "NetworkFirst",
+              options: {
+                cacheName: "html-cache",
+                networkTimeoutSeconds: 3,
               },
             },
             {
@@ -158,6 +181,8 @@ export default defineConfig(({ command }) => {
     },
     define: {
       global: 'globalThis',
+      'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
+      'import.meta.env.VITE_BUILD_TIME': JSON.stringify(buildTimestamp),
     },
     optimizeDeps: {
       include: ['buffer'],
