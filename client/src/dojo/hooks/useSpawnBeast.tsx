@@ -5,7 +5,8 @@ import { useCavosTransaction } from './useCavosTransaction';
 // Hooks imports
 import { useLiveBeast } from './useLiveBeast';
 import { usePlayer } from './usePlayer';
-import { usePostSpawnSync } from './usePostSpawnSync'; 
+import { usePostSpawnSync } from './usePostSpawnSync';
+import { getContractAddresses } from '../../config/cavosConfig'; 
 
 // Helpers imports
 import { 
@@ -153,15 +154,15 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
 
       console.log('🥚 Executing spawn_beast transaction...', params);
       
-      // Use hardcoded game contract address (more reliable than client.contractAddresses)
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      // Use dynamic game contract address from config
+      const contractAddresses = getContractAddresses();
       
       // Construct Cavos transaction call
       // Use "0" as default name (represents null/empty in felt252)
       const defaultName = "0";
       
       const calls = [{
-        contractAddress: gameContractAddress,
+        contractAddress: contractAddresses.game,
         entrypoint: 'spawn_beast',
         calldata: [
           params.specie.toString(),

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useCavosTransaction } from './useCavosTransaction';
 import { toast } from 'react-hot-toast';
 import useAppStore from '../../zustand/store';
+import { getContractAddresses } from '../../config/cavosConfig';
 
 // Types
 interface SleepAwakeTransactionState {
@@ -107,11 +108,11 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       console.log('🌙 Executing sleep transaction...');
       
-      // Execute transaction using Cavos with hardcoded contract address
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      // Execute transaction using Cavos with dynamic contract address
+      const contractAddresses = getContractAddresses();
       
       const calls = [{
-        contractAddress: gameContractAddress,
+        contractAddress: contractAddresses.game,
         entrypoint: 'sleep',
         calldata: []
       }];
@@ -198,11 +199,11 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       console.log('🔥 Executing awake transaction...');
       
-      // Execute transaction using Cavos with hardcoded contract address
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      // Execute transaction using Cavos with dynamic contract address
+      const contractAddresses = getContractAddresses();
       
       const calls = [{
-        contractAddress: gameContractAddress,
+        contractAddress: contractAddresses.game,
         entrypoint: 'awake',
         calldata: []
       }];

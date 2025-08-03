@@ -8,6 +8,7 @@ import { GAME_IDS } from '../../../../../types/game.types';
 // Services
 import CoinGemRewardService from '../../../../../utils/coinGemRewardService';
 import fetchStatus from '../../../../../../utils/fetchStatus';
+import { network, getContractAddresses } from '../../../../../../config/cavosConfig';
 
 // Cavos transaction hook
 import { useCavosTransaction } from '../../../../../../dojo/hooks/useCavosTransaction';
@@ -80,7 +81,7 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
     try {
       const statusResponse = await fetchStatus({ 
         address: cavosAuth.wallet.address, 
-        chainId: 'sepolia' 
+        chainId: network 
       });
       
       if (statusResponse === null) {
@@ -125,11 +126,11 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
         return false;
       }
 
-      // Execute transaction using Cavos with hardcoded contract address
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      // Execute transaction using Cavos with dynamic contract address
+      const contractAddresses = getContractAddresses();
       
       const calls = [{
-        contractAddress: gameContractAddress,
+        contractAddress: contractAddresses.game,
         entrypoint: 'play',
         calldata: []
       }];
@@ -167,30 +168,30 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       const rewards = calculateRewards(score);
       
       // Execute multiple transactions using Cavos with correct contract addresses
-      const playerSystemAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      const contractAddresses = getContractAddresses();
       
       const calls = [
         // Update total points (player system)
         {
-          contractAddress: playerSystemAddress,
+          contractAddress: contractAddresses.player,
           entrypoint: 'update_player_total_points',
           calldata: [score.toString()]
         },
         // Update total coins (player system)
         {
-          contractAddress: playerSystemAddress,
+          contractAddress: contractAddresses.player,
           entrypoint: 'update_player_total_coins',
           calldata: [rewards.coins.toString()]
         },
         // Update total gems (player system)
         {
-          contractAddress: playerSystemAddress,
+          contractAddress: contractAddresses.player,
           entrypoint: 'update_player_total_gems',
           calldata: [rewards.gems.toString()]
         },
         // Update high score (player system)
         {
-          contractAddress: playerSystemAddress,
+          contractAddress: contractAddresses.player,
           entrypoint: 'update_player_minigame_highest_score',
           calldata: [score.toString(), GAME_IDS.FLAPPY_BEASTS.toString()]
         }

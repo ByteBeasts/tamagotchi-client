@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { useCavosTransaction } from './useCavosTransaction';
 import useAppStore from '../../zustand/store';
 import { useRealTimeStatus } from './useRealTimeStatus';
+import { getContractAddresses } from '../../config/cavosConfig';
 
 interface UpdateBeastState {
   isUpdating: boolean;
@@ -68,10 +69,10 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
       }));
       
       // Execute the contract transaction using Cavos
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      const contractAddresses = getContractAddresses();
       
       const calls = [{
-        contractAddress: gameContractAddress,
+        contractAddress: contractAddresses.game,
         entrypoint: 'update_beast',
         calldata: []
       }];

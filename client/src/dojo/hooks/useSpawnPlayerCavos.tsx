@@ -4,6 +4,7 @@ import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useCavosTransaction } from './useCavosTransaction';
 import { usePlayer } from './usePlayer';
 import useAppStore from '../../zustand/store';
+import { getContractAddresses } from '../../config/cavosConfig';
 
 interface InitializationResult {
   success: boolean;
@@ -140,11 +141,11 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       
       console.log('🥚 Player does not exist - spawning new player...');
       
-      // For Cavos, construct the call manually using contract address from manifest
-      const playerContractAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      // For Cavos, construct the call manually using contract address from config
+      const contractAddresses = getContractAddresses();
       
       const calls = [{
-        contractAddress: playerContractAddress,
+        contractAddress: contractAddresses.player,
         entrypoint: 'spawn_player',
         calldata: [] // spawn_player doesn't need parameters
       }];

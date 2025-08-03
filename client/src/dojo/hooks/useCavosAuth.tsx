@@ -110,7 +110,7 @@ export function useCavosAuth(): UseCavosAuthReturn {
     console.log('🔑 Attempting login with Cavos SDK...', { email, network });
     
     try {
-      const result = await CavosAuth.signIn(
+      const result = await cavosAuth.signIn(
         email,
         password,
         orgSecret
