@@ -49,7 +49,7 @@ const fetchStatus = async (account: AccountLike): Promise<number[] | undefined |
     if (isFullAccount(account)) {
       // Use the full account's callContract method
       response = await account.callContract({
-        contractAddress: "0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e",
+        contractAddress: "0x217331080ea988e121cbe284bfe9b2504d9e78c363234abd57c260f7b3621a8",
         entrypoint: "get_timestamp_based_status_with_address", 
         calldata: [String(account.address)],
       });
@@ -60,7 +60,7 @@ const fetchStatus = async (account: AccountLike): Promise<number[] | undefined |
       });
 
       response = await provider.callContract({
-        contractAddress: "0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e",
+        contractAddress: "0x217331080ea988e121cbe284bfe9b2504d9e78c363234abd57c260f7b3621a8",
         entrypoint: "get_timestamp_based_status_with_address",
         calldata: CallData.compile([account.address])
       });

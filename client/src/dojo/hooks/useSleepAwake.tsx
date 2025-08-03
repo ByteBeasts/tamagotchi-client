@@ -108,7 +108,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       console.log('🌙 Executing sleep transaction...');
       
       // Execute transaction using Cavos with hardcoded contract address
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      const gameContractAddress = '0x217331080ea988e121cbe284bfe9b2504d9e78c363234abd57c260f7b3621a8';
       
       const calls = [{
         contractAddress: gameContractAddress,

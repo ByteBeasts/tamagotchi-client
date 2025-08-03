@@ -126,7 +126,7 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       }
 
       // Execute transaction using Cavos with hardcoded contract address
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      const gameContractAddress = '0x217331080ea988e121cbe284bfe9b2504d9e78c363234abd57c260f7b3621a8';
       
       const calls = [{
         contractAddress: gameContractAddress,
@@ -167,7 +167,7 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       const rewards = calculateRewards(score);
       
       // Execute multiple transactions using Cavos with correct contract addresses
-      const playerSystemAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      const playerSystemAddress = '0x2277356f235adb1550f3e18d5f93b0903cec390335967c3ddba7b446638fbac';
       
       const calls = [
         // Update total points (player system)

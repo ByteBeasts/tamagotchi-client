@@ -141,7 +141,7 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       console.log('🥚 Player does not exist - spawning new player...');
       
       // For Cavos, construct the call manually using contract address from manifest
-      const playerContractAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      const playerContractAddress = '0x2277356f235adb1550f3e18d5f93b0903cec390335967c3ddba7b446638fbac';
       
       const calls = [{
         contractAddress: playerContractAddress,
