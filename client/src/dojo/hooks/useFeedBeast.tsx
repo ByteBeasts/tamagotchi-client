@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 
 // Store imports
 import useAppStore from '../../zustand/store';
+import { getContractAddresses } from '../../config/cavosConfig';
 
 // Types imports
 import { FeedTransactionState } from '../../components/types/feed.types';
@@ -87,11 +88,11 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
         error: null,
       });
 
-      // Execute transaction using Cavos with hardcoded contract address
-      const gameContractAddress = '0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e';
+      // Execute transaction using Cavos with dynamic contract address
+      const contractAddresses = getContractAddresses();
       
       const calls = [{
-        contractAddress: gameContractAddress,
+        contractAddress: contractAddresses.game,
         entrypoint: 'feed',
         calldata: [foodId.toString()]
       }];

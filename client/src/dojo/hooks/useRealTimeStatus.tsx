@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import useAppStore from '../../zustand/store';
 import fetchStatus from '../../utils/fetchStatus';
+import { network } from '../../config/cavosConfig';
 
 interface UseRealTimeStatusReturn {
   // State from store
@@ -69,7 +70,7 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
       // Set loading state
       useAppStore.setState({ isStatusLoading: true });
       
-      const newStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'sepolia' });
+      const newStatus = await fetchStatus({ address: cavosWallet.address, chainId: network });
       
       if (newStatus && newStatus.length >= 10) {
         // Validate that status belongs to current beast

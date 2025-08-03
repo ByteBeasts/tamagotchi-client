@@ -1,3 +1,5 @@
+import { network } from '../../config/cavosConfig';
+
 /**
  * Cavos account hook to replace useAccount from Starknet React
  * Returns the wallet address from Cavos stored authentication
@@ -30,7 +32,7 @@ export function useCavosAccount() {
   const account = address ? {
     address,
     // Add other properties that hooks might expect
-    chainId: 'SN_SEPOLIA', // or SN_MAIN based on network
+    chainId: network === 'mainnet' ? 'SN_MAIN' : 'SN_SEPOLIA',
   } : undefined;
 
   return {

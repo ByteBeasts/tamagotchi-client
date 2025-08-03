@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 // Cavos transaction hook
 import { useCavosTransaction } from '../../../../dojo/hooks/useCavosTransaction';
 import { usePlayer } from '../../../../dojo/hooks/usePlayer';
+import { getContractAddresses } from '../../../../config/cavosConfig';
 
 // Types
 import { MarketFoodItem } from '../../../../constants/foodMarket.constants';
@@ -85,10 +86,10 @@ export const useMarketPurchase = ({
       }
       
       // Execute blockchain transaction using Cavos
-      const playerSystemAddress = '0x5e79b9650cb00d19d21601c9c712654cb13daa3007fd78cce0e90051e46ec8a';
+      const contractAddresses = getContractAddresses();
       
       const calls = [{
-        contractAddress: playerSystemAddress,
+        contractAddress: contractAddresses.player,
         entrypoint: 'add_or_update_food_amount',
         calldata: [
           food.id.toString(),      // food ID

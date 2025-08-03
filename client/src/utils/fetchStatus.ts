@@ -1,4 +1,5 @@
 import { AccountInterface, CallData, RpcProvider } from 'starknet';
+import { getContractAddresses } from '../config/cavosConfig';
 
 // Type for simple account objects from Cavos
 interface SimpleAccount {
@@ -45,22 +46,23 @@ const fetchStatus = async (account: AccountLike): Promise<number[] | undefined |
   
   try {
     let response: string[];
+    const contractAddresses = getContractAddresses();
 
     if (isFullAccount(account)) {
       // Use the full account's callContract method
       response = await account.callContract({
-        contractAddress: "0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e",
+        contractAddress: contractAddresses.game,
         entrypoint: "get_timestamp_based_status_with_address", 
         calldata: [String(account.address)],
       });
     } else {
       // Use RpcProvider for simple account objects
       const provider = new RpcProvider({
-        nodeUrl: import.meta.env.VITE_PUBLIC_NODE_URL || "https://starknet-sepolia.public.blastapi.io/rpc/v0_7",
+        nodeUrl: import.meta.env.VITE_PUBLIC_NODE_URL || "https://api.cartridge.gg/x/starknet/mainnet",
       });
 
       response = await provider.callContract({
-        contractAddress: "0x8efc9411c660ef584995d8f582a13cac41aeddb6b9245b4715aa1e9e6a201e",
+        contractAddress: contractAddresses.game,
         entrypoint: "get_timestamp_based_status_with_address",
         calldata: CallData.compile([account.address])
       });

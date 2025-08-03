@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useLiveBeast } from './useLiveBeast';
 import useAppStore from '../../zustand/store';
 import fetchStatus from '../../utils/fetchStatus';
+import { network } from '../../config/cavosConfig';
 
 interface PostSpawnSyncResult {
   success: boolean;
@@ -54,7 +55,7 @@ export const usePostSpawnSync = () => {
       while (contractRetries > 0 && !contractBeastId) {
         try {
           // Use direct fetchStatus with Cavos wallet address
-          const contractStatus = await fetchStatus({ address: cavosWallet.address, chainId: 'sepolia' });
+          const contractStatus = await fetchStatus({ address: cavosWallet.address, chainId: network });
           
           // Handle fetchStatus results properly
           if (contractStatus && contractStatus.length >= 10) {
