@@ -60,6 +60,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         );
         setIsDataReady(false);
       }
+      
     } else if (type === 'minigame' && minigameData) {
       // 🎮 MINIGAME Logic - shorter but engaging
       const getGameResultText = (score: number) => {
@@ -72,7 +73,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
       setTweetMsg(
         `🎮 I just played ${minigameData.name} mini-game in ByteBeasts Tamagotchi\n\n` +
-        `My score: ${minigameData.score} 🏆\n\n` +
+        `${getGameResultText(minigameData.score)} Score: ${minigameData.score} 🏆\n\n` +
         `Think you can beat it? Bring it on! 🔥\n` +
         `👉 https://www.bytebeasts.io\n` +
         `@0xByteBeasts`
