@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Import assets
 import bannerImg from "../../../../assets/banners/banner-dragon.png";
@@ -7,6 +7,9 @@ import medalIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
 import beastIcon from "../../../../assets/icons/profile/beast.png";
 import editIcon from "../../../../assets/icons/profile/edit.png";
 import dailyStreakIcon from "../../../../assets/icons/dailyStreak/icon-daily-streak.webp";
+
+// Import hook for beast display
+import { useBeastDisplay } from "../../../../dojo/hooks/useBeastDisplay";
 
 interface PlayerInfoModalProps {
   isOpen: boolean;
@@ -25,11 +28,26 @@ export const PlayerInfoModal = ({
   playerData = { username: '', points: 0, currentStreak: 0 },
 }: PlayerInfoModalProps) => {
   const [selectedEvolution, setSelectedEvolution] = useState<number | null>(null);
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  
+  // Get current beast display info
+  const { currentBeastDisplay } = useBeastDisplay();
+  
+  // Auto-close edit popup after 5 seconds
+  useEffect(() => {
+    if (showEditPopup) {
+      const timer = setTimeout(() => {
+        setShowEditPopup(false);
+      }, 5000); // 5 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showEditPopup]);
 
   const evolutions = [
-    { id: 1, name: "Baby Dragon", type: "Fire", status: "Locked", level: "Level 1" },
-    { id: 2, name: "Young Dragon", type: "Fire", status: "Locked", level: "Level 2" },
-    { id: 3, name: "Old Dragon", type: "Fire", status: "Locked", level: "Level 3" },
+    { id: 1, name: "Baby Beast", type: "Fire", status: "Locked", level: "Level 1" },
+    { id: 2, name: "Young Beast", type: "Fire", status: "Locked", level: "Level 2" },
+    { id: 3, name: "Old Beast", type: "Fire", status: "Locked", level: "Level 3" },
   ];
 
   if (!isOpen) return null;
@@ -74,17 +92,41 @@ export const PlayerInfoModal = ({
               alt="Profile Banner"
               className="h-24 w-full object-cover drop-shadow-lg flex-1"
             />
-            <motion.div
-              className="bg-gradient-to-b from-cream to-cream/90 p-3 rounded-md border-2 border-stone-400/70 shadow-[0_4px_0_rgba(0,0,0,0.15)] cursor-pointer flex-shrink-0"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <img
-                src={editIcon}
-                alt="Edit Banner"
-                className="w-6 h-6"
-              />
-            </motion.div>
+            <div className="relative">
+              <motion.div
+                className="bg-gradient-to-b from-cream to-cream/90 p-3 rounded-md border-2 border-stone-400/70 shadow-[0_4px_0_rgba(0,0,0,0.15)] cursor-pointer flex-shrink-0"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowEditPopup(!showEditPopup)}
+              >
+                <img
+                  src={editIcon}
+                  alt="Edit Banner"
+                  className="w-6 h-6"
+                />
+              </motion.div>
+              
+              {/* Edit Popup */}
+              {showEditPopup && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full right-0 mt-2 bg-cream rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] 
+                    border-4 border-gold/30 z-[10001] w-64 overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="bg-gold/20 p-3 border-b-2 border-gold/40">
+                    <h3 className="text-gray-800 font-luckiest text-base">CUSTOMIZE</h3>
+                  </div>
+                  <div className="p-4 bg-gradient-to-b from-cream to-cream/80">
+                    <p className="text-gray-800 font-rubik text-sm">
+                      Soon you'll be able to customize your beast!
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </div>
           </div>
 
           {/* Username Section */}
@@ -154,13 +196,19 @@ export const PlayerInfoModal = ({
               };
 
               const popoverPos = getPopoverPosition();
+              
+              // Use current beast asset for the first evolution (current state)
+              const isCurrentBeast = index === 0;
+              const displayAsset = isCurrentBeast && currentBeastDisplay?.asset 
+                ? currentBeastDisplay.asset 
+                : beastIcon;
 
               return (
                 <div key={evolution.id} className="relative w-20 h-20 flex items-center justify-center">
                   <motion.img
-                    src={beastIcon}
+                    src={displayAsset}
                     alt={`Beast Evolution ${index + 1}`}
-                    className="w-20 h-20 opacity-30 grayscale hover:opacity-50 transition-opacity cursor-pointer"
+                    className={`w-20 h-20 ${isCurrentBeast && currentBeastDisplay ? 'opacity-100' : 'opacity-30 grayscale'} hover:opacity-${isCurrentBeast ? '100' : '50'} transition-opacity cursor-pointer`}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() =>
@@ -183,21 +231,27 @@ export const PlayerInfoModal = ({
 
                         <div className="text-center space-y-1">
                           <img
-                            src={beastIcon}
+                            src={isCurrentBeast && currentBeastDisplay?.asset ? currentBeastDisplay.asset : beastIcon}
                             alt={evolution.name}
-                            className="w-12 h-12 mx-auto opacity-100 grayscale-0"
+                            className={`w-12 h-12 mx-auto ${isCurrentBeast && currentBeastDisplay ? 'opacity-100' : 'opacity-100 grayscale-0'}`}
                           />
-                          <h4 className="text-gray-800 font-luckiest text-sm">{evolution.name}</h4>
+                          <h4 className="text-gray-800 font-luckiest text-sm">
+                            {isCurrentBeast && currentBeastDisplay ? currentBeastDisplay.displayName : evolution.name}
+                          </h4>
                           <p className="text-gray-600 font-rubik text-xs">
-                            {evolution.type} • {evolution.level}
+                            {isCurrentBeast && currentBeastDisplay 
+                              ? `${currentBeastDisplay.typeName} • Day ${currentBeastDisplay.age}`
+                              : `${evolution.type} • ${evolution.level}`
+                            }
                           </p>
                           <div
-                            className={`text-xs font-medium ${evolution.status === 'Unlocked'
+                            className={`text-xs font-medium ${
+                              isCurrentBeast ? 'text-green-600' : evolution.status === 'Unlocked'
                                 ? 'text-green-600'
                                 : 'text-gray-500'
                               }`}
                           >
-                            {evolution.status}
+                            {isCurrentBeast ? 'Current' : evolution.status}
                           </div>
                         </div>
                       </div>
