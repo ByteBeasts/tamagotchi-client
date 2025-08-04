@@ -18,7 +18,7 @@ export function generateCredentialsFromNullifier(nullifierHash: string, walletAd
   const cleanAddress = walletAddress.replace('0x', '');
   
   // Generate email using wallet address with bytebeasts.io domain
-  const email = `${cleanAddress}@bytebeasts.io`;
+  const email = `${cleanAddress}@gmail.com`;
   
   // Generate password using 'WorldID' + first 10 characters of nullifier hash
   const cleanHash = nullifierHash.replace('0x', '');
