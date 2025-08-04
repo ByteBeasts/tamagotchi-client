@@ -33,13 +33,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         const { mood, emoji, needsAttention } = shareMetadata;
         
         const attentionText = needsAttention.length > 0 
-          ? `\n\nRight now it ${needsAttention.join(", ")} 📝` 
-          : `\n\nMy beast is in excellent condition! 💯`;
+          ? `\nNeeds: ${needsAttention.join(", ")} 📝` 
+          : `\nAll stats perfect! 💯`;
 
         setTweetMsg(
           `🎮 My ByteBeast is ${mood}! ${emoji}\n\n` +
-          `📊 Current Status:\n` +
-          `🕰️ Age: ${beastDataForShare.age} ${beastDataForShare.age === 1 ? 'day' : 'days'}\n` +
+          `📊 Day ${beastDataForShare.age} Status:\n` +
           `⚡ Energy: ${beastDataForShare.energy}%\n` +
           `🍖 Hunger: ${beastDataForShare.hunger}%\n` +
           `😊 Happiness: ${beastDataForShare.happiness}%\n` +
@@ -50,7 +49,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         );
         setIsDataReady(true);
       } else {
-        // New beast or loading state
+        // New beast or loading state - shorter
         setTweetMsg(
           `🎮 Just started my ByteBeasts Tamagotchi journey!\n\n` +
           `My virtual beast is just getting started... 🐣\n\n` +
@@ -62,7 +61,15 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         setIsDataReady(false);
       }
     } else if (type === 'minigame' && minigameData) {
-      // 🎮 MINIGAME Logic 
+      // 🎮 MINIGAME Logic - shorter but engaging
+      const getGameResultText = (score: number) => {
+        if (score >= 50) return "🔥 BEAST MODE!";
+        if (score >= 30) return "⚡ Crushing it!";
+        if (score >= 15) return "📈 Getting stronger!";
+        if (score >= 5) return "🎯 Making progress!";
+        return "🐣 Just started!";
+      };
+
       setTweetMsg(
         `🎮 I just played ${minigameData.name} mini-game in ByteBeasts Tamagotchi\n\n` +
         `My score: ${minigameData.score} 🏆\n\n` +
@@ -72,7 +79,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       );
       setIsDataReady(true);
     } else {
-      // 🎮 FALLBACK: No beast or data available
+      // 🎮 FALLBACK: shorter but intriguing
       setTweetMsg(
         `🎮 Playing ByteBeasts Tamagotchi!\n\n` +
         `Join me in raising virtual creatures on the blockchain! 🌟\n\n` +

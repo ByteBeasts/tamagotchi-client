@@ -24,7 +24,7 @@ export const VennDiagram = ({ currentCircle, onConnect, isConnecting }: VennDiag
 
   // Determine button state and text
   const getButtonState = () => {
-    if (isLoading) {
+    if (isLoading || isConnecting) {
       return { text: 'CONNECTING...', disabled: true };
     }
     
