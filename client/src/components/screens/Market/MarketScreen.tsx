@@ -138,7 +138,6 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
       <TamagotchiTopBar 
         coins={storePlayer?.total_coins || 0}
         gems={storePlayer?.total_gems || 0}
-        onCoinsShopClick={() => console.log("Coins shop clicked")}
       />
 
       {/* Animated banner */}
