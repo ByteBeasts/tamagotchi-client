@@ -45,7 +45,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           `😊 Happiness: ${beastDataForShare.happiness}%\n` +
           `🛁 Cleanliness: ${beastDataForShare.cleanliness}%${attentionText}\n\n` +
           `Join the ByteBeasts Tamagotchi adventure! 🚀\n` +
-          `👉 https://www.bytebeasts.games\n` +
+          `👉 https://www.bytebeasts.io\n` +
           `@0xByteBeasts`
         );
         setIsDataReady(true);
@@ -56,7 +56,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           `My virtual beast is just getting started... 🐣\n\n` +
           `Stay tuned for updates on how it grows! 📈\n\n` +
           `Ready to raise your own Beast? 🚀\n` +
-          `👉 https://www.bytebeasts.games\n` +
+          `👉 https://www.bytebeasts.io\n` +
           `@0xByteBeasts`
         );
         setIsDataReady(false);
@@ -67,7 +67,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         `🎮 I just played ${minigameData.name} mini-game in ByteBeasts Tamagotchi\n\n` +
         `My score: ${minigameData.score} 🏆\n\n` +
         `Think you can beat it? Bring it on! 🔥\n` +
-        `👉 https://www.bytebeasts.games\n` +
+        `👉 https://www.bytebeasts.io\n` +
         `@0xByteBeasts`
       );
       setIsDataReady(true);
@@ -76,7 +76,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       setTweetMsg(
         `🎮 Playing ByteBeasts Tamagotchi!\n\n` +
         `Join me in raising virtual creatures on the blockchain! 🌟\n\n` +
-        `👉 https://www.bytebeasts.games\n` +
+        `👉 https://www.bytebeasts.io\n` +
         `@0xByteBeasts`
       );
       setIsDataReady(false);
