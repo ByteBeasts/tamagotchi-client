@@ -41,9 +41,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           `📊 Day ${beastDataForShare.age} Status:\n` +
           `⚡ Energy: ${beastDataForShare.energy}%\n` +
           `🍖 Hunger: ${beastDataForShare.hunger}%\n` +
-          `😊 Happy: ${beastDataForShare.happiness}%\n` +
-          `🛁 Clean: ${beastDataForShare.cleanliness}%${attentionText}\n\n` +
-          `Join ByteBeasts! 🚀\n` +
+          `😊 Happiness: ${beastDataForShare.happiness}%\n` +
+          `🛁 Cleanliness: ${beastDataForShare.cleanliness}%${attentionText}\n\n` +
+          `Join the ByteBeasts Tamagotchi adventure! 🚀\n` +
           `👉 https://www.bytebeasts.io\n` +
           `@0xByteBeasts`
         );
@@ -51,12 +51,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       } else {
         // New beast or loading state - shorter
         setTweetMsg(
-          `🚨 Just entered ByteBeasts universe! 🌟\n\n` +
-          `🐣 My beast is hatching... where legends are born! 💫\n\n` +
-          `📈 Day 1 starts NOW! Who's betting on survival? 😤\n\n` +
-          `⚠️ WARNING: Dangerously addictive! 🎮\n` +
+          `🎮 Just started my ByteBeasts Tamagotchi journey!\n\n` +
+          `My virtual beast is just getting started... 🐣\n\n` +
+          `Stay tuned for updates on how it grows! 📈\n\n` +
+          `Ready to raise your own Beast? 🚀\n` +
           `👉 https://www.bytebeasts.io\n` +
-          `@0xByteBeasts #ByteBeasts #NewPlayer`
+          `@0xByteBeasts`
         );
         setIsDataReady(false);
       }
@@ -71,11 +71,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       };
 
       setTweetMsg(
-        `🎮 Just dominated ${minigameData.name}! 🔥\n\n` +
-        `🏆 Score: ${minigameData.score} points!\n` +
-        `${getGameResultText(minigameData.score)}\n\n` +
-        `💀 Think you can beat it? I DARE YOU! 😈\n\n` +
-        `⚠️ Dangerously addictive! 🎮\n` +
+        `🎮 I just played ${minigameData.name} mini-game in ByteBeasts Tamagotchi\n\n` +
+        `My score: ${minigameData.score} 🏆\n\n` +
+        `Think you can beat it? Bring it on! 🔥\n` +
         `👉 https://www.bytebeasts.io\n` +
         `@0xByteBeasts`
       );
@@ -83,10 +81,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     } else {
       // 🎮 FALLBACK: shorter but intriguing
       setTweetMsg(
-        `👀 Discovered ByteBeasts Tamagotchi! 🤯\n\n` +
-        `🌟 Raising virtual creatures and I'm OBSESSED! 🔥\n\n` +
-        `🚨 Fair warning: You WILL get addicted! 🎮\n` +
-        `🎯 Who's joining this beast adventure?\n\n` +
+        `🎮 Playing ByteBeasts Tamagotchi!\n\n` +
+        `Join me in raising virtual creatures on the blockchain! 🌟\n\n` +
         `👉 https://www.bytebeasts.io\n` +
         `@0xByteBeasts`
       );
