@@ -63,7 +63,7 @@
     height: 46px;
     background-size: contain;
     background-repeat: no-repeat;
-    z-index: 100;
+    z-index: 20;
     transition: transform 0.1s ease;
     will-change: transform;
   }
@@ -112,7 +112,7 @@
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 200;
+    z-index: 30;
     font-family: 'Arial', sans-serif;
     font-size: 36px;
     font-weight: bold;
@@ -124,65 +124,7 @@
     text-align: center;
   }
   
-  .flappy-bird-game .game-instructions {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);  /* ✅ CAMBIÓ: era 0.7, ahora 0.8 */
-    color: #ffffff;  /* ✅ CAMBIÓ: era var(--text-light) */
-    padding: 30px;   /* ✅ CAMBIÓ: era 20px */
-    border-radius: 15px;  /* ✅ CAMBIÓ: era 10px */
-    text-align: center;
-    z-index: 300;
-    max-width: 350px;  /* ✅ CAMBIÓ: era 300px */
-    width: 85%;  /* ✅ CAMBIÓ: era 80% */
-    border: 2px solid #4ec0ca;  /* ✅ NUEVO */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);  /* ✅ NUEVO */
-  }
-  
-  .flappy-bird-game .game-instructions h2 {
-    font-size: 28px;  /* ✅ CAMBIÓ: era 24px */
-    margin-bottom: 15px;
-    color: #4ec0ca;  /* ✅ NUEVO */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);  /* ✅ NUEVO */
-  }
-  
-  .flappy-bird-game .game-instructions p {
-    margin: 12px 0;  /* ✅ CAMBIÓ: era 10px 0 */
-    font-size: 16px;  /* ✅ NUEVO */
-    opacity: 0.9;  /* ✅ NUEVO */
-  }
-  
-  .flappy-bird-game .start-button {
-    background: linear-gradient(135deg, #4ec0ca, #3a9aa3);  /* ✅ CAMBIÓ: era var(--text-light) */
-    border: none;
-    color: #ffffff;  /* ✅ CAMBIÓ: era var(--primary-red) */
-    padding: 12px 24px;  /* ✅ CAMBIÓ: era 10px 20px */
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 18px;  /* ✅ CAMBIÓ: era 16px */
-    font-weight: bold;
-    margin: 20px 0 10px;  /* ✅ CAMBIÓ: era 15px 0 5px */
-    cursor: pointer;
-    border-radius: 8px;  /* ✅ CAMBIÓ: era 5px */
-    transition: all 0.3s ease;  /* ✅ CAMBIÓ: era background-color 0.3s */
-    text-transform: uppercase;  /* ✅ NUEVO */
-    letter-spacing: 1px;  /* ✅ NUEVO */
-    box-shadow: 0 4px 15px rgba(78, 192, 202, 0.3);  /* ✅ NUEVO */
-  }
-  
-  .flappy-bird-game .start-button:hover {
-    background: linear-gradient(135deg, #3a9aa3, #2e7a82);  /* ✅ CAMBIÓ: era var(--text-light) */
-    transform: translateY(-2px);  /* ✅ NUEVO */
-    box-shadow: 0 6px 20px rgba(78, 192, 202, 0.4);  /* ✅ NUEVO */
-  }
-
-  .flappy-bird-game .start-button:active {  /* ✅ CLASE COMPLETAMENTE NUEVA */
-    transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(78, 192, 202, 0.3);
-  }
+  /* Removed old game-instructions styles - now using modal styles inline */
   
   .flappy-bird-game .return-button {
     position: absolute;

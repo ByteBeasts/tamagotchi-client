@@ -34,7 +34,7 @@ export function BackButton({
  };
 
  const variantClasses = {
-   floating: 'absolute top-4 left-4 z-20',
+   floating: 'absolute top-12 left-2 z-20',
    inline: 'relative'
  };
 

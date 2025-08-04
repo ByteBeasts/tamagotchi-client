@@ -11,6 +11,9 @@ import { useFeedBeast } from '../../../../../dojo/hooks/useFeedBeast';
 import { useRealTimeStatus } from '../../../../../dojo/hooks/useRealTimeStatus';
 import { useUpdateBeast } from '../../../../../dojo/hooks/useUpdateBeast';
 
+// Store for optimistic updates
+import useAppStore from '../../../../../zustand/store';
+
 // Hook return interface
 interface UseFeedLogicReturn {
   // Data from blockchain
@@ -129,6 +132,23 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
   // Handle successful feed with blockchain transaction
   const handleSuccessfulFeed = async (food: FoodItem) => {
     try {
+      // Optimistic update: Immediately update the food count in the store
+      const storeFoods = useAppStore.getState().foods;
+      const setStoreFoods = useAppStore.getState().setFoods;
+      
+      const updatedFoods = storeFoods.map(f => {
+        if (Number(f.id) === food.id) {
+          return {
+            ...f,
+            amount: Number(f.amount) - 1
+          };
+        }
+        return f;
+      });
+      
+      // Apply optimistic update
+      setStoreFoods(updatedFoods);
+      
       // Execute blockchain transaction
       const result = await feedBeast(food.id);
       
@@ -187,11 +207,37 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
       } else {
         // Error handled by useFeedBeast hook (revert + error toast)
         console.error('Feed transaction failed:', result.error);
+        
+        // Revert optimistic update on failure
+        const revertedFoods = storeFoods.map(f => {
+          if (Number(f.id) === food.id) {
+            return {
+              ...f,
+              amount: Number(f.amount) + 1
+            };
+          }
+          return f;
+        });
+        setStoreFoods(revertedFoods);
       }
       
     } catch (error) {
       console.error('Unexpected error in handleSuccessfulFeed:', error);
       toast.error('An unexpected error occurred');
+      
+      // Revert optimistic update on unexpected error
+      const storeFoods = useAppStore.getState().foods;
+      const setStoreFoods = useAppStore.getState().setFoods;
+      const revertedFoods = storeFoods.map(f => {
+        if (Number(f.id) === food.id) {
+          return {
+            ...f,
+            amount: Number(f.amount) + 1
+          };
+        }
+        return f;
+      });
+      setStoreFoods(revertedFoods);
     }
   };
 
