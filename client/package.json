@@ -42,6 +42,7 @@
     "gsap": "^3.13.0",
     "immer": "^10.1.1",
     "lucide-react": "^0.513.0",
+    "mixpanel-browser": "^2.67.0",
     "next": "^15.3.3",
     "posthog-js": "^1.249.0",
     "react": "^18.3.1",

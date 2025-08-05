@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { posthogInstance } from "./context/PosthogConfig";
 import { PostHogProvider } from 'posthog-js/react';
+import { MixpanelProvider } from "./context/MixpanelContext";
 import { MusicProvider } from "./context/MusicContext";
 import { MiniKitProvider } from '@worldcoin/minikit-js/minikit-provider';
 import { MiniKit } from '@worldcoin/minikit-js';
@@ -82,13 +83,15 @@ async function main() {
       <MiniKitProvider>
         <DojoSdkProvider sdk={sdk} dojoConfig={dojoConfig} clientFn={setupWorld}>
           <MusicProvider>
-            {posthogInstance.initialized && posthogInstance.client ? (
-              <PostHogProvider client={posthogInstance.client}>
+            <MixpanelProvider>
+              {posthogInstance.initialized && posthogInstance.client ? (
+                <PostHogProvider client={posthogInstance.client}>
+                  <Main />
+                </PostHogProvider>
+              ) : (
                 <Main />
-              </PostHogProvider>
-            ) : (
-              <Main />
-            )}
+              )}
+            </MixpanelProvider>
           </MusicProvider>
         </DojoSdkProvider>
       </MiniKitProvider>
