@@ -18,7 +18,7 @@ export function setupMixpanel(): MixpanelSetupResult {
   try {
     mixpanel.init(apiKey, {
       debug: isDevelopment,
-      track_pageview: false, // Solo trackearemos manualmente
+      track_pageview: false,
       persistence: 'localStorage',
     });
     

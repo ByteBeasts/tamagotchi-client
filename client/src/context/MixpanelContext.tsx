@@ -25,7 +25,6 @@ export const MixpanelProvider: React.FC<MixpanelProviderProps> = ({ children }) 
     }
   };
 
-  // Trackear automáticamente cuando se monta el provider (entrada a la app)
   useEffect(() => {
     trackVisit();
   }, []);
