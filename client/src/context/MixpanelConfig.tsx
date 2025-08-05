@@ -1,4 +1,3 @@
-// @ts-ignore
 import mixpanel from 'mixpanel-browser';
 
 interface MixpanelSetupResult {
