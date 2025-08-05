@@ -66,7 +66,7 @@ const policies: SessionPolicies = {
 const colorMode: ColorMode = "dark";
 const theme = "bytebeasts-tamagotchi";
 const namespace = "tamagotchi";
-const slot = "tamagotchi23";
+const slot = "tamagotchiv2";
 
 const options: ControllerOptions = {
   chains: [
