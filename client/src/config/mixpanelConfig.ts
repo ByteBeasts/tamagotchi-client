@@ -1,7 +1,7 @@
 import mixpanel from 'mixpanel-browser';
 
 // Mixpanel configuration
-const MIXPANEL_TOKEN = process.env.REACT_APP_MIXPANEL_TOKEN || 'your-mixpanel-token';
+const MIXPANEL_TOKEN = process.env.VITE_MIXPANEL_API_KEY || 'your-mixpanel-token';
 
 export const initializeMixpanel = () => {
   mixpanel.init(MIXPANEL_TOKEN, {
