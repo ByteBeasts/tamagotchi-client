@@ -7,6 +7,7 @@ import { GAME_IDS } from '../../../../../types/game.types';
 
 // Services
 import CoinGemRewardService from '../../../../../utils/coinGemRewardService';
+import MixpanelService from '../../../../../../services/mixpanelService';
 import fetchStatus from '../../../../../../utils/fetchStatus';
 import { network, getContractAddresses } from '../../../../../../config/cavosConfig';
 
@@ -247,6 +248,22 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       // Check if this is a new high score
       const isNewHigh = finalScore > currentHighScore;
       setIsNewHighScore(isNewHigh);
+
+      // Track gameplay session
+      const liveBeast = useAppStore.getState().liveBeast;
+      const player = useAppStore.getState().player;
+      
+      if (liveBeast.beast && liveBeast.status && player) {
+        MixpanelService.trackGameplay('flappy_beasts', {
+          score: finalScore,
+          duration: 60, // Simplified - could be enhanced to track actual duration
+          completed: true,
+          coins_earned: rewards.coins,
+          gems_earned: rewards.gems,
+          user_streak: player.daily_streak,
+          beast_happiness: liveBeast.status.happiness
+        });
+      }
 
       // Save results to blockchain (async, don't block UI)
       saveGameResults(finalScore, isNewHigh).catch(error => {

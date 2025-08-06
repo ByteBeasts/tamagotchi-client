@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useCavosTransaction } from './useCavosTransaction';
 import toast from 'react-hot-toast';
+import MixpanelService from '../../services/mixpanelService';
 
 // Store imports
 import useAppStore from '../../zustand/store';
@@ -105,6 +106,23 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
       
       // Check transaction result
       if (tx && tx.code === "SUCCESS") {
+        // Track successful clean action
+        const liveBeast = useAppStore.getState().liveBeast;
+        const player = useAppStore.getState().player;
+        
+        if (liveBeast.beast && liveBeast.status && player) {
+          MixpanelService.trackBeastCare('Clean', {
+            beast_id: liveBeast.beast.beast_id,
+            species: liveBeast.beast.specie.toString(),
+            hunger_level: liveBeast.status.hunger,
+            happiness_level: liveBeast.status.happiness,
+            energy_level: liveBeast.status.energy,
+            hygiene_level: liveBeast.status.hygiene,
+            user_streak: player.daily_streak,
+            is_emergency: liveBeast.status.hygiene < 20
+          });
+        }
+
         // Update transaction state with success
         setCleanTransaction({
           isCleaningInProgress: false,

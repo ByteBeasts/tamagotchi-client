@@ -11,6 +11,7 @@ import { HatchHeader } from "./components/HatchHeader";
 import { ContinueButton } from "./components/ContinueButton";
 import { FullScreenFlash } from "./components/FullScreenFlash";
 import MegaBurstParticles from "./components/MegaBurstParticles";
+import MixpanelService from '../../../services/mixpanelService';
 
 // Dojo hooks
 import { useSpawnBeast } from "../../../dojo/hooks/useSpawnBeast";
@@ -97,6 +98,17 @@ export const HatchEggScreen = ({ onLoadingComplete, beastParams }: HatchEggScree
 
       const result = await spawnBeast(beastParams);
       if (result.success) {
+        // Track successful beast creation (key onboarding milestone)
+        const player = useAppStore.getState().player;
+        if (player) {
+          MixpanelService.trackOnboarding('beast_hatched', {
+            step_number: 3, // After auth and species selection
+            completed: true,
+            time_spent: 0, // Could be enhanced to track actual time
+            user_id: player.address
+          });
+        }
+
         if (result.syncSuccess) {
           toast.success(
             `🎉 Your ${beastDisplayInfo.displayName} is born and ready to play!`,

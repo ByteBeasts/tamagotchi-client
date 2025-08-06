@@ -3,6 +3,7 @@ import { useCavosTransaction } from './useCavosTransaction';
 import { toast } from 'react-hot-toast';
 import useAppStore from '../../zustand/store';
 import { getContractAddresses } from '../../config/cavosConfig';
+import MixpanelService from '../../services/mixpanelService';
 
 // Types
 interface SleepAwakeTransactionState {
@@ -127,6 +128,23 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       if (tx && tx.code === "SUCCESS") {
         console.log('✅ Sleep transaction submitted:', tx.transaction_hash);
+        
+        // Track successful sleep action
+        const liveBeast = useAppStore.getState().liveBeast;
+        const player = useAppStore.getState().player;
+        
+        if (liveBeast.beast && liveBeast.status && player) {
+          MixpanelService.trackBeastCare('Sleep', {
+            beast_id: liveBeast.beast.beast_id,
+            species: liveBeast.beast.specie.toString(),
+            hunger_level: liveBeast.status.hunger,
+            happiness_level: liveBeast.status.happiness,
+            energy_level: liveBeast.status.energy,
+            hygiene_level: liveBeast.status.hygiene,
+            user_streak: player.daily_streak
+          });
+        }
+        
         setSleepAwakeTransaction({
           isInProgress: false,
           action: 'sleep',
@@ -218,6 +236,23 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       if (tx && tx.code === "SUCCESS") {
         console.log('✅ Awake transaction submitted:', tx.transaction_hash);
+        
+        // Track successful wake action
+        const liveBeast = useAppStore.getState().liveBeast;
+        const player = useAppStore.getState().player;
+        
+        if (liveBeast.beast && liveBeast.status && player) {
+          MixpanelService.trackBeastCare('Wake', {
+            beast_id: liveBeast.beast.beast_id,
+            species: liveBeast.beast.specie.toString(),
+            hunger_level: liveBeast.status.hunger,
+            happiness_level: liveBeast.status.happiness,
+            energy_level: liveBeast.status.energy,
+            hygiene_level: liveBeast.status.hygiene,
+            user_streak: player.daily_streak
+          });
+        }
+        
         setSleepAwakeTransaction({
           isInProgress: false,
           action: 'awake',

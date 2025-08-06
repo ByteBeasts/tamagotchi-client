@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { initMixpanel } from "../services/mixpanelService";
 import { CoverScreen } from "../components/screens/Cover/CoverScreen";
 import { HatchEggScreen } from "../components/screens/Hatch/HatchEggScreen";
 import { HomeScreen } from "../components/screens/Home/HomeScreen";
@@ -32,6 +33,11 @@ function AppContent() {
   
   // State for predefined beast parameters
   const [pendingBeastParams, setPendingBeastParams] = useState<BeastSpawnParams | null>(null);
+
+  // Initialize Mixpanel on app start
+  useEffect(() => {
+    initMixpanel();
+  }, []);
 
   // Get sleep logic for navigation blocking - temporarily disabled
   // const { shouldBlockNavigation } = useSleepLogic();

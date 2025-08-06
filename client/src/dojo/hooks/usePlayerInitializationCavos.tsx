@@ -3,6 +3,7 @@ import { useSpawnPlayerCavos } from './useSpawnPlayerCavos';
 import { useLiveBeast } from './useLiveBeast';
 import { useUpdateBeast } from './useUpdateBeast';
 import useAppStore from '../../zustand/store';
+import MixpanelService from '../../services/mixpanelService';
 
 interface InitializationResult {
   success: boolean;
@@ -134,14 +135,30 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
       const shouldGoToHome = hasLiveBeast;
       const shouldGoToHatch = !hasLiveBeast;
 
+      // Step 5: Mark completion and return result
       setState(prev => ({
         ...prev,
-        shouldGoToHome,
-        shouldGoToHatch,
         completed: true,
         isInitializing: false,
+        hasLiveBeast,
+        shouldGoToHatch,
+        shouldGoToHome,
         currentStep: 'complete'
       }));
+
+      // Track daily login for existing players
+      if (playerResult.playerExists) {
+        const player = useAppStore.getState().player;
+        if (player) {
+          const daysSinceSignup = Math.floor((Date.now() - player.creation_day) / (1000 * 60 * 60 * 24));
+          MixpanelService.trackDailyLogin({
+            user_id: player.address,
+            streak_count: player.daily_streak,
+            days_since_signup: daysSinceSignup,
+            beast_alive: hasLiveBeast
+          });
+        }
+      }
 
       console.log('🎉 Complete initialization finished:', {
         playerExists: true,
