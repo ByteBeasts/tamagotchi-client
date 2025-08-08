@@ -69,14 +69,34 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
 
   // Handle drag start - with validation for feeding state
   const handleDragStart = (food: FoodItem) => {
-    // Prevent drag if feeding in progress or no food available
-    if (food.count <= 0 || isFeeding || !canFeed) {
+    // Get fresh store state to validate actual amount
+    const storeFoods = useAppStore.getState().foods;
+    const currentFood = storeFoods.find(f => Number(f.id) === food.id);
+    const actualAmount = currentFood ? Number(currentFood.amount) : 0;
+    
+    // Multiple validation checks to prevent invalid drags
+    if (actualAmount <= 0 || food.count <= 0 || isFeeding || !canFeed) {
       if (isFeeding) {
         toast.error('Please wait for current feeding to complete', {
           duration: 2000,
           position: 'top-center',
         });
+      } else if (actualAmount <= 0) {
+        toast.error('This food is no longer available!', {
+          duration: 2000,
+          position: 'top-center',
+        });
       }
+      return;
+    }
+    
+    // Check if this specific food is already being fed (prevent double drag)
+    const feedingFoodId = useAppStore.getState().feedTransaction.feedingFoodId;
+    if (feedingFoodId === food.id) {
+      toast.error('This food is already being fed!', {
+        duration: 2000,
+        position: 'top-center',
+      });
       return;
     }
     
@@ -132,15 +152,31 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
   // Handle successful feed with blockchain transaction
   const handleSuccessfulFeed = async (food: FoodItem) => {
     try {
-      // Optimistic update: Immediately update the food count in the store
+      // Get fresh state to avoid stale data
       const storeFoods = useAppStore.getState().foods;
       const setStoreFoods = useAppStore.getState().setFoods;
       
+      // Find the current food item to validate amount
+      const currentFood = storeFoods.find(f => Number(f.id) === food.id);
+      const currentAmount = currentFood ? Number(currentFood.amount) : 0;
+      
+      // CRITICAL: Prevent overflow - validate we have food to consume
+      if (currentAmount <= 0) {
+        toast.error('This food is no longer available!', {
+          duration: 2000,
+          position: 'top-center',
+        });
+        return;
+      }
+      
+      // Only apply optimistic update if we have enough food
       const updatedFoods = storeFoods.map(f => {
         if (Number(f.id) === food.id) {
+          // Safe subtraction with validation
+          const newAmount = Math.max(0, Number(f.amount) - 1);
           return {
             ...f,
-            amount: Number(f.amount) - 1
+            amount: newAmount
           };
         }
         return f;
@@ -208,12 +244,15 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
         // Error handled by useFeedBeast hook (revert + error toast)
         console.error('Feed transaction failed:', result.error);
         
-        // Revert optimistic update on failure
-        const revertedFoods = storeFoods.map(f => {
+        // Revert optimistic update on failure - but safely
+        const currentStoreFoods = useAppStore.getState().foods;
+        const revertedFoods = currentStoreFoods.map(f => {
           if (Number(f.id) === food.id) {
+            // Find original amount to restore (before optimistic update)
+            const originalAmount = currentAmount; // We captured this earlier
             return {
               ...f,
-              amount: Number(f.amount) + 1
+              amount: originalAmount
             };
           }
           return f;
@@ -225,14 +264,18 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
       console.error('Unexpected error in handleSuccessfulFeed:', error);
       toast.error('An unexpected error occurred');
       
-      // Revert optimistic update on unexpected error
-      const storeFoods = useAppStore.getState().foods;
+      // Revert optimistic update on unexpected error - safely restore original amount
+      const currentStoreFoods = useAppStore.getState().foods;
       const setStoreFoods = useAppStore.getState().setFoods;
-      const revertedFoods = storeFoods.map(f => {
+      
+      // We need to restore to the original amount captured at the beginning
+      const revertedFoods = currentStoreFoods.map(f => {
         if (Number(f.id) === food.id) {
+          // Restore to original amount (before any optimistic update)
+          // Since we validated currentAmount > 0 at the start, this is safe
           return {
             ...f,
-            amount: Number(f.amount) + 1
+            amount: currentAmount // Using the captured original amount
           };
         }
         return f;
