@@ -17,12 +17,19 @@ export const FoodCarousel = ({
 }: FoodCarouselProps) => {
   const sliderRef = useRef<Slider>(null);
 
-  // Enhanced slider settings with disabled state
+  // Dynamic infinite setting based on number of items
+  // Prevents duplication issues when there are few items
+  const shouldInfiniteScroll = foods.length > 3;
+
+  // Enhanced slider settings with disabled state and dynamic infinite
   const sliderSettings = {
     ...SLIDER_SETTINGS,
+    infinite: shouldInfiniteScroll, // Dynamic based on item count
     touchMove: !isDragging && !isDisabled, // Disable touch when disabled
     swipe: !isDragging && !isDisabled,     // Disable swipe when disabled
     draggable: !isDragging && !isDisabled, // Disable dragging when disabled
+    slidesToShow: Math.min(3, foods.length), // Never show more slides than items
+    slidesToScroll: Math.min(3, foods.length), // Adjust scroll amount too
   };
 
   const goToPrevious = () => {
