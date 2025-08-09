@@ -151,14 +151,15 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
 
   // Handle successful feed with blockchain transaction
   const handleSuccessfulFeed = async (food: FoodItem) => {
+    // Get fresh state to avoid stale data
+    const storeFoods = useAppStore.getState().foods;
+    const setStoreFoods = useAppStore.getState().setFoods;
+    
+    // Find the current food item to validate amount
+    const currentFood = storeFoods.find(f => Number(f.id) === food.id);
+    const currentAmount = currentFood ? Number(currentFood.amount) : 0;
+    
     try {
-      // Get fresh state to avoid stale data
-      const storeFoods = useAppStore.getState().foods;
-      const setStoreFoods = useAppStore.getState().setFoods;
-      
-      // Find the current food item to validate amount
-      const currentFood = storeFoods.find(f => Number(f.id) === food.id);
-      const currentAmount = currentFood ? Number(currentFood.amount) : 0;
       
       // CRITICAL: Prevent overflow - validate we have food to consume
       if (currentAmount <= 0) {
