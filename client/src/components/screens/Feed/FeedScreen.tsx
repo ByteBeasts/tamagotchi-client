@@ -25,6 +25,7 @@ import { FeedScreenProps } from "../../types/feed.types";
 
 // Assets
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
+import shopIcon from "../../../assets/icons/shop/icon-food-shop.webp";
 
 export const FeedScreen = ({ onNavigation }: FeedScreenProps) => {
   const constraintsRef = useRef(null);
@@ -153,12 +154,20 @@ export const FeedScreen = ({ onNavigation }: FeedScreenProps) => {
             <h2 className="text-2xl font-luckiest text-cream drop-shadow-lg">
               No Food Available!
             </h2>
-            <p className="text-white/80 drop-shadow-md">
-              You don't have any food to feed your {currentBeastDisplay.displayName}
+            <p className="text-white/80 drop-shadow-md px-4">
+              Go to the shop to buy more food for your beast
             </p>
-            <p className="text-white/60 text-sm">
-              {isFeeding ? "Feeding in progress..." : "Try refreshing or check your inventory"}
-            </p>
+            
+            {/* Shop Button */}
+            <motion.button
+              onClick={() => onNavigation("market")}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-cream/90 hover:bg-cream p-4 transition-all transform hover:shadow-xl"
+              aria-label="Go to Shop"
+            >
+              <img src={shopIcon} alt="Shop" className="h-20 w-2o" />
+            </motion.button>
           </div>
         </div>
       </div>
