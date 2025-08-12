@@ -1,6 +1,11 @@
 import { motion } from "framer-motion"
 import coinIcon from "../../../../assets/icons/coins/icon-coin-single.webp"
 
+// Status icons
+import energyIcon from "../../../../assets/icons/tobBar/icon-energy.png";
+import hungerIcon from "../../../../assets/icons/tobBar/icon-hungry.png";
+import happyIcon from "../../../../assets/icons/tobBar/icon-happy.png";
+
 // Types
 import { MarketFoodItem, BeastType, BEAST_FAVORITE_FOODS } from "../../../../constants/foodMarket.constants";
 
@@ -66,17 +71,24 @@ export function FoodCard({ food, onPurchase }: FoodCardProps) {
         )}
       </h3>
 
-      {/* Stat increments */}
-      <div className="flex gap-2 mb-2">
-        <span className="bg-orange-500 text-cream font-bold text-xs rounded-full px-2 py-0.5">
-          +{statIncrements.hunger} 🍖
-        </span>
-        <span className="bg-pink-500 text-cream font-bold text-xs rounded-full px-2 py-0.5">
-          +{statIncrements.happiness} 😊
-        </span>
-        <span className="bg-blue-500 text-cream font-bold text-xs rounded-full px-2 py-0.5">
-          +{statIncrements.energy} ⚡
-        </span>
+      {/* Stat increments - Single badge */}
+      <div className={`flex items-center gap-3 px-3 py-1 rounded-full mb-2 ${
+        isFavorite 
+          ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400' 
+          : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-300'
+      }`}>
+        <div className="flex items-center gap-1">
+          <img src={hungerIcon} alt="Hunger" className="w-4 h-4" />
+          <span className="text-xs font-bold text-gray-700">+{statIncrements.hunger}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <img src={happyIcon} alt="Happy" className="w-4 h-4" />
+          <span className="text-xs font-bold text-gray-700">+{statIncrements.happiness}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <img src={energyIcon} alt="Energy" className="w-4 h-4" />
+          <span className="text-xs font-bold text-gray-700">+{statIncrements.energy}</span>
+        </div>
       </div>
 
       {/* Description */}
