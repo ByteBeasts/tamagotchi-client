@@ -130,7 +130,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
       <MagicalSparkleParticles />
 
       {/* Back Button */}
-      <BackButton onClick={() => onNavigation("home")} 
+      <BackButton onClick={() => onNavigation("feed")} 
         className="top-12 left-4 left-auto"
       />
       

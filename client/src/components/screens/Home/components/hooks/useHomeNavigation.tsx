@@ -1,11 +1,6 @@
 import type { Screen } from "../../../../types/screens";
 
 export const useHomeNavigation = (onNavigation: (screen: Screen) => void) => {
-  const handleShopClick = () => {
-    console.log("Shop clicked");
-    onNavigation("market");
-  };
-
   const handleDailyQuestsClick = () => {
     console.log("Daily Quests clicked");
     onNavigation("home");
@@ -17,7 +12,6 @@ export const useHomeNavigation = (onNavigation: (screen: Screen) => void) => {
   };
 
   return {
-    handleShopClick,
     handleDailyQuestsClick,
     handleNavigateLogin
   };

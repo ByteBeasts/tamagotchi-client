@@ -19,7 +19,6 @@ import { useMusic } from "../../../context/MusicContext";
 import { usePlayerModal } from "./components/hooks/usePlayerModal";
 import { useHomeNavigation } from "./components/hooks/useHomeNavigation";
 import { PlayerInfoSection } from "./components/PlayerInfoSection";
-import { ActionButtons } from "./components/ActionButtons";
 import { BeastHomeDisplay } from "./components/BeastDisplay";
 
 export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
@@ -108,7 +107,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
 
   // Custom hooks
   const { isPlayerInfoModalOpen, openPlayerModal, closePlayerModal } = usePlayerModal();
-  const { handleShopClick, handleDailyQuestsClick, handleNavigateLogin } = useHomeNavigation(onNavigation);
+  const { handleNavigateLogin } = useHomeNavigation(onNavigation);
 
   // Player data
   const playerData: PlayerData = {
@@ -203,12 +202,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
 
       {renderBeastContent()}
 
-      {hasLiveBeast && currentBeastDisplay && (
-        <ActionButtons
-          onShopClick={handleShopClick}
-          onDailyQuestsClick={handleDailyQuestsClick}
-        />
-      )}
+      {/* Action buttons removed - shop moved to FeedScreen */}
 
       <PlayerInfoModal
         isOpen={isPlayerInfoModalOpen}

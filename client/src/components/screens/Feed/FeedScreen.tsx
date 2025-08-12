@@ -214,6 +214,20 @@ export const FeedScreen = ({ onNavigation }: FeedScreenProps) => {
         </h1>
       </motion.div>
 
+      {/* Shop Button - Top Right */}
+      <motion.button
+        onClick={() => onNavigation("market")}
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        className="absolute top-28 right-3 sm:right-4 md:right-5 lg:right-6 z-30 p-3"
+        aria-label="Open Shop"
+      >
+        <img src={shopIcon} alt="Shop" className="h-14 w-14 sm:h-12 sm:w-12" />
+      </motion.button>
+
       {/* Beast display - acts as drop zone for food items */}
       <Beast 
         isDragging={dragState.isDragging}
