@@ -9,6 +9,20 @@ import { FOOD_ASSETS } from './feed.constants';
 export type FoodCategory = 'fruits' | 'vegetables' | 'meats' | 'sweets' | 'fast_food';
 
 /**
+ * Beast types for food preferences
+ */
+export type BeastType = 1 | 2 | 3; // Light (1), Magic (2), Shadow (3)
+
+/**
+ * Food stat increments based on whether it's favorite or not
+ */
+export interface FoodStatIncrements {
+  hunger: number;
+  happiness: number;
+  energy: number;
+}
+
+/**
  * Market food item interface - extends base with market-specific data
  */
 export interface MarketFoodItem {
@@ -22,11 +36,41 @@ export interface MarketFoodItem {
   hungerRestore: number;
   owned: boolean; // Whether player has this food in inventory
   ownedAmount?: number; // How many player currently has
+  statIncrements?: Record<BeastType, FoodStatIncrements>; // Stat increments per beast type
 }
+
+/**
+ * Favorite foods mapping per beast type
+ * Light Beast (1): Cherry (3), Fish (10), Corn (15)
+ * Magic Beast (2): Chicken (8), Apple (1), Cheese (7)  
+ * Shadow Beast (3): Beef (13), Blueberry (12), Potato (16)
+ */
+export const BEAST_FAVORITE_FOODS: Record<BeastType, number[]> = {
+  1: [3, 10, 15], // Light Beast favorites
+  2: [8, 1, 7],   // Magic Beast favorites
+  3: [13, 12, 16] // Shadow Beast favorites
+};
+
+/**
+ * Default stat increments for foods
+ */
+export const DEFAULT_INCREMENTS = {
+  FAVORITE: { hunger: 8, happiness: 4, energy: 2 },
+  NORMAL: { hunger: 4, happiness: 4, energy: 2 }
+};
+
+/**
+ * Helper to get stat increments for a food based on beast type
+ */
+export const getFoodStatIncrements = (foodId: number, beastType: BeastType): FoodStatIncrements => {
+  const isFavorite = BEAST_FAVORITE_FOODS[beastType]?.includes(foodId) || false;
+  return isFavorite ? DEFAULT_INCREMENTS.FAVORITE : DEFAULT_INCREMENTS.NORMAL;
+};
 
 /**
  * Food market data - categorized and priced by healthiness
  * Pricing logic: Less healthy = cheaper, More healthy = expensive
+ * Now includes stat increments per beast type
  */
 export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ownedAmount'>> = {
   // 🍎 FRUITS (Healthy = More Expensive)
@@ -39,6 +83,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 5,
     hungerRestore: 25,
     price: 50, // Most expensive fruit
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Light Beast
+      2: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Magic Beast
+      3: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Shadow Beast
+    },
   },
   2: {
     id: 2,
@@ -49,6 +98,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 4,
     hungerRestore: 20,
     price: 40,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for all beasts
+      2: { hunger: 4, happiness: 4, energy: 2 },
+      3: { hunger: 4, happiness: 4, energy: 2 },
+    },
   },
   3: {
     id: 3,
@@ -59,6 +113,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 4,
     hungerRestore: 15,
     price: 45,
+    statIncrements: {
+      1: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Light Beast
+      2: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Magic Beast
+      3: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Shadow Beast
+    },
   },
   12: {
     id: 12,
@@ -69,6 +128,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 5,
     hungerRestore: 20,
     price: 55, // Most expensive overall
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Light Beast
+      2: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Magic Beast
+      3: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Shadow Beast
+    },
   },
 
   // 🥬 VEGETABLES (Healthy = More Expensive)
@@ -81,6 +145,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 4,
     hungerRestore: 30,
     price: 35,
+    statIncrements: {
+      1: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Light Beast
+      2: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Magic Beast
+      3: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Shadow Beast
+    },
   },
   16: {
     id: 16,
@@ -91,6 +160,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 3,
     hungerRestore: 35,
     price: 25,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Light Beast
+      2: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Magic Beast
+      3: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Shadow Beast
+    },
   },
 
   // 🥩 MEATS (Medium Health = Medium Price)
@@ -103,6 +177,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 4,
     hungerRestore: 45,
     price: 60,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Light Beast
+      2: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Magic Beast
+      3: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Shadow Beast
+    },
   },
   10: {
     id: 10,
@@ -113,6 +192,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 5,
     hungerRestore: 40,
     price: 70, // Most expensive meat
+    statIncrements: {
+      1: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Light Beast
+      2: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Magic Beast
+      3: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Shadow Beast
+    },
   },
   13: {
     id: 13,
@@ -123,6 +207,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 3,
     hungerRestore: 50,
     price: 45,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Light Beast
+      2: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Magic Beast
+      3: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Shadow Beast
+    },
   },
   9: {
     id: 9,
@@ -133,6 +222,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 4,
     hungerRestore: 30,
     price: 30,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for all beasts
+      2: { hunger: 4, happiness: 4, energy: 2 },
+      3: { hunger: 4, happiness: 4, energy: 2 },
+    },
   },
   7: {
     id: 7,
@@ -143,6 +237,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 3,
     hungerRestore: 25,
     price: 35,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Light Beast
+      2: { hunger: 8, happiness: 4, energy: 2 }, // FAVORITE for Magic Beast
+      3: { hunger: 4, happiness: 4, energy: 2 }, // Normal for Shadow Beast
+    },
   },
 
   // 🍰 SWEETS (Unhealthy = Cheaper)
@@ -155,6 +254,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 1,
     hungerRestore: 35,
     price: 15, // Cheapest sweet
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for all beasts
+      2: { hunger: 4, happiness: 4, energy: 2 },
+      3: { hunger: 4, happiness: 4, energy: 2 },
+    },
   },
   6: {
     id: 6,
@@ -165,6 +269,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 1,
     hungerRestore: 30,
     price: 18,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for all beasts
+      2: { hunger: 4, happiness: 4, energy: 2 },
+      3: { hunger: 4, happiness: 4, energy: 2 },
+    },
   },
 
   // 🍟 FAST FOOD (Unhealthy = Cheapest)
@@ -177,6 +286,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 1,
     hungerRestore: 40,
     price: 10, // Cheapest overall
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for all beasts
+      2: { hunger: 4, happiness: 4, energy: 2 },
+      3: { hunger: 4, happiness: 4, energy: 2 },
+    },
   },
   11: {
     id: 11,
@@ -187,6 +301,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 1,
     hungerRestore: 25,
     price: 12,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for all beasts
+      2: { hunger: 4, happiness: 4, energy: 2 },
+      3: { hunger: 4, happiness: 4, energy: 2 },
+    },
   },
   14: {
     id: 14,
@@ -197,6 +316,11 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
     healthiness: 2,
     hungerRestore: 45,
     price: 20,
+    statIncrements: {
+      1: { hunger: 4, happiness: 4, energy: 2 }, // Normal for all beasts
+      2: { hunger: 4, happiness: 4, energy: 2 },
+      3: { hunger: 4, happiness: 4, energy: 2 },
+    },
   },
 };
 
