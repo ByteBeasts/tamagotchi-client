@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ActionButtonsProps } from "../../../types/home.types";
 //import dailyQuestIcon from "../../../../assets/icons/daily-quests/icon-daily-quests.png";
-import shopIcon from "../../../../assets/icons/shop/icon-general-shop.webp";
+import shopIcon from "../../../../assets/icons/shop/icon-food-shop.webp";
 
 const buttonInteractionProps = {
   whileHover: { scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 15 } },
