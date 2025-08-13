@@ -8,7 +8,7 @@ import CakeChoco from '../assets/Food/food-cake-chocolate.svg';
 import CakeStrawberry from '../assets/Food/food-cake-strawberry.svg';
 import Cheese from '../assets/Food/cheese.svg';
 import Chiken from '../assets/Food/chicken.svg';
-import Eggs from '../assets/Food/food-eggs-fried.png';
+import Eggs from '../assets/Food/egg.svg';
 import Fish from '../assets/Food/fish.svg';
 import FrenchFries from '../assets/Food/food-fries.svg';
 import Blueberry from '../assets/Food/food-blueberry.svg';
