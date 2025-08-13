@@ -1,6 +1,6 @@
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import sleepBackground from "../../../assets/backgrounds/bg-sleep.png";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { SleepScreenProps } from "../../types/sleep.types";
@@ -69,10 +69,6 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
     isInteractionDisabled
   } = useSleepLogic();
 
-  // State for lighting effect based on campfire state changes
-  const [isDarkened, setIsDarkened] = useState(false);
-  const [previousCampfireState, setPreviousCampfireState] = useState<boolean | null>(null);
-
   // Frame configuration
   const extinguishedFrames = [
     extinguishedFrame0,
@@ -115,29 +111,6 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
       startLitAnimation();
     }
   }, [isBeastSleeping]);
-
-  // Detect campfire state changes and apply lighting effect
-  useEffect(() => {
-    // Initialize previous state on first render
-    if (previousCampfireState === null) {
-      setPreviousCampfireState(isCampfireOn);
-      setIsDarkened(!isCampfireOn); 
-      return;
-    }
-
-    // Detect state change
-    if (previousCampfireState !== isCampfireOn) {
-      
-      if (!isCampfireOn) {
-        setIsDarkened(true);
-      } else {
-        setIsDarkened(false);
-      }
-      
-      // Update previous state
-      setPreviousCampfireState(isCampfireOn);
-    }
-  }, [isCampfireOn, previousCampfireState]);
 
   // Simple click handler - no animation manipulation
   const handleCampfireClickWithAnimation = async () => {
@@ -203,19 +176,6 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
       {/* Magical Sparkle Particles */}
       <MagicalSparkleParticles />
 
-      {/* Dark overlay when campfire is extinguished */}
-      <motion.div
-        className="absolute inset-0 bg-black pointer-events-none z-5"
-        initial={{ opacity: isDarkened ? 0.5 : 0 }}
-        animate={{ 
-          opacity: isDarkened ? 0.5 : 0,
-        }}
-        transition={{ 
-          duration: 1.5, 
-          ease: "easeInOut" 
-        }}
-      />
-
       {/* Top Bar - Using real data from liveBeastStatus */}
       <TamagotchiTopBar
         coins={storePlayer?.total_coins || 0}
@@ -237,9 +197,9 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
       >
         <h1 className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg text-center">
           {isBeastSleeping ? (
-            <>Your Beast is Sleeping 😴</>
+            <>Your Beast is Sleeping. Tap the campfire to Wake Them Up!</>
           ) : (
-            <>Sleep Your Beast</>
+            <>Tap the campfire to Sleep Your Beast</>
           )}
         </h1>
       </motion.div>

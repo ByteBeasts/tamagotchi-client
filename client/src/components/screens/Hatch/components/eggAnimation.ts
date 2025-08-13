@@ -27,6 +27,11 @@ import BabyWolf from "../../../../assets/beasts/baby-wolf.png";
 import BabyDragon from "../../../../assets/beasts/baby-dragon.png";
 import BabySnake from "../../../../assets/beasts/baby-snake.png";
 
+// Sleeping beast assets
+import BabyWolfSleeping from "../../../../assets/beasts-sleeping/baby-wolf-sleeping.png";
+import BabyDragonSleeping from "../../../../assets/beasts-sleeping/baby-dragon-sleeping.png";
+import BabySnakeSleeping from "../../../../assets/beasts-sleeping/baby-snake-sleeping.png";
+
 export type EggType = 'shadow' | 'dragon' | 'water';
 export type BeastType = 'wolf' | 'dragon' | 'snake';
 
@@ -56,6 +61,13 @@ export const BEAST_ASSETS: Record<BeastType, string> = {
   wolf: BabyWolf,
   dragon: BabyDragon, 
   snake: BabySnake  
+};
+
+// Sleeping beast assets mapping
+export const BEAST_SLEEPING_ASSETS: Record<BeastType, string> = {
+  wolf: BabyWolfSleeping,
+  dragon: BabyDragonSleeping,
+  snake: BabySnakeSleeping
 };
 
 // Interface with specie information

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import { CoverScreen } from "../components/screens/Cover/CoverScreen";
 import { HatchEggScreen } from "../components/screens/Hatch/HatchEggScreen";
 import { HomeScreen } from "../components/screens/Home/HomeScreen";
@@ -41,6 +42,10 @@ function AppContent() {
   const { account } = useCavosAccount();
   const cavosWallet = useAppStore(state => state.cavos.wallet);
   const resetStore = useAppStore(state => state.resetStore);
+  
+  // Get sleep state from store for global darkening effect
+  const realTimeStatusUI = useAppStore(state => state.getRealTimeStatusForUI());
+  const isBeastSleeping = realTimeStatusUI ? !realTimeStatusUI.isAwake : false;
 
   // Clear cache on wallet change
   useEffect(() => {
@@ -249,6 +254,23 @@ function AppContent() {
           onNavigation={handleNavigation}
         />
       )}
+
+      {/* Global dark overlay when beast is sleeping - applies to all screens */}
+      <AnimatePresence>
+        {isBeastSleeping && currentScreen !== "login" && currentScreen !== "hatch" && (
+          <motion.div
+            className="fixed inset-0 bg-black pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            exit={{ opacity: 0 }}
+            transition={{ 
+              duration: 1.5, 
+              ease: "easeInOut" 
+            }}
+            style={{ zIndex: 100 }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* NavBar - Hide on game screen for fullscreen experience */}
       {currentScreen !== "cover" && 

@@ -158,7 +158,7 @@ export const CleanScreen = ({
           transition={{ delay: 0.2, duration: 0.5 }}
           className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg pointer-events-auto text-center"
         >
-          Clean Your Beast
+          Tap the Cloud to Clean Your Beast
         </motion.h1>
         
         {/* Cloud Controller */}
