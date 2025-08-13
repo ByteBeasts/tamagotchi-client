@@ -219,7 +219,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
           <div className="bg-cream p-6 rounded-xl shadow-lg">
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 border-4 border-gold border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p className="font-luckiest text-text-primary">Processing Purchase...</p>
+              <p className="font-luckiest text-gray-800">Processing Purchase...</p>
             </div>
           </div>
         </div>

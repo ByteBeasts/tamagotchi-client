@@ -245,7 +245,7 @@ export function FoodPurchaseAnimation({ food, onClose }: FoodPurchaseAnimationPr
         </div>
 
         {/* Food description */}
-        <p className="text-text-primary font-luckiest text-center mb-3 text-sm">
+        <p className="text-gray-800 font-luckiest text-center mb-3 text-sm">
           {food.description}
         </p>
 
