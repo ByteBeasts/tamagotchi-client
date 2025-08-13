@@ -5,8 +5,16 @@ import type { Engine, Container, IOptions, RecursivePartial } from "@tsparticles
 import { MoveDirection } from "@tsparticles/engine"
 import { loadSlim } from "@tsparticles/slim"
 
+// Status icons
+import energyIcon from "../../../../assets/icons/tobBar/icon-energy.png";
+import hungerIcon from "../../../../assets/icons/tobBar/icon-hungry.png";
+import happyIcon from "../../../../assets/icons/tobBar/icon-happy.png";
+
 // Types
-import { MarketFoodItem, FOOD_CATEGORIES_CONFIG } from "../../../../constants/foodMarket.constants";
+import { MarketFoodItem, FOOD_CATEGORIES_CONFIG, BeastType, BEAST_FAVORITE_FOODS } from "../../../../constants/foodMarket.constants";
+
+// Beast display hook to get current beast type
+import { useBeastDisplay } from "../../../../dojo/hooks/useBeastDisplay";
 
 interface FoodPurchaseAnimationProps {
   food: MarketFoodItem;
@@ -19,6 +27,20 @@ interface FoodPurchaseAnimationProps {
  */
 export function FoodPurchaseAnimation({ food, onClose }: FoodPurchaseAnimationProps): JSX.Element | null {
   const [engineLoaded, setEngineLoaded] = useState(false)
+  
+  // Get current beast type to determine stat increments - MUST be before any conditional returns
+  const { liveBeast } = useBeastDisplay();
+  const currentBeastType = (liveBeast?.beast_type || 1) as BeastType;
+  
+  // Get stat increments for this food based on current beast type
+  const statIncrements = food.statIncrements?.[currentBeastType] || {
+    hunger: 4,
+    happiness: 4,
+    energy: 2
+  };
+  
+  // Check if this food is a favorite for the current beast
+  const isFavorite = BEAST_FAVORITE_FOODS[currentBeastType]?.includes(food.id) || false;
 
   useEffect(() => {
     initParticlesEngine(async (engine: Engine) => {
@@ -148,24 +170,6 @@ export function FoodPurchaseAnimation({ food, onClose }: FoodPurchaseAnimationPr
   if (!engineLoaded) return null
 
   const categoryConfig = FOOD_CATEGORIES_CONFIG[food.category];
-  
-  const healthinessColors: Record<number, string> = {
-    1: "bg-red-600",        // Unhealthy
-    2: "bg-orange-500",     // Poor  
-    3: "bg-yellow-500",     // Okay
-    4: "bg-emerald",        // Good - using your emerald variable
-    5: "bg-emerald",        // Excellent - using your emerald variable
-  }
-  const healthinessColor = healthinessColors[food.healthiness] || "bg-gray-500";
-
-  const healthinessText: Record<number, string> = {
-    1: "Unhealthy",
-    2: "Poor",
-    3: "Okay", 
-    4: "Good",
-    5: "Excellent",
-  }
-  const healthinessLabel = healthinessText[food.healthiness] || "Unknown";
 
   return (
     <motion.div
@@ -233,15 +237,29 @@ export function FoodPurchaseAnimation({ food, onClose }: FoodPurchaseAnimationPr
         {/* Success message */}
         <h2 className="font-luckiest text-xl text-primary mb-2 text-center">
           {food.name} Purchased!
+          {isFavorite && (
+            <span className="ml-1 text-yellow-500 text-base">⭐</span>
+          )}
         </h2>
 
-        {/* Category and healthiness badges */}
-        <div className="flex items-center gap-2 mb-3">
-          <span
-            className={`inline-block ${healthinessColor} text-cream font-bold tracking-wide rounded-full px-3 py-1 text-sm`}
-          >
-            {healthinessLabel}
-          </span>
+        {/* Stat increments badge */}
+        <div className={`flex items-center gap-3 px-3 py-1 rounded-full mb-3 ${
+          isFavorite 
+            ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400' 
+            : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-300'
+        }`}>
+          <div className="flex items-center gap-1">
+            <img src={hungerIcon} alt="Hunger" className="w-4 h-4" />
+            <span className="text-xs font-bold text-gray-700">+{statIncrements.hunger}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <img src={happyIcon} alt="Happy" className="w-4 h-4" />
+            <span className="text-xs font-bold text-gray-700">+{statIncrements.happiness}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <img src={energyIcon} alt="Energy" className="w-4 h-4" />
+            <span className="text-xs font-bold text-gray-700">+{statIncrements.energy}</span>
+          </div>
         </div>
 
         {/* Food description */}
