@@ -77,7 +77,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   1: {
     id: 1,
     name: 'Apple',
-    description: 'Fresh and crunchy, packed with vitamins and fiber',
+    description: 'Fresh with vitamins and fiber',
     image: FOOD_ASSETS[1].img,
     category: 'fruits',
     healthiness: 5,
@@ -92,7 +92,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   2: {
     id: 2,
     name: 'Banana',
-    description: 'Rich in potassium and natural sugars for quick energy',
+    description: 'Rich in potassium and sugars',
     image: FOOD_ASSETS[2].img,
     category: 'fruits',
     healthiness: 4,
@@ -107,7 +107,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   3: {
     id: 3,
     name: 'Cherry',
-    description: 'Sweet and juicy, full of antioxidants',
+    description: 'Sweet and juicy with antioxidants',
     image: FOOD_ASSETS[3].img,
     category: 'fruits',
     healthiness: 4,
@@ -122,7 +122,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   12: {
     id: 12,
     name: 'Blueberry',
-    description: 'Superfruit packed with antioxidants and vitamins',
+    description: 'With antioxidants and vitamins',
     image: FOOD_ASSETS[12].img,
     category: 'fruits',
     healthiness: 5,
@@ -139,7 +139,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   15: {
     id: 15,
     name: 'Corn',
-    description: 'Sweet corn kernels, good source of fiber',
+    description: 'Sweet corn kernels with fiber',
     image: FOOD_ASSETS[15].img,
     category: 'vegetables',
     healthiness: 4,
@@ -171,7 +171,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   8: {
     id: 8,
     name: 'Chicken',
-    description: 'Lean protein, excellent for muscle development',
+    description: 'Lean protein for muscles',
     image: FOOD_ASSETS[8].img,
     category: 'meats',
     healthiness: 4,
@@ -186,7 +186,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   10: {
     id: 10,
     name: 'Fish',
-    description: 'Fresh catch, rich in omega-3 fatty acids',
+    description: 'Rich in omega-3 fatty acids',
     image: FOOD_ASSETS[10].img,
     category: 'meats',
     healthiness: 5,
@@ -201,7 +201,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   13: {
     id: 13,
     name: 'Beef',
-    description: 'Premium red meat, high in protein and iron',
+    description: 'High in protein and iron',
     image: FOOD_ASSETS[13].img,
     category: 'meats',
     healthiness: 3,
@@ -216,7 +216,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   9: {
     id: 9,
     name: 'Eggs',
-    description: 'Farm fresh eggs, complete protein source',
+    description: 'Complete protein source',
     image: FOOD_ASSETS[9].img,
     category: 'meats',
     healthiness: 4,
@@ -231,7 +231,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   7: {
     id: 7,
     name: 'Cheese',
-    description: 'Creamy cheese, good source of calcium',
+    description: 'Good source of calcium',
     image: FOOD_ASSETS[7].img,
     category: 'meats', // Dairy fits here for simplicity
     healthiness: 3,
@@ -248,7 +248,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   5: {
     id: 5,
     name: 'Chocolate Cake',
-    description: 'Decadent chocolate treat, pure indulgence',
+    description: 'Decadent chocolate treat',
     image: FOOD_ASSETS[5].img,
     category: 'sweets',
     healthiness: 1,
@@ -263,7 +263,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   6: {
     id: 6,
     name: 'Strawberry Cake',
-    description: 'Sweet and fluffy, with strawberry flavor',
+    description: 'Sweet and fluffy with sugar',
     image: FOOD_ASSETS[6].img,
     category: 'sweets',
     healthiness: 1,
@@ -280,7 +280,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   4: {
     id: 4,
     name: 'Burger',
-    description: 'Juicy burger, quick and satisfying',
+    description: 'Juicy satisfying burger',
     image: FOOD_ASSETS[4].img,
     category: 'fast_food',
     healthiness: 1,
@@ -295,7 +295,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   11: {
     id: 11,
     name: 'French Fries',
-    description: 'Crispy golden fries, addictive and tasty',
+    description: 'Crispy golden fries',
     image: FOOD_ASSETS[11].img,
     category: 'fast_food',
     healthiness: 1,
@@ -310,7 +310,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   14: {
     id: 14,
     name: 'Pizza',
-    description: 'Cheesy pizza slice, comfort food at its best',
+    description: 'Cheesy pizza slice with pepperoni',
     image: FOOD_ASSETS[14].img,
     category: 'fast_food',
     healthiness: 2,
