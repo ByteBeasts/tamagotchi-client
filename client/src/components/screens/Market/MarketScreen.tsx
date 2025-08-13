@@ -59,6 +59,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
   
   // Market animation state
   const [selectedFood, setSelectedFood] = useState<MarketFoodItem | null>(null);
+  const [purchasedQuantity, setPurchasedQuantity] = useState<number>(1);
   const [showPurchaseAnimation, setShowPurchaseAnimation] = useState(false);
   const [showInsufficientBalance, setShowInsufficientBalance] = useState(false);
 
@@ -115,6 +116,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
     if (success) {
       // Show success animation on successful purchase
       setSelectedFood(food);
+      setPurchasedQuantity(quantity);
       setShowPurchaseAnimation(true);
     }
   };
@@ -123,6 +125,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
     setShowPurchaseAnimation(false);
     setShowInsufficientBalance(false);
     setSelectedFood(null);
+    setPurchasedQuantity(1);
   };
 
   return (
@@ -200,6 +203,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
           {showPurchaseAnimation && (
             <FoodPurchaseAnimation
               food={selectedFood}
+              quantity={purchasedQuantity}
               onClose={handleCloseAnimation}
             />
           )}
