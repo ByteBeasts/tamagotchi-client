@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { useLiveBeast } from "./useLiveBeast";
 import { getBeastDisplayInfo, type BeastSpecies, type BeastType } from "../../utils/beastHelpers";
-import { BEAST_ASSETS, type BeastType as EggBeastType } from "../../components/screens/Hatch/components/eggAnimation";
+import { BEAST_ASSETS, BEAST_SLEEPING_ASSETS, type BeastType as EggBeastType } from "../../components/screens/Hatch/components/eggAnimation";
+import useAppStore from "../../zustand/store";
 
 // Types for the hook
 export interface BeastDisplayInfo {
@@ -36,6 +37,10 @@ export const useBeastDisplay = (): UseBeastDisplayReturn => {
         hasLiveBeast,
         isLoading 
     } = useLiveBeast();
+    
+    // Get sleep state from store
+    const realTimeStatusUI = useAppStore(state => state.getRealTimeStatusForUI());
+    const isBeastSleeping = realTimeStatusUI ? !realTimeStatusUI.isAwake : false;
 
     // Process display information
     const currentBeastDisplay = useMemo((): BeastDisplayInfo | null => {
@@ -58,7 +63,10 @@ export const useBeastDisplay = (): UseBeastDisplayReturn => {
         };
         
         const beastTypeString = getBeastTypeString(displayInfo.beastType as number);
-        const beastAsset = BEAST_ASSETS[beastTypeString];
+        // Use sleeping asset if beast is sleeping, otherwise use normal asset
+        const beastAsset = isBeastSleeping 
+            ? BEAST_SLEEPING_ASSETS[beastTypeString]
+            : BEAST_ASSETS[beastTypeString];
         
         return {
             asset: beastAsset,
@@ -71,7 +79,7 @@ export const useBeastDisplay = (): UseBeastDisplayReturn => {
             beastType: displayInfo.beastType,
             beastTypeString
         };
-    }, [liveBeast]);
+    }, [liveBeast, isBeastSleeping]);
 
     return {
         currentBeastDisplay,
