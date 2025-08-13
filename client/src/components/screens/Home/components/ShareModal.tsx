@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useBeastShareData } from '../../../../dojo/hooks/useBeastsShareData';
 
@@ -26,7 +26,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   // get real-time beast data automatically
   const { beastDataForShare, shareMetadata } = useBeastShareData();
 
-  useEffect(() => {
+  // Memoize the tweet message to prevent infinite re-renders
+  const tweetMessage = useMemo(() => {
     if (type === 'beast' && beastDataForShare) {
       // tweet generation with real-time feel
       if (shareMetadata && shareMetadata.hasValidData) {
@@ -36,8 +37,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           ? `\nNeeds: ${needsAttention.join(", ")} 📝` 
           : `\nAll stats perfect! 💯`;
 
-        setTweetMsg(
-          `🎮 My ByteBeast is ${mood}! ${emoji}\n\n` +
+        return `🎮 My ByteBeast is ${mood}! ${emoji}\n\n` +
           `📊 Day ${beastDataForShare.age} Status:\n` +
           `⚡ Energy: ${beastDataForShare.energy}%\n` +
           `🍖 Hunger: ${beastDataForShare.hunger}%\n` +
@@ -45,20 +45,15 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           `🛁 Cleanliness: ${beastDataForShare.cleanliness}%${attentionText}\n\n` +
           `Join the ByteBeasts Tamagotchi adventure! 🚀\n` +
           `👉 https://www.bytebeasts.io\n` +
-          `@0xByteBeasts`
-        );
-        setIsDataReady(true);
+          `@0xByteBeasts`;
       } else {
         // New beast or loading state - shorter
-        setTweetMsg(
-          `🎮 Just started my ByteBeasts Tamagotchi journey!\n\n` +
+        return `🎮 Just started my ByteBeasts Tamagotchi journey!\n\n` +
           `My virtual beast is just getting started... 🐣\n\n` +
           `Stay tuned for updates on how it grows! 📈\n\n` +
           `Ready to raise your own Beast? 🚀\n` +
           `👉 https://www.bytebeasts.io\n` +
-          `@0xByteBeasts`
-        );
-        setIsDataReady(false);
+          `@0xByteBeasts`;
       }
       
     } else if (type === 'minigame' && minigameData) {
@@ -71,25 +66,41 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         return "🐣 Just started!";
       };
 
-      setTweetMsg(
-        `🎮 I just played ${minigameData.name} mini-game in ByteBeasts Tamagotchi\n\n` +
+      return `🎮 I just played ${minigameData.name} mini-game in ByteBeasts Tamagotchi\n\n` +
         `${getGameResultText(minigameData.score)} Score: ${minigameData.score} 🏆\n\n` +
         `Think you can beat it? Bring it on! 🔥\n` +
         `👉 https://www.bytebeasts.io\n` +
-        `@0xByteBeasts`
-      );
-      setIsDataReady(true);
+        `@0xByteBeasts`;
     } else {
       // 🎮 FALLBACK: shorter but intriguing
-      setTweetMsg(
-        `🎮 Playing ByteBeasts Tamagotchi!\n\n` +
+      return `🎮 Playing ByteBeasts Tamagotchi!\n\n` +
         `Join me in raising virtual creatures on the blockchain! 🌟\n\n` +
         `👉 https://www.bytebeasts.io\n` +
-        `@0xByteBeasts`
-      );
-      setIsDataReady(false);
+        `@0xByteBeasts`;
     }
-  }, [type, beastDataForShare, minigameData, shareMetadata]);
+  }, [
+    type,
+    beastDataForShare?.age,
+    beastDataForShare?.energy,
+    beastDataForShare?.hunger,
+    beastDataForShare?.happiness,
+    beastDataForShare?.cleanliness,
+    shareMetadata?.mood,
+    shareMetadata?.emoji,
+    shareMetadata?.hasValidData,
+    shareMetadata?.needsAttention?.join(','),
+    minigameData?.name,
+    minigameData?.score
+  ]);
+
+  // Set the tweet message and data ready state
+  useEffect(() => {
+    setTweetMsg(tweetMessage);
+    setIsDataReady(
+      (type === 'beast' && shareMetadata?.hasValidData) || 
+      (type === 'minigame' && !!minigameData)
+    );
+  }, [tweetMessage, type, shareMetadata?.hasValidData, minigameData]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
