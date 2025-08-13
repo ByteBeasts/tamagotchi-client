@@ -59,6 +59,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
   
   // Market animation state
   const [selectedFood, setSelectedFood] = useState<MarketFoodItem | null>(null);
+  const [purchasedQuantity, setPurchasedQuantity] = useState<number>(1);
   const [showPurchaseAnimation, setShowPurchaseAnimation] = useState(false);
   const [showInsufficientBalance, setShowInsufficientBalance] = useState(false);
 
@@ -101,20 +102,21 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
   }, [marketFoods]);
 
   // Handle food purchase using the custom hook
-  const handlePurchase = async (food: MarketFoodItem) => {
+  const handlePurchase = async (food: MarketFoodItem, quantity: number = 1) => {
     // Check if player can afford the item first
-    if (!canPurchase(food)) {
+    if (!canPurchase(food, quantity)) {
       setSelectedFood(food);
       setShowInsufficientBalance(true);
       return;
     }
 
     // Execute purchase using the hook
-    const success = await purchaseFood(food);
+    const success = await purchaseFood(food, quantity);
     
     if (success) {
       // Show success animation on successful purchase
       setSelectedFood(food);
+      setPurchasedQuantity(quantity);
       setShowPurchaseAnimation(true);
     }
   };
@@ -123,6 +125,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
     setShowPurchaseAnimation(false);
     setShowInsufficientBalance(false);
     setSelectedFood(null);
+    setPurchasedQuantity(1);
   };
 
   return (
@@ -200,6 +203,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
           {showPurchaseAnimation && (
             <FoodPurchaseAnimation
               food={selectedFood}
+              quantity={purchasedQuantity}
               onClose={handleCloseAnimation}
             />
           )}

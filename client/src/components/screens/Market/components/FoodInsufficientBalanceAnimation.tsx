@@ -77,7 +77,7 @@ export function FoodInsufficientBalanceAnimation({
         </h2>
 
         <div className="flex items-center justify-center gap-2 mb-3">
-          <p className="font-luckiest text-text-primary">You have:</p>
+          <p className="font-luckiest text-gray-800">You have:</p>
           <div className="flex items-center">
             <img src={coinIcon} alt="Coin" className="h-5 w-5 mr-1" />
             <span className="font-bold">{currentBalance}</span>
@@ -85,7 +85,7 @@ export function FoodInsufficientBalanceAnimation({
         </div>
 
         <div className="flex items-center justify-center gap-2 mb-4">
-          <p className="font-luckiest text-text-primary">You need:</p>
+          <p className="font-luckiest text-gray-800">You need:</p>
           <div className="flex items-center">
             <img src={coinIcon} alt="Coin" className="h-5 w-5 mr-1" />
             <span className="font-bold">{food.price}</span>

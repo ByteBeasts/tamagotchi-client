@@ -18,6 +18,7 @@ import { useBeastDisplay } from "../../../../dojo/hooks/useBeastDisplay";
 
 interface FoodPurchaseAnimationProps {
   food: MarketFoodItem;
+  quantity: number;
   onClose: () => void;
 }
 
@@ -25,7 +26,7 @@ interface FoodPurchaseAnimationProps {
  * Success animation for food purchases
  * Shows food with particles and celebration effects
  */
-export function FoodPurchaseAnimation({ food, onClose }: FoodPurchaseAnimationProps): JSX.Element | null {
+export function FoodPurchaseAnimation({ food, quantity, onClose }: FoodPurchaseAnimationProps): JSX.Element | null {
   const [engineLoaded, setEngineLoaded] = useState(false)
   
   // Get current beast type to determine stat increments - MUST be before any conditional returns
@@ -209,7 +210,7 @@ export function FoodPurchaseAnimation({ food, onClose }: FoodPurchaseAnimationPr
             scale: [1, 1.05, 1, 1.05, 1],
             transition: { duration: 1.5, repeat: Infinity, repeatType: "reverse" },
           }}
-          className="relative w-32 h-32 mb-4 flex items-center justify-center"
+          className="relative w-32 h-32 mb-2 flex items-center justify-center"
         >
           <img
             src={food.image || "/placeholder.svg"}
@@ -236,7 +237,7 @@ export function FoodPurchaseAnimation({ food, onClose }: FoodPurchaseAnimationPr
 
         {/* Success message */}
         <h2 className="font-luckiest text-xl text-primary mb-2 text-center">
-          {food.name} Purchased!
+          {quantity > 1 ? `${quantity}x ${food.name}` : food.name} Purchased!
           {isFavorite && (
             <span className="ml-1 text-yellow-500 text-base">⭐</span>
           )}

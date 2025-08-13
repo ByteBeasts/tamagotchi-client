@@ -17,9 +17,9 @@ interface UseMarketPurchaseProps {
 }
 
 interface UseMarketPurchaseReturn {
-  purchaseFood: (food: MarketFoodItem) => Promise<boolean>;
+  purchaseFood: (food: MarketFoodItem, quantity?: number) => Promise<boolean>;
   isPurchasing: boolean;
-  canPurchase: (food: MarketFoodItem) => boolean;
+  canPurchase: (food: MarketFoodItem, quantity?: number) => boolean;
 }
 
 export const useMarketPurchase = ({ 
@@ -37,24 +37,25 @@ export const useMarketPurchase = ({
   /**
    * Check if player can purchase a food item
    */
-  const canPurchase = (food: MarketFoodItem): boolean => {
+  const canPurchase = (food: MarketFoodItem, quantity: number = 1): boolean => {
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) return false;
     
     const playerBalance = storePlayer?.total_coins || 0;
-    return playerBalance >= food.price;
+    const totalPrice = food.price * quantity;
+    return playerBalance >= totalPrice;
   };
 
   /**
    * Purchase a food item from the market
    */
-  const purchaseFood = async (food: MarketFoodItem): Promise<boolean> => {
+  const purchaseFood = async (food: MarketFoodItem, quantity: number = 1): Promise<boolean> => {
     // Validation checks
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
       toast.error("Please login with ByteBeasts to make purchases", { position: toastPosition });
       return false;
     }
 
-    if (!canPurchase(food)) {
+    if (!canPurchase(food, quantity)) {
       toast.error("Insufficient coins for this purchase", { position: toastPosition });
       return false;
     }
@@ -64,6 +65,9 @@ export const useMarketPurchase = ({
       return false;
     }
 
+    // Calculate total cost
+    const totalCost = food.price * quantity;
+
     try {
       setIsPurchasing(true);
       
@@ -72,13 +76,14 @@ export const useMarketPurchase = ({
       if (currentPlayer) {
         const optimisticPlayer = {
           ...currentPlayer,
-          total_coins: Math.max(0, currentPlayer.total_coins - food.price)
+          total_coins: Math.max(0, currentPlayer.total_coins - totalCost)
         };
         
         console.log("🔮 [MarketPurchase] Optimistic update:", {
           before: currentPlayer.total_coins,
           after: optimisticPlayer.total_coins,
-          spent: food.price
+          spent: totalCost,
+          quantity: quantity
         });
         
         // Update store immediately (optimistic)
@@ -93,14 +98,16 @@ export const useMarketPurchase = ({
         entrypoint: 'add_or_update_food_amount',
         calldata: [
           food.id.toString(),      // food ID
-          '1',                     // amount (buying 1 unit)
-          food.price.toString()    // price in coins
+          quantity.toString(),     // amount (buying specified quantity)
+          totalCost.toString()     // total price in coins
         ]
       }];
       
       console.log('🛒 Executing purchase transaction...', {
         food: food.name,
-        price: food.price,
+        quantity: quantity,
+        unitPrice: food.price,
+        totalPrice: totalCost,
         coins_before: storePlayer?.total_coins
       });
       
@@ -133,7 +140,11 @@ export const useMarketPurchase = ({
       }, 8000); // Wait 8 seconds for Torii to process
       
       // Success notification
-      toast.success(`${food.name} purchased successfully!`, { 
+      const successMessage = quantity > 1 
+        ? `${quantity}x ${food.name} purchased successfully!` 
+        : `${food.name} purchased successfully!`;
+      
+      toast.success(successMessage, { 
         position: toastPosition,
         duration: 3000
       });
@@ -148,13 +159,13 @@ export const useMarketPurchase = ({
       if (currentPlayer) {
         const revertedPlayer = {
           ...currentPlayer,
-          total_coins: currentPlayer.total_coins + food.price // Add back the coins
+          total_coins: currentPlayer.total_coins + totalCost // Add back the coins
         };
         
         console.log("↩️ [MarketPurchase] Reverting optimistic update:", {
           before: currentPlayer.total_coins,
           after: revertedPlayer.total_coins,
-          refunded: food.price
+          refunded: totalCost
         });
         
         useAppStore.getState().setPlayer(revertedPlayer);
