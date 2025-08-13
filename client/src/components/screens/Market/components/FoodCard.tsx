@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { motion } from "framer-motion"
 import coinIcon from "../../../../assets/icons/coins/icon-coin-single.webp"
 
@@ -5,6 +6,10 @@ import coinIcon from "../../../../assets/icons/coins/icon-coin-single.webp"
 import energyIcon from "../../../../assets/icons/tobBar/icon-energy.png";
 import hungerIcon from "../../../../assets/icons/tobBar/icon-hungry.png";
 import happyIcon from "../../../../assets/icons/tobBar/icon-happy.png";
+
+// Quantity selector icons
+import minusIcon from "../../../../assets/icons/extras/icon-minus.png";
+import plusIcon from "../../../../assets/icons/extras/icon-plus.png";
 
 // Types
 import { MarketFoodItem, BeastType, BEAST_FAVORITE_FOODS } from "../../../../constants/foodMarket.constants";
@@ -14,7 +19,7 @@ import { useBeastDisplay } from "../../../../dojo/hooks/useBeastDisplay";
 
 interface FoodCardProps {
   food: MarketFoodItem
-  onPurchase: () => void
+  onPurchase: (quantity: number) => void
 }
 
 /**
@@ -22,6 +27,9 @@ interface FoodCardProps {
  * Displays food info, price, and purchase button with stat increments
  */
 export function FoodCard({ food, onPurchase }: FoodCardProps) {
+  // Quantity state - minimum 1, maximum 10
+  const [quantity, setQuantity] = useState(1);
+  
   // Get current beast type to determine stat increments
   const { liveBeast } = useBeastDisplay();
   const currentBeastType = (liveBeast?.beast_type || 1) as BeastType;
@@ -35,6 +43,18 @@ export function FoodCard({ food, onPurchase }: FoodCardProps) {
   
   // Check if this food is a favorite for the current beast
   const isFavorite = BEAST_FAVORITE_FOODS[currentBeastType]?.includes(food.id) || false;
+  
+  // Calculate total price
+  const totalPrice = food.price * quantity;
+  
+  // Handle quantity changes
+  const increaseQuantity = () => {
+    if (quantity < 10) setQuantity(quantity + 1);
+  };
+  
+  const decreaseQuantity = () => {
+    if (quantity > 1) setQuantity(quantity - 1);
+  };
 
   const item = {
     hidden: { y: 20, opacity: 0 },
@@ -96,9 +116,34 @@ export function FoodCard({ food, onPurchase }: FoodCardProps) {
         {food.description}
       </p>
 
+      {/* Quantity Selector */}
+      <div className="flex items-center justify-center gap-3 mb-3">
+        <motion.button
+          onClick={decreaseQuantity}
+          className="w-8 h-8 flex items-center justify-center transition-colors duration-200"
+          whileTap={{ scale: 0.9 }}
+          disabled={quantity <= 1}
+        >
+          <img src={minusIcon} alt="Decrease" className="w-6 h-6" />
+        </motion.button>
+        
+        <div className="px-3 py-1 min-w-[50px] text-center">
+          <span className="font-luckiest text-gray-800">{quantity}</span>
+        </div>
+        
+        <motion.button
+          onClick={increaseQuantity}
+          className="w-8 h-8 flex items-center justify-center transition-colors duration-200"
+          whileTap={{ scale: 0.9 }}
+          disabled={quantity >= 10}
+        >
+          <img src={plusIcon} alt="Increase" className="w-6 h-6" />
+        </motion.button>
+      </div>
+
       {/* Purchase button - Always "Buy" */}
       <motion.button
-        onClick={onPurchase}
+        onClick={() => onPurchase(quantity)}
         className="btn-cr-store w-full flex items-center justify-center gap-2"
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.02 }}
@@ -106,7 +151,7 @@ export function FoodCard({ food, onPurchase }: FoodCardProps) {
       >
         <span>Buy</span>
         <img src={coinIcon} alt="Coin" className="h-5 w-5" />
-        <span>{food.price}</span>
+        <span>{totalPrice}</span>
       </motion.button>
       </motion.div>
     )

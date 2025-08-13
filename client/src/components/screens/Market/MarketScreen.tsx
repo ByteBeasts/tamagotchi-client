@@ -101,16 +101,16 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
   }, [marketFoods]);
 
   // Handle food purchase using the custom hook
-  const handlePurchase = async (food: MarketFoodItem) => {
+  const handlePurchase = async (food: MarketFoodItem, quantity: number = 1) => {
     // Check if player can afford the item first
-    if (!canPurchase(food)) {
+    if (!canPurchase(food, quantity)) {
       setSelectedFood(food);
       setShowInsufficientBalance(true);
       return;
     }
 
     // Execute purchase using the hook
-    const success = await purchaseFood(food);
+    const success = await purchaseFood(food, quantity);
     
     if (success) {
       // Show success animation on successful purchase

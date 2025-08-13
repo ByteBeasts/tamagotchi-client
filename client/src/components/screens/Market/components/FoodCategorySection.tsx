@@ -7,7 +7,7 @@ import { MarketFoodItem, FoodCategory, FOOD_CATEGORIES_CONFIG } from "../../../.
 interface FoodCategorySectionProps {
   category: FoodCategory
   foods: MarketFoodItem[]
-  onPurchase: (food: MarketFoodItem) => void
+  onPurchase: (food: MarketFoodItem, quantity: number) => void
 }
 
 /**
@@ -67,7 +67,7 @@ export function FoodCategorySection({ category, foods, onPurchase }: FoodCategor
             <FoodCard
               key={food.id}
               food={food}
-              onPurchase={() => onPurchase(food)}
+              onPurchase={(quantity) => onPurchase(food, quantity)}
             />
           ))}
         </div>
