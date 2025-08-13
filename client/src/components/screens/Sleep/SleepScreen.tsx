@@ -197,7 +197,7 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
       >
         <h1 className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg text-center">
           {isBeastSleeping ? (
-            <>Your Beast is Sleeping. Tap the campfire to Wake Them Up! 😴</>
+            <>Your Beast is Sleeping. Tap the campfire to Wake Them Up!</>
           ) : (
             <>Tap the campfire to Sleep Your Beast</>
           )}
