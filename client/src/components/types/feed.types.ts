@@ -15,6 +15,7 @@ export interface FoodItem {
 
 export interface FeedScreenProps {
   onNavigation: (screen: Screen) => void;
+  isBeastSleeping?: boolean;
 }
 
 export interface DragState {

@@ -224,6 +224,7 @@ function AppContent() {
       {currentScreen === "feed" && (
         <FeedScreen
           onNavigation={handleNavigation}
+          isBeastSleeping={isBeastSleeping}
         />
       )}
 
@@ -231,6 +232,7 @@ function AppContent() {
         <CleanScreen
           onNavigation={handleNavigation}
           playerAddress={playerAddress}
+          isBeastSleeping={isBeastSleeping}
         />
       )}
 
@@ -238,6 +240,7 @@ function AppContent() {
         <PlayScreen
           onNavigation={handleNavigation}
           playerAddress={cavosWallet?.address || ""}
+          isBeastSleeping={isBeastSleeping}
         />
       )}
 

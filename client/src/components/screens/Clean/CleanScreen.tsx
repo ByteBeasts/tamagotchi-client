@@ -27,7 +27,8 @@ import cloudOff from "../../../assets/icons/cloud/icon-cloud.png";
 
 export const CleanScreen = ({ 
   onNavigation,
-  rainDuration = 3
+  rainDuration = 3,
+  isBeastSleeping = false
 }: CleanScreenProps) => {
   // Music context
   const { setCurrentScreen } = useMusic();
@@ -152,14 +153,21 @@ export const CleanScreen = ({
       {/* Main Content */}
       <div className="flex flex-col items-center mt-8 space-y-6 z-10 pointer-events-none select-none">
         {/* Header */}
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg pointer-events-auto text-center"
+          className="pointer-events-auto text-center"
         >
-          Tap the Cloud to Clean Your Beast
-        </motion.h1>
+          <h1 className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg">
+            {isBeastSleeping ? "Your Beast is Sleeping" : "Tap the Cloud to Clean Your Beast"}
+          </h1>
+          {isBeastSleeping && (
+            <p className="text-white/80 text-sm mt-2">
+              Wake them up to clean it
+            </p>
+          )}
+        </motion.div>
         
         {/* Cloud Controller */}
         <CloudController
@@ -168,7 +176,7 @@ export const CleanScreen = ({
           currentFrameIndex={0}
           isCloudOn={!isInteractionDisabled}
           isAnimating={isRainActive}
-          disabled={isInteractionDisabled}
+          disabled={isInteractionDisabled || isBeastSleeping}
         />
         
         {/* Beast Display */}
