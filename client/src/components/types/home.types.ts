@@ -36,4 +36,6 @@ export interface ActionButtonsProps {
 export interface BeastHomeDisplayProps {
   beastImage: string;
   altText: string;
+  beastName?: string;
+  onEditName?: () => void;
 }

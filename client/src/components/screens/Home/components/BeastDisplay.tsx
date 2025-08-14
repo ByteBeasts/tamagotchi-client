@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { BeastHomeDisplayProps } from "../../../types/home.types";
+import editIcon from "../../../../assets/icons/profile/edit.png";
 
 const beastAnimation = {
   initial: { scale: 0.3, opacity: 0, rotate: -15 },
@@ -19,9 +20,9 @@ const beastAnimation = {
   whileHover: { scale: 1.03, rotate: 2 },
 };
 
-export const BeastHomeDisplay = ({ beastImage, altText }: BeastHomeDisplayProps) => {
+export const BeastHomeDisplay = ({ beastImage, altText, beastName, onEditName }: BeastHomeDisplayProps) => {
   return (
-    <div className="flex-grow flex items-center justify-center w-full pointer-events-none select-none z-0 relative">
+    <div className="flex-grow flex flex-col items-center justify-center w-full pointer-events-none select-none z-0 relative">
       <motion.img
         src={beastImage}
         alt={altText}
@@ -30,6 +31,27 @@ export const BeastHomeDisplay = ({ beastImage, altText }: BeastHomeDisplayProps)
         animate={beastAnimation.animate}
         whileHover={beastAnimation.whileHover}
       />
+      
+      <motion.div 
+        className="mt-4 pointer-events-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, duration: 0.5 }}
+      >
+        {beastName ? (
+          <h2 className="text-2xl sm:text-3xl font-luckiest text-cream drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+            {beastName}
+          </h2>
+        ) : onEditName ? (
+          <button
+            onClick={onEditName}
+            className="p-2"
+            aria-label="Name your beast"
+          >
+            <img src={editIcon} alt="Name beast" className="w-10 h-10" />
+          </button>
+        ) : null}
+      </motion.div>
     </div>
   );
 };

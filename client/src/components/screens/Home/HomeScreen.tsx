@@ -3,6 +3,7 @@ import { TamagotchiTopBar } from "../../layout/TopBar";
 import { HomeScreenProps, BeastData, PlayerData } from "../../types/home.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
+import { BeastNameModal } from "./components/BeastNameModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
 import { lookupAddresses } from '@cartridge/controller';
 
@@ -24,6 +25,9 @@ import { BeastHomeDisplay } from "./components/BeastDisplay";
 export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  // Simulating that beasts start without a name (null means no name set yet)
+  const [beastName, setBeastName] = useState<string | null>(null);
   
   // Get Cavos wallet address instead of Starknet account
   const cavosWallet = useAppStore(state => state.cavos.wallet);
@@ -165,6 +169,8 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
       <BeastHomeDisplay 
         beastImage={currentBeastDisplay.asset}
         altText={currentBeastDisplay.displayName}
+        beastName={beastName || undefined}
+        onEditName={beastName ? undefined : () => setIsNameModalOpen(true)}
       />
     );
   };
@@ -208,6 +214,17 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         isOpen={isPlayerInfoModalOpen}
         onClose={closePlayerModal}
         playerData={playerData}
+      />
+      
+      <BeastNameModal
+        isOpen={isNameModalOpen}
+        onClose={() => setIsNameModalOpen(false)}
+        onSubmit={(name) => {
+          setBeastName(name);
+          // TODO: Call contract to set name (this is a one-time action)
+          console.log("Beast named:", name);
+        }}
+        currentName={undefined} // Always empty since it's a one-time action
       />
     </div>
   );
