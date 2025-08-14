@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x13d92333361bb7049c1232c0a5404e2c19082ededc3a73d75cb33fa952adec7",
-    "address": "0x20f246f511e93764ee7f174f5ece78c9dfafe1d537bbf05c48c59134b5de4f3",
-    "seed": "tamagotchi2",
+    "address": "0x79b0f0159ae6655ace0db5efc04f261340dc3e6f22e59c0b46237b5e9ced055",
+    "seed": "tamagotchi3",
     "name": "ByteBeasts Tamagotchi",
     "entrypoints": [
       "uuid",
@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x33a445fc403762f42140ac6ca02b0d37882a39d68c5f8c9c037bf7e2238a463",
-      "class_hash": "0x2b33cdb03fd3e24282a9df186e6b1ea482723e90d490ab1d98da6464228af42",
+      "address": "0x44c537565cd0b4e571614b3491fc949889cbcf0b14e17789357260cae2efff1",
+      "class_hash": "0x1c427e7abca30434a218134950f6e48b61cb015b29ed29b91f6a5fc60c49d4a",
       "abi": [
         {
           "type": "impl",
@@ -1630,8 +1630,8 @@
       ]
     },
     {
-      "address": "0x217331080ea988e121cbe284bfe9b2504d9e78c363234abd57c260f7b3621a8",
-      "class_hash": "0x649e9fe41d6d64e292d1dd94bccc4a5c63193ba33edf7bf8cf6619853dd995e",
+      "address": "0x2d4ac6b623b25e2af63b861ee1fc7c7a41d135f9d29577cb4e6f6a934c0564d",
+      "class_hash": "0x680da07ccb26f65ce943ebcc9c27d9d6fb542072e1fdb813cdd94f9b4b9d5de",
       "abi": [
         {
           "type": "impl",
@@ -2110,8 +2110,8 @@
       ]
     },
     {
-      "address": "0x2277356f235adb1550f3e18d5f93b0903cec390335967c3ddba7b446638fbac",
-      "class_hash": "0x4f221d2929a4efc518d597aa087902b37fba95a262bedde523623cb1a450e87",
+      "address": "0x38e837b4e9e5f2c08acecca5c464740d2fd35fb500b0914a4962e8d59ee0d8b",
+      "class_hash": "0x31417dbe7f66a739c15039402845089eb33c69ff2ee723330076a0442ed2b13",
       "abi": [
         {
           "type": "impl",
@@ -2174,6 +2174,20 @@
           "type": "impl",
           "name": "PlayerImpl",
           "interface_name": "tamagotchi::systems::player::IPlayer"
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
         },
         {
           "type": "interface",
@@ -2275,6 +2289,22 @@
                 }
               ],
               "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_player_name",
+              "inputs": [
+                {
+                  "name": "name",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
               "state_mutability": "external"
             }
           ]
@@ -2400,6 +2430,7 @@
         "update_player_minigame_highest_score",
         "add_or_update_food_amount",
         "emit_player_push_token",
+        "set_player_name",
         "upgrade"
       ]
     }
@@ -2432,7 +2463,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x19149b867436b81aa90df7400262126aa1a430dd3560869d3f954fbf758a272",
+      "class_hash": "0x43fd5fafe4726fbed3386d73007df33ff4e6d6966b870c9ce950b06d598b292",
       "tag": "tamagotchi-Player",
       "selector": "0x3c2b9e38bb17747db3008b613c6b1ef5f9a6bcd4c1f40f329e7ff691aafa1e2"
     }
