@@ -49,7 +49,7 @@ export const BeastHomeDisplay = ({ beastImage, altText, beastName, onEditName }:
                 className="p-1 hover:scale-110 transition-transform"
                 aria-label="Edit beast name"
               >
-                <img src={editIcon} alt="Edit name" className="w-6 h-6" />
+                <img src={editIcon} alt="Edit name" className="w-8 h-8" />
               </button>
             )}
           </>

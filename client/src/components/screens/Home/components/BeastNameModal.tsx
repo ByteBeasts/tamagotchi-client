@@ -126,8 +126,8 @@ export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerG
             <div className="flex items-center gap-2">
               <p className="text-gray-800 text-sm font-rubik flex-1">
                 {currentName 
-                  ? `Renaming costs 5 gems. Current name: "${currentName}"`
-                  : "Naming your beast costs 5 gems"}
+                  ? `Renaming costs:`
+                  : "Naming your beast costs:"}
               </p>
               <div className="flex items-center gap-1">
                 <img src={gemIcon} alt="Gem" className="w-4 h-4" />

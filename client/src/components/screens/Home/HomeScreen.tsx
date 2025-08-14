@@ -26,7 +26,6 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
-  // Simulating that beasts start without a name (null means no name set yet)
   const [beastName, setBeastName] = useState<string | null>(null);
   
   // Get Cavos wallet address instead of Starknet account
@@ -208,8 +207,6 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
 
       {renderBeastContent()}
 
-      {/* Action buttons removed - shop moved to FeedScreen */}
-
       <PlayerInfoModal
         isOpen={isPlayerInfoModalOpen}
         onClose={closePlayerModal}
@@ -222,8 +219,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onSubmit={(name) => {
           setBeastName(name);
           // TODO: Call contract to set name (costs 5 gems)
-          // TODO: Deduct 5 gems from player
-          console.log("Beast named/renamed:", name);
+          console.log(`Beast ${beastName ? 'renamed' : 'named'} to: ${name}`);
         }}
         currentName={beastName || undefined}
         playerGems={storePlayer?.total_gems || 0}
