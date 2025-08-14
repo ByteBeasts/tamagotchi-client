@@ -65,6 +65,15 @@ export const FeedScreen = ({ onNavigation, isBeastSleeping = false }: FeedScreen
   // Computed states
   const hasFoodAvailable = foods.some(food => food.count > 0);
   const isLoading = beastLoading || foodLoading;
+  
+  // Enhanced drag handler that checks if beast is sleeping
+  const handleDragStartWithSleepCheck = (food: any) => {
+    if (isBeastSleeping) {
+      // Don't start drag if beast is sleeping, but don't show any feedback
+      return;
+    }
+    handleDragStart(food);
+  };
 
   // Show loading state while data is being fetched
   if (isLoading) {
@@ -245,8 +254,8 @@ export const FeedScreen = ({ onNavigation, isBeastSleeping = false }: FeedScreen
       <FoodCarousel
         foods={foods}
         isDragging={dragState.isDragging}
-        isDisabled={isCarouselDisabled || isBeastSleeping}
-        onDragStart={handleDragStart}
+        isDisabled={isCarouselDisabled}
+        onDragStart={handleDragStartWithSleepCheck}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
       />
