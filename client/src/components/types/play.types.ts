@@ -81,6 +81,7 @@ export interface GameStats {
 export interface PlayScreenProps {
   onNavigation: (screen: Screen, gameId?: GameId) => void;
   playerAddress: string;
+  isBeastSleeping?: boolean;
 }
 
 export interface GameCarouselProps {

@@ -4,6 +4,7 @@ export interface CleanScreenProps {
   onNavigation: (screen: Screen) => void;
   playerAddress: string;
   rainDuration?: number;
+  isBeastSleeping?: boolean;
 }
 
 export interface CloudControllerProps {

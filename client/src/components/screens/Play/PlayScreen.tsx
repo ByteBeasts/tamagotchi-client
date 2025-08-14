@@ -22,7 +22,7 @@ import { isGameAvailable, getAvailableGames } from "./components/data/miniGames"
 import { BeastPlayDisplay } from "./components/BeastDisplay";
 import { GameCarousel } from "./components/GameCarousel";
 
-export const PlayScreen = ({ onNavigation }: PlayScreenProps) => {
+export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreenProps) => {
   // Music context
   const { setCurrentScreen } = useMusic();
 
@@ -44,6 +44,12 @@ export const PlayScreen = ({ onNavigation }: PlayScreenProps) => {
 
   const handleMiniGameSelect = (gameId: GameId) => {
     console.log(`Selected mini-game: ${gameId}`);
+    
+    // Block game selection if beast is sleeping
+    if (isBeastSleeping) {
+      console.warn('Cannot play games while beast is sleeping');
+      return;
+    }
     
     // Check if game is available
     if (!isGameAvailable(gameId)) {
@@ -142,11 +148,16 @@ export const PlayScreen = ({ onNavigation }: PlayScreenProps) => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="mt-4 z-10"
+        className="mt-4 z-10 text-center"
       >
         <h1 className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg">
-          Play With Your Beast
+          {isBeastSleeping ? "Your Beast is Sleeping" : "Play With Your Beast"}
         </h1>
+        {isBeastSleeping && (
+          <p className="text-white/80 text-sm mt-2">
+            Wake them up to play
+          </p>
+        )}
       </motion.div>
 
       {/* Center: Beast Display - Using the player's real beast image */}

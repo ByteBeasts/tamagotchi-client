@@ -27,7 +27,7 @@ import { FeedScreenProps } from "../../types/feed.types";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
 import shopIcon from "../../../assets/icons/shop/icon-food-shop.webp";
 
-export const FeedScreen = ({ onNavigation }: FeedScreenProps) => {
+export const FeedScreen = ({ onNavigation, isBeastSleeping = false }: FeedScreenProps) => {
   const constraintsRef = useRef(null);
   const portalRoot = usePortal();
   
@@ -209,9 +209,14 @@ export const FeedScreen = ({ onNavigation }: FeedScreenProps) => {
         transition={{ delay: 0.2, duration: 0.5 }}
         className="mt-4 z-10"
       >
-        <h1 className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg">
-          Feed Your Beast
+        <h1 className="text-2xl md:text-3xl font-luckiest text-cream drop-shadow-lg text-center">
+          {isBeastSleeping ? "Your Beast is Sleeping" : "Feed Your Beast"}
         </h1>
+        {isBeastSleeping && (
+          <p className="text-white/80 text-sm mt-2 text-center">
+            Wake them up to feed it
+          </p>
+        )}
       </motion.div>
 
       {/* Shop Button - Top Right */}
@@ -240,7 +245,7 @@ export const FeedScreen = ({ onNavigation }: FeedScreenProps) => {
       <FoodCarousel
         foods={foods}
         isDragging={dragState.isDragging}
-        isDisabled={isCarouselDisabled} // NEW: Pass disabled state
+        isDisabled={isCarouselDisabled || isBeastSleeping}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
