@@ -170,7 +170,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         beastImage={currentBeastDisplay.asset}
         altText={currentBeastDisplay.displayName}
         beastName={beastName || undefined}
-        onEditName={beastName ? undefined : () => setIsNameModalOpen(true)}
+        onEditName={() => setIsNameModalOpen(true)}
       />
     );
   };
@@ -221,10 +221,12 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onClose={() => setIsNameModalOpen(false)}
         onSubmit={(name) => {
           setBeastName(name);
-          // TODO: Call contract to set name (this is a one-time action)
-          console.log("Beast named:", name);
+          // TODO: Call contract to set name (costs 5 gems)
+          // TODO: Deduct 5 gems from player
+          console.log("Beast named/renamed:", name);
         }}
-        currentName={undefined} // Always empty since it's a one-time action
+        currentName={beastName || undefined}
+        playerGems={storePlayer?.total_gems || 0}
       />
     </div>
   );

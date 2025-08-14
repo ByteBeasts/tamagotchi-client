@@ -33,15 +33,26 @@ export const BeastHomeDisplay = ({ beastImage, altText, beastName, onEditName }:
       />
       
       <motion.div 
-        className="mt-4 pointer-events-auto"
+        className="mt-4 pointer-events-auto flex items-center gap-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.5 }}
       >
         {beastName ? (
-          <h2 className="text-2xl sm:text-3xl font-luckiest text-cream drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-            {beastName}
-          </h2>
+          <>
+            <h2 className="text-2xl sm:text-3xl font-luckiest text-cream drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              {beastName}
+            </h2>
+            {onEditName && (
+              <button
+                onClick={onEditName}
+                className="p-1 hover:scale-110 transition-transform"
+                aria-label="Edit beast name"
+              >
+                <img src={editIcon} alt="Edit name" className="w-6 h-6" />
+              </button>
+            )}
+          </>
         ) : onEditName ? (
           <button
             onClick={onEditName}
