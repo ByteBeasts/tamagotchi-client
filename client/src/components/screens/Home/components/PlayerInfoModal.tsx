@@ -7,6 +7,7 @@ import medalIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
 import beastIcon from "../../../../assets/icons/profile/beast.png";
 import editIcon from "../../../../assets/icons/profile/edit.png";
 import dailyStreakIcon from "../../../../assets/icons/dailyStreak/icon-daily-streak.webp";
+import closeIcon from "../../../../assets/icons/extras/icon-close.png";
 
 // Import hook for beast display
 import { useBeastDisplay } from "../../../../dojo/hooks/useBeastDisplay";
@@ -74,11 +75,11 @@ export const PlayerInfoModal = ({
           </h2>
           <motion.button
             onClick={onClose}
-            className="text-gray-800 transition-colors font-luckiest text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10"
+            className="transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            x
+            <img src={closeIcon} alt="Close" className="w-8 h-8" />
           </motion.button>
         </div>
 

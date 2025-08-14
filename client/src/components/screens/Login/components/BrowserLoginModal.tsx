@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import closeIcon from "../../../../assets/icons/extras/icon-close.png";
 
 interface BrowserLoginModalProps {
   isOpen: boolean;
@@ -96,7 +97,7 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
         style={{ touchAction: 'auto' }}
       >
         {/* Header */}
-        <div className="bg-gold/20 p-4 border-b-4 border-gold/40 flex justify-between items-center">
+        <div className="bg-gold-gradient p-4 border-b-4 border-gold/40 flex justify-between items-center">
           <h2 className="text-gray-800 font-luckiest text-2xl tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
             BROWSER LOGIN
           </h2>
@@ -104,7 +105,7 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
             <motion.button 
               onClick={handleCloseClick}
               onTouchStart={handleCloseClick}
-              className="text-gray-800 transition-colors font-luckiest text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10 touch-manipulation"
+              className="transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10 touch-manipulation"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               style={{ 
@@ -112,7 +113,7 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
                 WebkitTapHighlightColor: 'transparent'
               }}
             >
-              ×
+              <img src={closeIcon} alt="Close" className="w-8 h-8" />
             </motion.button>
           )}
         </div>
