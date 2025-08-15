@@ -94,6 +94,7 @@ const fetchPlayerData = async (playerAddress: string): Promise<Player | null> =>
     // Convert hex values to numbers
     const playerData: Player = {
       address: rawPlayerData.address,
+      name: hexToNumber(rawPlayerData.name) || 0,
       current_beast_id: hexToNumber(rawPlayerData.current_beast_id),
       daily_streak: hexToNumber(rawPlayerData.daily_streak),
       total_points: hexToNumber(rawPlayerData.total_points),

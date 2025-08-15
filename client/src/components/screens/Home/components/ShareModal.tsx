@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useBeastShareData } from '../../../../dojo/hooks/useBeastsShareData';
+import closeIcon from "../../../../assets/icons/extras/icon-close.png";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -165,14 +166,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         style={{ touchAction: 'auto' }}
       >
         {/* Header */}
-        <div className="bg-gold/20 p-4 border-b-4 border-gold/40 flex justify-between items-center">
+        <div className="bg-gold-gradient p-4 border-b-4 border-gold/40 flex justify-between items-center">
           <h2 className="text-gray-800 font-luckiest text-2xl tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
             SHARE ON X
           </h2>
           <motion.button 
             onClick={handleCloseClick}
             onTouchStart={handleCloseClick}
-            className="text-gray-800 transition-colors font-luckiest text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10 touch-manipulation"
+            className="transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10 touch-manipulation"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             style={{ 
@@ -180,7 +181,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               WebkitTapHighlightColor: 'transparent'
             }}
           >
-            ×
+            <img src={closeIcon} alt="Close" className="w-8 h-8" />
           </motion.button>
         </div>
 

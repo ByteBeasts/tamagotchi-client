@@ -718,6 +718,27 @@ export function setupWorld(provider: DojoProvider) {
         }
     };
 
+    const build_player_setPlayerName_calldata = (name: number): DojoCall => {
+        return {
+            contractName: "player",
+            entrypoint: "set_player_name",
+            calldata: [name],
+        };
+    };
+
+    const player_setPlayerName = async (snAccount: Account | AccountInterface, name: number) => {
+        try {
+            return await provider.execute(
+                snAccount,
+                build_player_setPlayerName_calldata(name),
+                "tamagotchi",
+            );
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    };
+
 
 
     return {
@@ -794,6 +815,8 @@ export function setupWorld(provider: DojoProvider) {
             buildUpdatePlayerTotalGemsCalldata: build_player_updatePlayerTotalGems_calldata,
             updatePlayerTotalPoints: player_updatePlayerTotalPoints,
             buildUpdatePlayerTotalPointsCalldata: build_player_updatePlayerTotalPoints_calldata,
+            setPlayerName: player_setPlayerName,
+            buildSetPlayerNameCalldata: build_player_setPlayerName_calldata,
         },
     };
 }

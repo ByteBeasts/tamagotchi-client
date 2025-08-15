@@ -15,6 +15,7 @@ import ceilingBackground from '../../../../../../assets/icons/games/flappy-beast
 import pipeImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.png';
 import pipeUpImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.png';
 import pipeDownImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.png';
+import closeIcon from '../../../../../../assets/icons/extras/icon-close.png';
 
 // Styles
 import "./main.css";
@@ -451,17 +452,17 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
             className="bg-cream w-[90%] max-w-md rounded-2xl shadow-[0_8px_0_rgba(0,0,0,0.2)] overflow-hidden border-4 border-gold/30"
           >
             {/* Header */}
-            <div className="bg-gold/20 p-4 border-b-4 border-gold/40 flex justify-between items-center">
+            <div className="bg-gold-gradient p-4 border-b-4 border-gold/40 flex justify-between items-center">
               <h2 className="text-gray-800 font-luckiest text-2xl tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
                 FLAPPY BEASTS
               </h2>
               <motion.button 
                 onClick={onExitGame}
-                className="text-gray-800 transition-colors font-luckiest text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10"
+                className="transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
-                ×
+                <img src={closeIcon} alt="Close" className="w-8 h-8" />
               </motion.button>
             </div>
 
