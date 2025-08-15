@@ -3,14 +3,21 @@ import { TamagotchiTopBar } from "../../layout/TopBar";
 import { HomeScreenProps, BeastData, PlayerData } from "../../types/home.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
+import { BeastNameModal } from "./components/BeastNameModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
 import { lookupAddresses } from '@cartridge/controller';
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
+import { useSetBeastName } from "../../../dojo/hooks/useSetBeastName";
+import { useLiveBeast } from "../../../dojo/hooks/useLiveBeast";
+import { usePlayer } from "../../../dojo/hooks/usePlayer";
 
 // Store
 import useAppStore from "../../../zustand/store";
+
+// Utils
+import { hexToString } from "../../../utils/dataConversion";
 
 // Music Context
 import { useMusic } from "../../../context/MusicContext";
@@ -24,6 +31,8 @@ import { BeastHomeDisplay } from "./components/BeastDisplay";
 export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
   
   // Get Cavos wallet address instead of Starknet account
   const cavosWallet = useAppStore(state => state.cavos.wallet);
@@ -38,6 +47,37 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     hasLiveBeast,
     isLoading
   } = useBeastDisplay();
+  
+  // Hook for setting beast name
+  const { setBeastName, optimisticName } = useSetBeastName();
+  
+  // Hook for refetching beast data
+  const { refetch: refetchBeast } = useLiveBeast();
+  
+  // Hook for refetching player data
+  const { refetch: refetchPlayer } = usePlayer();
+  
+  // Get current beast name from store and decode it
+  const liveBeast = useAppStore(state => state.liveBeast.beast);
+  const beastName = useMemo(() => {
+    // Use optimistic name if available (during transaction)
+    if (optimisticName) return optimisticName;
+    
+    // Otherwise decode from contract data
+    if (!liveBeast?.name || liveBeast.name === 0) return null;
+    
+    try {
+      // Convert the number (felt252) to hex and then to string
+      const nameHex = '0x' + liveBeast.name.toString(16);
+      const decodedName = hexToString(nameHex);
+      
+      // Return null if the decoded name is empty or only contains null/invisible characters
+      return decodedName && decodedName.length > 0 ? decodedName : null;
+    } catch (error) {
+      console.error('Failed to decode beast name:', error);
+      return null;
+    }
+  }, [liveBeast?.name, optimisticName]);
 
   // Set current screen for music control
   useEffect(() => {
@@ -165,6 +205,8 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
       <BeastHomeDisplay 
         beastImage={currentBeastDisplay.asset}
         altText={currentBeastDisplay.displayName}
+        beastName={beastName || undefined}
+        onEditName={() => setIsNameModalOpen(true)}
       />
     );
   };
@@ -202,12 +244,36 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
 
       {renderBeastContent()}
 
-      {/* Action buttons removed - shop moved to FeedScreen */}
-
       <PlayerInfoModal
         isOpen={isPlayerInfoModalOpen}
         onClose={closePlayerModal}
         playerData={playerData}
+      />
+      
+      <BeastNameModal
+        isOpen={isNameModalOpen}
+        onClose={() => {
+          setIsNameModalOpen(false);
+          setNameError(null);
+        }}
+        onSubmit={async (name) => {
+          setNameError(null);
+          const result = await setBeastName(name);
+          if (result.success) {
+            // Refetch both beast and player data after a delay to get updated name and gems from Torii
+            setTimeout(() => {
+              refetchBeast();
+              refetchPlayer();
+            }, 3000);
+          } else {
+            // Reopen modal with error
+            setNameError(result.error || 'Failed to set name');
+            setIsNameModalOpen(true);
+          }
+        }}
+        currentName={beastName || undefined}
+        playerGems={storePlayer?.total_gems || 0}
+        error={nameError}
       />
     </div>
   );

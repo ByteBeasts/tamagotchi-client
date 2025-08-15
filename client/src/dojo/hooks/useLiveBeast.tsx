@@ -3,6 +3,7 @@ import { addAddressPadding } from "starknet";
 import { dojoConfig } from "../dojoConfig";
 import { Beast, BeastStatus } from '../models.gen';
 import useAppStore from '../../zustand/store';
+import { hexToNumber, hexToBool } from '../../utils/dataConversion';
 
 // Hook return interface
 interface UseLiveBeastReturn {
@@ -56,33 +57,12 @@ const LIVE_BEAST_COMPLETE_QUERY = `
           birth_date
           specie
           beast_type
+          name
         }
       }
     }
   }
 `;
-
-// Helper functions
-const hexToNumber = (hexValue: string | number): number => {
-  if (typeof hexValue === 'number') return hexValue;
-  if (typeof hexValue === 'string' && hexValue.startsWith('0x')) {
-    return parseInt(hexValue, 16);
-  }
-  if (typeof hexValue === 'string') {
-    return parseInt(hexValue, 10);
-  }
-  return 0;
-};
-
-const hexToBool = (hexValue: string | boolean): boolean => {
-  if (typeof hexValue === 'boolean') return hexValue;
-  if (typeof hexValue === 'string') {
-    if (hexValue === '0x1' || hexValue === '1') return true;
-    if (hexValue === '0x0' || hexValue === '0') return false;
-    return hexValue.toLowerCase() === 'true';
-  }
-  return false;
-};
 
 // API function to fetch live beast data with manual filtering
 const fetchLiveBeastData = async (playerAddress: string): Promise<{
@@ -145,7 +125,7 @@ const fetchLiveBeastData = async (playerAddress: string): Promise<{
           birth_date: hexToNumber(rawBeast.birth_date),
           specie: hexToNumber(rawBeast.specie),
           beast_type: hexToNumber(rawBeast.beast_type),
-          name: rawBeast.name || "Beast" // Default name if not set
+          name: hexToNumber(rawBeast.name || 0) // Keep name as number from contract
         };
         
         return { beast, status: beastStatus };
@@ -163,7 +143,7 @@ const fetchLiveBeastData = async (playerAddress: string): Promise<{
       birth_date: hexToNumber(rawBeast.birth_date),
       specie: hexToNumber(rawBeast.specie),
       beast_type: hexToNumber(rawBeast.beast_type),
-      name: rawBeast.name || "Beast" // Default name if not set
+      name: hexToNumber(rawBeast.name || 0) // Keep name as number from contract
     };
     
     return { beast, status: beastStatus };
