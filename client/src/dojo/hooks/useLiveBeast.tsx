@@ -143,7 +143,7 @@ const fetchLiveBeastData = async (playerAddress: string): Promise<{
       birth_date: hexToNumber(rawBeast.birth_date),
       specie: hexToNumber(rawBeast.specie),
       beast_type: hexToNumber(rawBeast.beast_type),
-      name: rawBeast.name || "Beast" // Default name if not set
+      name: hexToNumber(rawBeast.name || 0) // Keep name as number from contract
     };
     
     return { beast, status: beastStatus };

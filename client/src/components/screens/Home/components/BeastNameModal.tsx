@@ -13,12 +13,17 @@ interface BeastNameModalProps {
 }
 
 export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerGems = 0, error: externalError }: BeastNameModalProps) => {
-  const [name, setName] = useState(currentName || "");
+  // Clean currentName to ensure no null/invisible characters
+  const cleanedCurrentName = currentName?.replace(/[\x00-\x1F\x7F-\x9F]/g, '').trim() || "";
+  
+  const [name, setName] = useState(cleanedCurrentName);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
-      setName(currentName || "");
+      // Use cleaned name to avoid showing invisible characters
+      const cleanName = currentName?.replace(/[\x00-\x1F\x7F-\x9F]/g, '').trim() || "";
+      setName(cleanName);
       setError("");
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
@@ -165,6 +170,11 @@ export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerG
                 placeholder:text-gray-500 text-sm focus:outline-none focus:border-gold/50"
               style={{ touchAction: 'manipulation' }}
               autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="words"
+              spellCheck="false"
+              inputMode="text"
             />
             
             <div className="flex justify-between items-center mt-2">

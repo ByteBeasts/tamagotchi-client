@@ -52,9 +52,21 @@ export const hexToString = (hexValue: string | number): string => {
     for (let i = 0; i < hex.length; i += 2) {
       const charCode = parseInt(hex.substr(i, 2), 16);
       if (charCode === 0) break; // Stop at null terminator
-      str += String.fromCharCode(charCode);
+      // Skip any non-printable characters (including null chars)
+      if (charCode >= 32 && charCode <= 126) {
+        str += String.fromCharCode(charCode);
+      }
     }
-    return str.trim();
+    
+    // Clean the string: remove all non-printable characters and trim
+    const cleanedStr = str.replace(/[\x00-\x1F\x7F-\x9F]/g, '').trim();
+    
+    // If after cleaning we only have null or empty string, return empty
+    if (!cleanedStr || cleanedStr.length === 0) {
+      return '';
+    }
+    
+    return cleanedStr;
   } catch (error) {
     console.error('Failed to convert hex to string:', error);
     return '';

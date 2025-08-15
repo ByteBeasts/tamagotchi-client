@@ -69,7 +69,10 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     try {
       // Convert the number (felt252) to hex and then to string
       const nameHex = '0x' + liveBeast.name.toString(16);
-      return hexToString(nameHex);
+      const decodedName = hexToString(nameHex);
+      
+      // Return null if the decoded name is empty or only contains null/invisible characters
+      return decodedName && decodedName.length > 0 ? decodedName : null;
     } catch (error) {
       console.error('Failed to decode beast name:', error);
       return null;
