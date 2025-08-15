@@ -28,6 +28,18 @@ export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerG
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
       document.body.style.touchAction = 'none';
+      
+      // Focus input after a small delay to ensure keyboard opens on mobile
+      setTimeout(() => {
+        const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+        if (input) {
+          input.focus();
+          // On iOS, we need to trigger the click event to open keyboard
+          if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            input.click();
+          }
+        }
+      }, 100);
     } else {
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
