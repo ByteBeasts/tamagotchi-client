@@ -49,7 +49,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   } = useBeastDisplay();
   
   // Hook for setting beast name
-  const { setBeastName } = useSetBeastName();
+  const { setBeastName, optimisticName } = useSetBeastName();
   
   // Hook for refetching beast data
   const { refetch: refetchBeast } = useLiveBeast();
@@ -60,12 +60,21 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   // Get current beast name from store and decode it
   const liveBeast = useAppStore(state => state.liveBeast.beast);
   const beastName = useMemo(() => {
+    // Use optimistic name if available (during transaction)
+    if (optimisticName) return optimisticName;
+    
+    // Otherwise decode from contract data
     if (!liveBeast?.name || liveBeast.name === 0) return null;
-    // Convert the number (felt252) to string
-    // The name is stored as hex in the contract
-    const nameHex = '0x' + liveBeast.name.toString(16);
-    return hexToString(nameHex);
-  }, [liveBeast?.name]);
+    
+    try {
+      // Convert the number (felt252) to hex and then to string
+      const nameHex = '0x' + liveBeast.name.toString(16);
+      return hexToString(nameHex);
+    } catch (error) {
+      console.error('Failed to decode beast name:', error);
+      return null;
+    }
+  }, [liveBeast?.name, optimisticName]);
 
   // Set current screen for music control
   useEffect(() => {

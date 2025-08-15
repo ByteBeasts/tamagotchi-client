@@ -10,6 +10,7 @@ interface UseSetBeastNameReturn {
   // State
   isSettingName: boolean;
   error: string | null;
+  optimisticName: string | null;
   
   // Actions
   setBeastName: (name: string) => Promise<SetNameResult>;
@@ -34,6 +35,7 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
   const { executeTransaction } = useCavosTransaction();
   const [isSettingName, setIsSettingName] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [optimisticName, setOptimisticName] = useState<string | null>(null);
   
   // Get Cavos auth state for validation
   const cavosAuth = useAppStore(state => state.cavos);
@@ -41,7 +43,6 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
   // Store state and actions
   const player = useAppStore(state => state.player);
   const liveBeast = useAppStore(state => state.liveBeast);
-  const setLiveBeast = useAppStore(state => state.setLiveBeast);
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast);
   const setPlayer = useAppStore(state => state.setPlayer);
   // We'll use refetch from useLiveBeast hook instead
@@ -49,8 +50,6 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
 
   // Execute set beast name transaction
   const setBeastName = useCallback(async (name: string): Promise<SetNameResult> => {
-    // Store original beast for rollback outside try block
-    let originalBeast: typeof liveBeast.beast = null;
     // Validation: Check if Cavos is authenticated
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
       const errorMsg = 'Please connect to play';
@@ -87,17 +86,9 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
       setIsSettingName(true);
       setError(null);
 
-      // Store original beast for rollback
-      originalBeast = liveBeast.beast;
-
-      // Store name as a number (we'll pass the string directly to the contract)
-      // The contract will handle the conversion
-      const tempNameId = Date.now(); // Temporary ID for optimistic update
-      
       // Optimistic updates:
-      // 1. Update the beast name immediately
-      const updatedBeast = { ...liveBeast.beast, name: tempNameId };
-      setLiveBeast(updatedBeast, liveBeast.status);
+      // 1. Set the optimistic name to show immediately
+      setOptimisticName(name);
       
       // 2. Update player gems (subtract 5)
       const updatedPlayer = { ...player, total_gems: player.total_gems - 5 };
@@ -127,8 +118,8 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
         setIsSettingName(false);
         setError(null);
 
-        // Success - parent component will handle the success message
-        // and trigger refetch through useLiveBeast hook
+        // Success - clear optimistic name so real name from contract shows
+        setOptimisticName(null);
 
         return {
           success: true,
@@ -144,9 +135,7 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
       console.error('Set name transaction failed:', error);
 
       // Rollback optimistic updates
-      if (originalBeast) {
-        setLiveBeast(originalBeast, liveBeast.status);
-      }
+      setOptimisticName(null);
       // Rollback player gems
       if (player) {
         const originalGems = player.total_gems + 5; // Add back the 5 gems
@@ -174,9 +163,9 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
     liveBeast,
     hasLiveBeast,
     isSettingName,
-    setLiveBeast,
     setPlayer,
-    executeTransaction
+    executeTransaction,
+    setOptimisticName
   ]);
 
   // Computed values
@@ -194,6 +183,7 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
     // State
     isSettingName,
     error,
+    optimisticName,
     
     // Actions
     setBeastName,
