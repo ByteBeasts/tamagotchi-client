@@ -143,6 +143,9 @@ interface AppStore {
   // Simple getter to check if any actions are in progress
   canFeedBeast: () => boolean;
   
+  // Fetch live beast data from Torii
+  fetchLiveBeastData: (playerAddress: string) => Promise<void>;
+  
   // Cavos actions
   setCavosAuth: (user: CavosUser | null, wallet: CavosWallet | null, accessToken: string | null, refreshToken: string | null) => void;
   setCavosTokens: (accessToken: string | null, refreshToken: string | null) => void;
@@ -543,6 +546,14 @@ const useAppStore = create<AppStore>()(
       
       getCavosData: () => {
         return get().cavos;
+      },
+      
+      // Fetch live beast data from Torii
+      fetchLiveBeastData: async (playerAddress: string) => {
+        // This will be implemented using the fetchLiveBeastData from useLiveBeast
+        // For now, just log that it needs implementation
+        console.log('fetchLiveBeastData called for:', playerAddress);
+        // The actual implementation will be handled by useLiveBeast hook
       },
       
       // Utility actions

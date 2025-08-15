@@ -9,9 +9,15 @@ import { lookupAddresses } from '@cartridge/controller';
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
+import { useSetBeastName } from "../../../dojo/hooks/useSetBeastName";
+import { useLiveBeast } from "../../../dojo/hooks/useLiveBeast";
+import { usePlayer } from "../../../dojo/hooks/usePlayer";
 
 // Store
 import useAppStore from "../../../zustand/store";
+
+// Utils
+import { hexToString } from "../../../utils/dataConversion";
 
 // Music Context
 import { useMusic } from "../../../context/MusicContext";
@@ -26,7 +32,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
-  const [beastName, setBeastName] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   
   // Get Cavos wallet address instead of Starknet account
   const cavosWallet = useAppStore(state => state.cavos.wallet);
@@ -41,6 +47,25 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     hasLiveBeast,
     isLoading
   } = useBeastDisplay();
+  
+  // Hook for setting beast name
+  const { setBeastName } = useSetBeastName();
+  
+  // Hook for refetching beast data
+  const { refetch: refetchBeast } = useLiveBeast();
+  
+  // Hook for refetching player data
+  const { refetch: refetchPlayer } = usePlayer();
+  
+  // Get current beast name from store and decode it
+  const liveBeast = useAppStore(state => state.liveBeast.beast);
+  const beastName = useMemo(() => {
+    if (!liveBeast?.name || liveBeast.name === 0) return null;
+    // Convert the number (felt252) to string
+    // The name is stored as hex in the contract
+    const nameHex = '0x' + liveBeast.name.toString(16);
+    return hexToString(nameHex);
+  }, [liveBeast?.name]);
 
   // Set current screen for music control
   useEffect(() => {
@@ -215,14 +240,28 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
       
       <BeastNameModal
         isOpen={isNameModalOpen}
-        onClose={() => setIsNameModalOpen(false)}
-        onSubmit={(name) => {
-          setBeastName(name);
-          // TODO: Call contract to set name (costs 5 gems)
-          console.log(`Beast ${beastName ? 'renamed' : 'named'} to: ${name}`);
+        onClose={() => {
+          setIsNameModalOpen(false);
+          setNameError(null);
+        }}
+        onSubmit={async (name) => {
+          setNameError(null);
+          const result = await setBeastName(name);
+          if (result.success) {
+            // Refetch both beast and player data after a delay to get updated name and gems from Torii
+            setTimeout(() => {
+              refetchBeast();
+              refetchPlayer();
+            }, 3000);
+          } else {
+            // Reopen modal with error
+            setNameError(result.error || 'Failed to set name');
+            setIsNameModalOpen(true);
+          }
         }}
         currentName={beastName || undefined}
         playerGems={storePlayer?.total_gems || 0}
+        error={nameError}
       />
     </div>
   );

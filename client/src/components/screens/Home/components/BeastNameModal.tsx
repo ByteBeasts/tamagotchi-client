@@ -9,9 +9,10 @@ interface BeastNameModalProps {
   onSubmit: (name: string) => void;
   currentName?: string;
   playerGems?: number;
+  error?: string | null;
 }
 
-export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerGems = 0 }: BeastNameModalProps) => {
+export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerGems = 0, error: externalError }: BeastNameModalProps) => {
   const [name, setName] = useState(currentName || "");
   const [error, setError] = useState("");
 
@@ -32,6 +33,13 @@ export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerG
       document.body.style.touchAction = '';
     };
   }, [isOpen, currentName]);
+  
+  // Update error when external error changes
+  useEffect(() => {
+    if (externalError) {
+      setError(externalError);
+    }
+  }, [externalError]);
 
   const handleSubmit = () => {
     const trimmedName = name.trim();
@@ -101,7 +109,7 @@ export const BeastNameModal = ({ isOpen, onClose, onSubmit, currentName, playerG
         style={{ touchAction: 'auto' }}
       >
         {/* Header */}
-        <div className="bg-gold/20 p-4 border-b-4 border-gold/40 flex justify-between items-center">
+        <div className="bg-gold-gradient p-4 border-b-4 border-gold/40 flex justify-between items-center">
           <h2 className="text-gray-800 font-luckiest text-2xl tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
             {currentName ? "RENAME YOUR BEAST" : "NAME YOUR BEAST"}
           </h2>
