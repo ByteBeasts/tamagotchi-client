@@ -8,10 +8,8 @@ import { DROP_TOLERANCE, BEAST_DROP_ZONE_ID, FOOD_UI_CONFIG } from '../../../../
 // Hooks
 import { useFoodInventory } from '../../../../../dojo/hooks/useFoodInventory';
 import { useFeedBeast } from '../../../../../dojo/hooks/useFeedBeast';
-import { useRealTimeStatus } from '../../../../../dojo/hooks/useRealTimeStatus';
-import { useUpdateBeast } from '../../../../../dojo/hooks/useUpdateBeast';
 
-// Store for optimistic updates
+// Store for state access
 import useAppStore from '../../../../../zustand/store';
 
 // Hook return interface
@@ -41,8 +39,7 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
   const {
     foods,
     isLoading,
-    hasFoodAvailable,
-    silentRefetch
+    hasFoodAvailable
   } = useFoodInventory();
   
   // Get feed transaction capabilities
@@ -51,12 +48,6 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
     isFeeding,
     canFeed
   } = useFeedBeast();
-  
-  // Get real-time status management
-  const { fetchLatestStatus } = useRealTimeStatus();
-  
-  // Get beast update capabilities
-  const { updateBeast } = useUpdateBeast();
   
   // Drag state management
   const [dragState, setDragState] = useState<DragState>({
@@ -153,135 +144,27 @@ export const useFeedLogic = (): UseFeedLogicReturn => {
   const handleSuccessfulFeed = async (food: FoodItem) => {
     // Get fresh state to avoid stale data
     const storeFoods = useAppStore.getState().foods;
-    const setStoreFoods = useAppStore.getState().setFoods;
     
     // Find the current food item to validate amount
     const currentFood = storeFoods.find(f => Number(f.id) === food.id);
     const currentAmount = currentFood ? Number(currentFood.amount) : 0;
     
-    try {
-      
-      // CRITICAL: Prevent overflow - validate we have food to consume
-      if (currentAmount <= 0) {
-        toast.error('This food is no longer available!', {
-          duration: 2000,
-          position: 'top-center',
-        });
-        return;
-      }
-      
-      // Only apply optimistic update if we have enough food
-      const updatedFoods = storeFoods.map(f => {
-        if (Number(f.id) === food.id) {
-          // Safe subtraction with validation
-          const newAmount = Math.max(0, Number(f.amount) - 1);
-          return {
-            ...f,
-            amount: newAmount
-          };
-        }
-        return f;
+    // CRITICAL: Prevent overflow - validate we have food to consume
+    if (currentAmount <= 0) {
+      toast.error('This food is no longer available!', {
+        duration: 2000,
+        position: 'top-center',
       });
-      
-      // Apply optimistic update
-      setStoreFoods(updatedFoods);
-      
-      // Execute blockchain transaction
-      const result = await feedBeast(food.id);
-      
-      if (result.success) {
-        // Show single success toast here
-        toast.success(`🎉 ${food.name} fed to your beast!`, {
-          duration: 3000,
-          position: 'top-center',
-          style: {
-            background: FOOD_UI_CONFIG.FOOD_COLORS[food.id] || '#10B981',
-            color: 'white',
-            fontWeight: 'bold',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            fontSize: '16px',
-          },
-        });
-        
-        // Post-feeding sequence: Update beast → Fetch status → Refetch food
-        setTimeout(async () => {
-          try {
-            console.log('🔄 Starting post-feeding updates...');
-            
-            // Step 1: Update beast (this triggers contract status recalculation)
-            const updateSuccess = await updateBeast();
-            
-            if (updateSuccess) {
-              console.log('✅ Beast updated successfully');
-              
-              // Step 2: Fetch latest status SILENTLY with skipSync to avoid re-mounting
-              console.log('🔄 Fetching updated status (skipSync=true)...');
-              await fetchLatestStatus(true); // Skip auto-sync to prevent re-mounting
-              console.log('✅ Status fetched and updated in background');
-            } else {
-              console.warn('⚠️ Beast update failed, fetching status anyway (skipSync=true)');
-              await fetchLatestStatus(true); // Skip auto-sync to prevent re-mounting
-            }
-            
-            // Step 3: Silent food refetch - update data without loading states
-            console.log('🔄 Silently refreshing food inventory...');
-            await silentRefetch();
-            console.log('✅ Food inventory silently updated');
-            
-          } catch (error) {
-            console.error('❌ Error in post-feeding updates:', error);
-            // Try silent food refetch as fallback
-            try {
-              await silentRefetch();
-              console.log('✅ Food inventory fallback update completed');
-            } catch (fallbackError) {
-              console.warn('⚠️ Fallback food refetch also failed:', fallbackError);
-            }
-          }
-        }, 1500); // Reduced delay for faster feedback
-        
-      } else {
-        // Error handled by useFeedBeast hook (revert + error toast)
-        console.error('Feed transaction failed:', result.error);
-        
-        // Revert optimistic update on failure - but safely
-        const currentStoreFoods = useAppStore.getState().foods;
-        const revertedFoods = currentStoreFoods.map(f => {
-          if (Number(f.id) === food.id) {
-            // Find original amount to restore (before optimistic update)
-            const originalAmount = currentAmount; // We captured this earlier
-            return {
-              ...f,
-              amount: originalAmount
-            };
-          }
-          return f;
-        });
-        setStoreFoods(revertedFoods);
-      }
-      
-    } catch (error) {
-      console.error('Unexpected error in handleSuccessfulFeed:', error);
-      toast.error('An unexpected error occurred');
-      
-      // Revert optimistic update on unexpected error - safely restore original amount
-      const currentStoreFoods = useAppStore.getState().foods;
-      const setStoreFoods = useAppStore.getState().setFoods;
-      
-      // We need to restore to the original amount captured at the beginning
-      const revertedFoods = currentStoreFoods.map(f => {
-        if (Number(f.id) === food.id) {
-          // Restore to original amount (before any optimistic update)
-          // Since we validated currentAmount > 0 at the start, this is safe
-          return {
-            ...f,
-            amount: currentAmount // Using the captured original amount
-          };
-        }
-        return f;
-      });
-      setStoreFoods(revertedFoods);
+      return;
+    }
+    
+    // Execute blockchain transaction (optimistic updates handled inside)
+    const result = await feedBeast(food.id);
+    
+    // Result handling is now done inside useFeedBeast with optimistic updates
+    // No need for manual updates or reverts here
+    if (!result.success) {
+      console.error('Feed transaction failed:', result.error);
     }
   };
 
