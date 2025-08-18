@@ -89,6 +89,25 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
           console.log('⚠️ Status received for different beast, ignoring');
           useAppStore.setState({ isStatusLoading: false });
         }
+      } else if (newStatus === undefined) {
+        // undefined means the beast is dead (Option::unwrap failed in contract)
+        console.log('💀 Beast is dead, resetting all status to 0');
+        useAppStore.setState({ 
+          isStatusLoading: false,
+          liveBeast: {
+            ...useAppStore.getState().liveBeast,
+            isAlive: false,
+            status: {
+              ...useAppStore.getState().liveBeast.status!,
+              hunger: 0,
+              happiness: 0,
+              hygiene: 0,
+              energy: 0
+            }
+          },
+          // Also reset realTimeStatus to ensure NavBar shows 0s
+          realTimeStatus: []
+        });
       } else {
         console.log('❌ Invalid status response');
         useAppStore.setState({ isStatusLoading: false });

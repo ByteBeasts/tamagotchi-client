@@ -40,6 +40,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     error: initializationError,
     completed,
     playerExists,
+    wasExistingPlayer,
     hasLiveBeast,
     shouldGoToHatch,
     shouldGoToHome,
@@ -213,20 +214,31 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
    */
   useEffect(() => {
     if (completed) {
-      if (hasLiveBeast) {
-        toast.success('🐾 Your beast is waiting for you!', {
-          duration: 2000,
-          position: 'top-center'
-        });
+      if (wasExistingPlayer) {
+        // Existing player
+        if (hasLiveBeast) {
+          toast.success('🐾 Your beast is waiting for you!', {
+            duration: 2000,
+            position: 'top-center'
+          });
+        } else {
+          // Existing player with dead beast
+          toast('💀 Your beast needs revival', {
+            duration: 2000,
+            position: 'top-center',
+            icon: '💔'
+          });
+        }
       } else {
+        // New player
         toast('🥚 Time to hatch your first beast!', {
           duration: 2000,
           position: 'top-center',
-          icon: '🥚'
+          icon: '🎉'
         });
       }
     }
-  }, [completed, hasLiveBeast]);
+  }, [completed, hasLiveBeast, wasExistingPlayer]);
 
   // Render different views based on animation state 
   switch (view) {
