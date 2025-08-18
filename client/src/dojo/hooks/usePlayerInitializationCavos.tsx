@@ -19,6 +19,7 @@ interface UsePlayerInitializationCavosReturn {
   completed: boolean;
   currentStep: string;
   playerExists: boolean;
+  wasExistingPlayer: boolean;
   hasLiveBeast: boolean;
   shouldGoToHatch: boolean;
   shouldGoToHome: boolean;
@@ -49,6 +50,7 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
     completed: false,
     currentStep: 'idle',
     playerExists: false,
+    wasExistingPlayer: false,
     hasLiveBeast: false,
     shouldGoToHatch: false,
     shouldGoToHome: false
@@ -87,9 +89,13 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
         throw new Error(playerResult.error || 'Player initialization failed');
       }
 
+      // Track if this was a newly created player or already existed
+      const wasExistingPlayer = playerResult.playerExists === true;
+
       setState(prev => ({
         ...prev,
         playerExists: true,
+        wasExistingPlayer,
         currentStep: 'checking_beast'
       }));
 
@@ -131,8 +137,10 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
       }
 
       // Determine navigation destination
-      const shouldGoToHome = hasLiveBeast;
-      const shouldGoToHatch = !hasLiveBeast;
+      // New player (just created) → Always go to Hatch
+      // Existing player → Always go to Home (to see beast status, alive or dead)
+      const shouldGoToHome = wasExistingPlayer; // Existing players go to home
+      const shouldGoToHatch = !wasExistingPlayer; // Only new players go to hatch
 
       setState(prev => ({
         ...prev,
@@ -188,6 +196,7 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
       completed: false,
       currentStep: 'idle',
       playerExists: false,
+      wasExistingPlayer: false,
       hasLiveBeast: false,
       shouldGoToHatch: false,
       shouldGoToHome: false
@@ -203,6 +212,7 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
     completed: state.completed,
     currentStep: state.currentStep,
     playerExists: state.playerExists,
+    wasExistingPlayer: state.wasExistingPlayer,
     hasLiveBeast: state.hasLiveBeast,
     shouldGoToHatch: state.shouldGoToHatch,
     shouldGoToHome: state.shouldGoToHome,
