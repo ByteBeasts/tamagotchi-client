@@ -2,6 +2,7 @@ import type { CircleType } from '../../../types/login.types';
 import useAppStore from '../../../../zustand/store';
 import { motion } from 'framer-motion';
 import bgLoging from '../../../../assets/backgrounds/bg-loging.png';
+import MagicalParticles from './MagicalParticles';
 
 interface LoginBackgroundProps {
   currentCircle: CircleType;
@@ -46,6 +47,8 @@ export const LoginBackground = ({ onConnect, isConnecting }: LoginBackgroundProp
         backgroundRepeat: 'no-repeat'
       }}
     >
+      {/* Magical Particles Effect */}
+      <MagicalParticles />
       {/* Main title at the top */}
       <div className="w-full flex justify-center pt-36">
         <h1 
