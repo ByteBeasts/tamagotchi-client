@@ -1,12 +1,15 @@
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import sleepBackground from "../../../assets/backgrounds/bg-sleep.png";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { SleepScreenProps } from "../../types/sleep.types";
 
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
+
+// Hook for real-time status
+import { useRealTimeStatus } from "../../../dojo/hooks/useRealTimeStatus";
 
 // Music Context
 import { useMusic } from "../../../context/MusicContext";
@@ -55,19 +58,33 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
     hasLiveBeast,
     isLoading
   } = useBeastDisplay();
+  
+  // Track if we've done initial fetch
+  const hasFetchedInitial = useRef(false);
 
   // Set current screen for music control
   useEffect(() => {
     setCurrentScreen("sleep");
   }, [setCurrentScreen]);
 
-  // Main sleep logic hook
+  // Main sleep logic hook (refactorizado)
   const {
     isBeastSleeping,
     isSleepTransactionInProgress,
     handleCampfireClick,
-    isInteractionDisabled
+    isInteractionDisabled,
+    fetchInitialStatus,
+    isLoading: isSleepDataLoading
   } = useSleepLogic();
+  
+  // Fetch inicial al montar (plan original - paso 1)
+  useEffect(() => {
+    if (!hasFetchedInitial.current && hasLiveBeast) {
+      hasFetchedInitial.current = true;
+      console.log('🌙 SleepScreen: Executing initial fetch (plan original - paso 1)');
+      fetchInitialStatus();
+    }
+  }, [hasLiveBeast, fetchInitialStatus]);
 
   // Frame configuration
   const extinguishedFrames = [
@@ -118,8 +135,8 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
     await handleCampfireClick();
   };
 
-  // Loading state
-  if (isLoading) {
+  // Loading state (combinando ambos loadings)
+  if (isLoading || isSleepDataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-900 to-purple-900">
         <div className="text-center">

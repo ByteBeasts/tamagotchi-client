@@ -6,9 +6,7 @@ import { getContractAddresses } from '../../config/cavosConfig';
 // Optimistic helpers
 import { calculateOptimisticSleepAwake, isBeastAlive } from '../../utils/optimisticHelpers';
 
-// Hooks for post-transaction sync
-import { useRealTimeStatus } from './useRealTimeStatus';
-import { useUpdateBeast } from './useUpdateBeast';
+// No more automatic hooks - will be handled externally
 
 // Types
 interface SleepAwakeTransactionState {
@@ -29,7 +27,7 @@ interface UseSleepAwakeReturn {
   isSleepTransactionInProgress: boolean;
   sleepAwakeTransaction: SleepAwakeTransactionState;
   
-  // Actions
+  // Actions  
   putToSleep: () => Promise<SleepAwakeResult>;
   wakeUp: () => Promise<SleepAwakeResult>;
   resetTransaction: () => void;
@@ -44,10 +42,6 @@ interface UseSleepAwakeReturn {
  */
 export const useSleepAwake = (): UseSleepAwakeReturn => {
   const { executeOptimistic } = useOptimisticTransaction();
-  
-  // Get sync hooks for post-transaction updates
-  const { fetchLatestStatus } = useRealTimeStatus();
-  const { updateBeast } = useUpdateBeast();
   
   // Get Cavos auth state for validation
   const cavosAuth = useAppStore(state => state.cavos);
@@ -153,31 +147,8 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
           error: null,
         });
         
-        // Schedule background sync after blockchain confirmation
-        setTimeout(async () => {
-          try {
-            console.log('🔄 Starting post-sleep sync...');
-            
-            // Update beast to trigger contract recalculation
-            const updateSuccess = await updateBeast();
-            if (updateSuccess) {
-              console.log('✅ Beast updated successfully');
-            }
-            
-            // Fetch latest status with skipSync to avoid re-mounting
-            await fetchLatestStatus(true);
-            console.log('✅ Status synced with blockchain');
-            
-          } catch (syncError) {
-            console.error('⚠️ Background sync failed:', syncError);
-            // Try to at least sync status
-            try {
-              await fetchLatestStatus(true);
-            } catch (e) {
-              console.error('Failed to sync status:', e);
-            }
-          }
-        }, 2000); // Wait 2 seconds for blockchain confirmation
+        // Sin post-success sync - confiamos en optimistic updates
+        console.log('✅ Sleep optimistic update applied - polling mantendrá consistencia eventual');
       },
       
       // On error
@@ -215,9 +186,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
     currentBeastAwakeStatus, 
     executeOptimistic, 
     realTimeStatus, 
-    setRealTimeStatus, 
-    updateBeast, 
-    fetchLatestStatus
+    setRealTimeStatus
   ]);
   
   const wakeUp = useCallback(async (): Promise<SleepAwakeResult> => {
@@ -295,31 +264,8 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
           error: null,
         });
         
-        // Schedule background sync after blockchain confirmation
-        setTimeout(async () => {
-          try {
-            console.log('🔄 Starting post-awake sync...');
-            
-            // Update beast to trigger contract recalculation
-            const updateSuccess = await updateBeast();
-            if (updateSuccess) {
-              console.log('✅ Beast updated successfully');
-            }
-            
-            // Fetch latest status with skipSync to avoid re-mounting
-            await fetchLatestStatus(true);
-            console.log('✅ Status synced with blockchain');
-            
-          } catch (syncError) {
-            console.error('⚠️ Background sync failed:', syncError);
-            // Try to at least sync status
-            try {
-              await fetchLatestStatus(true);
-            } catch (e) {
-              console.error('Failed to sync status:', e);
-            }
-          }
-        }, 2000); // Wait 2 seconds for blockchain confirmation
+        // Sin post-success sync - confiamos en optimistic updates
+        console.log('✅ Awake optimistic update applied - polling mantendrá consistencia eventual');
       },
       
       // On error
@@ -357,9 +303,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
     currentBeastAwakeStatus, 
     executeOptimistic, 
     realTimeStatus, 
-    setRealTimeStatus, 
-    updateBeast, 
-    fetchLatestStatus
+    setRealTimeStatus
   ]);
   
   const resetTransaction = useCallback(() => {
