@@ -121,34 +121,38 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
         currentStep: 'validating_beast'
       }));
 
-      // Step 3: Force beast update to sync Torii with contract (always execute)
-      console.log('🔧 Force updating beast data to sync Torii with contract...');
-      try {
-        await forceUpdateBeast();
-        console.log('✅ Force beast update complete - Torii synchronized');
-        
-        // Re-fetch beast data after forced update to get accurate status
-        await refetchBeast();
-        
-        // Re-check beast status after sync
-        const updatedStoreState = useAppStore.getState();
-        const updatedLiveBeast = updatedStoreState.liveBeast;
-        const updatedHasLiveBeast = updatedLiveBeast.isAlive && updatedLiveBeast.beast !== null;
-        
-        console.log('📊 Updated beast status after sync:', {
-          hasLiveBeast: updatedHasLiveBeast,
-          isAlive: updatedLiveBeast.isAlive,
-          beastExists: !!updatedLiveBeast.beast
-        });
-        
-        // Update state with correct beast status
-        setState(prev => ({
-          ...prev,
-          hasLiveBeast: updatedHasLiveBeast
-        }));
-        
-      } catch (statusError) {
-        console.error('⚠️ Force beast update failed but continuing:', statusError);
+      // Step 3: Force beast update to sync Torii with contract (only for existing players)
+      if (wasExistingPlayer) {
+        console.log('🔧 Force updating beast data to sync Torii with contract (existing player)...');
+        try {
+          await forceUpdateBeast();
+          console.log('✅ Force beast update complete - Torii synchronized');
+          
+          // Re-fetch beast data after forced update to get accurate status
+          await refetchBeast();
+          
+          // Re-check beast status after sync
+          const updatedStoreState = useAppStore.getState();
+          const updatedLiveBeast = updatedStoreState.liveBeast;
+          const updatedHasLiveBeast = updatedLiveBeast.isAlive && updatedLiveBeast.beast !== null;
+          
+          console.log('📊 Updated beast status after sync:', {
+            hasLiveBeast: updatedHasLiveBeast,
+            isAlive: updatedLiveBeast.isAlive,
+            beastExists: !!updatedLiveBeast.beast
+          });
+          
+          // Update state with correct beast status
+          setState(prev => ({
+            ...prev,
+            hasLiveBeast: updatedHasLiveBeast
+          }));
+          
+        } catch (statusError) {
+          console.error('⚠️ Force beast update failed but continuing:', statusError);
+        }
+      } else {
+        console.log('🆕 New player - skipping beast update (no beast to update)');
       }
 
       // Determine navigation destination
