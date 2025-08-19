@@ -59,6 +59,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   const {
     checkEnergyRequirement,
     consumeEnergy,
+    consumeEnergyOptimistic,
     handleGameCompletion,
     showEnergyToast,
     setShowEnergyToast,
@@ -263,20 +264,20 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   };
 
   // Start
-  const startGame = async () => {
+  const startGame = () => {
     if (gameConfig.current.running) return;
 
     setIsStarting(true);
 
-    // energy check + consume
-    const has = await checkEnergyRequirement();
+    // energy check + consume (optimistic - no await!)
+    const has = checkEnergyRequirement();
     if (!has) {
       setIsStarting(false);
       setShowEnergyToast(true);
       setTimeout(() => setShowEnergyToast(false), ENERGY_TOAST_DURATION);
       return;
     }
-    const ok = await consumeEnergy();
+    const ok = consumeEnergyOptimistic(); // Synchronous optimistic update
     if (!ok) {
       setIsStarting(false);
       return;
@@ -324,15 +325,15 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   };
 
   // Play again
-  const handlePlayAgain = async () => {
-    // re-check energy
-    const has = await checkEnergyRequirement();
+  const handlePlayAgain = () => {
+    // re-check energy (optimistic - no await!)
+    const has = checkEnergyRequirement();
     if (!has) {
       setShowEnergyToast(true);
       setTimeout(() => setShowEnergyToast(false), ENERGY_TOAST_DURATION);
       return;
     }
-    const ok = await consumeEnergy();
+    const ok = consumeEnergyOptimistic(); // Synchronous optimistic update
     if (!ok) return;
 
     setShowGameOverModal(false);

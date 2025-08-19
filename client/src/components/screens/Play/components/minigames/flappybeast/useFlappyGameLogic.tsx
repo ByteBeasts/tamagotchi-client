@@ -7,8 +7,7 @@ import { GAME_IDS } from '../../../../../types/game.types';
 
 // Services
 import CoinGemRewardService from '../../../../../utils/coinGemRewardService';
-import fetchStatus from '../../../../../../utils/fetchStatus';
-import { network, getContractAddresses } from '../../../../../../config/cavosConfig';
+import { getContractAddresses } from '../../../../../../config/cavosConfig';
 
 // Cavos transaction hook
 import { useCavosTransaction } from '../../../../../../dojo/hooks/useCavosTransaction';
@@ -29,8 +28,9 @@ const ENERGY_REQUIREMENT = 20;
 
 interface UseFlappyGameLogicReturn {
   // Energy management
-  checkEnergyRequirement: () => Promise<boolean>;
+  checkEnergyRequirement: () => boolean;
   consumeEnergy: () => Promise<boolean>;
+  consumeEnergyOptimistic: () => boolean; // New: immediate optimistic update
   showEnergyToast: boolean;
   setShowEnergyToast: (show: boolean) => void;
   
@@ -69,46 +69,45 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
   const currentHighScore = flappyBirdScore;
 
   /**
-   * Check if beast has enough energy to play using real-time data
+   * Check if beast has enough energy to play using store data (no fetch)
    */
-  const checkEnergyRequirement = async (): Promise<boolean> => {
+  const checkEnergyRequirement = (): boolean => {
     // Validation: Check if Cavos is authenticated
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
       console.warn("No Cavos wallet available for energy check");
       return false;
     }
 
-    try {
-      const statusResponse = await fetchStatus({ 
-        address: cavosAuth.wallet.address, 
-        chainId: network 
-      });
-      
-      if (statusResponse === null) {
-        console.error("Error fetching beast status");
-        return false;
-      }
-      
-      if (statusResponse === undefined) {
-        console.info("No live beast found");
-        return false;
-      }
-      
-      const currentEnergy = statusResponse[5] || 0;
-      console.info("Current energy level:", currentEnergy);
-      
-      // For development, bypass energy check
-      const energyByPass = 100;
-      return energyByPass >= ENERGY_REQUIREMENT;
-      
-    } catch (error) {
-      console.error("Error checking energy requirement:", error);
+    // Get energy from store instead of fetching
+    const realTimeStatus = useAppStore.getState().realTimeStatus;
+    const hasLiveBeast = useAppStore.getState().hasLiveBeast();
+    
+    if (!hasLiveBeast) {
+      console.info("No live beast found");
       return false;
     }
+    
+    if (realTimeStatus.length < 10) {
+      console.warn("No real-time status available, allowing play");
+      // If no status available, allow play (blockchain will validate)
+      return true;
+    }
+    
+    const currentEnergy = realTimeStatus[5] || 0;
+    console.info("Current energy level from store:", currentEnergy);
+    
+    // Check if beast has enough energy (minimum 20%)
+    const hasEnoughEnergy = currentEnergy >= ENERGY_REQUIREMENT;
+    
+    if (!hasEnoughEnergy) {
+      console.warn(`Insufficient energy: ${currentEnergy} < ${ENERGY_REQUIREMENT}`);
+    }
+    
+    return hasEnoughEnergy;
   };
 
   /**
-   * Consume energy before starting the game
+   * Consume energy before starting the game with optimistic updates
    */
   const consumeEnergy = async (): Promise<boolean> => {
     try {
@@ -126,6 +125,25 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
         return false;
       }
 
+      // Store original state for potential rollback
+      const originalStatus = useAppStore.getState().realTimeStatus;
+      
+      // Apply optimistic energy update immediately (only if we have status)
+      if (originalStatus.length >= 10) {
+        const newStatus = [...originalStatus];
+        const currentEnergy = newStatus[5] || 100;
+        newStatus[5] = Math.max(0, currentEnergy - ENERGY_REQUIREMENT);
+        
+        console.log("🔮 [Play] Optimistic energy update:", {
+          before: currentEnergy,
+          after: newStatus[5],
+          consumed: ENERGY_REQUIREMENT
+        });
+        
+        // Update store immediately (optimistic)
+        useAppStore.getState().setRealTimeStatus(newStatus, true); // skipSync = true
+      }
+
       // Execute transaction using Cavos with dynamic contract address
       const contractAddresses = getContractAddresses();
       
@@ -136,15 +154,106 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       }];
       
       console.log('🎮 Executing play transaction (consume energy)...');
-      await executeTransaction(calls);
-      console.log('✅ Energy consumed successfully');
-
-      return true;
+      const txHash = await executeTransaction(calls);
+      
+      if (txHash) {
+        console.log('✅ Energy consumed successfully, tx:', txHash);
+        // No fetch needed - polling will sync eventually
+        return true;
+      } else {
+        // Revert optimistic update on null response
+        if (originalStatus.length >= 10) {
+          console.log("↩️ [Play] Reverting energy optimistic update");
+          useAppStore.getState().setRealTimeStatus(originalStatus, true);
+        }
+        toast.error("Failed to start game - transaction failed");
+        return false;
+      }
     } catch (error) {
       console.error("Error consuming energy:", error);
+      
+      // Revert optimistic update on error
+      const currentStatus = useAppStore.getState().realTimeStatus;
+      if (currentStatus.length >= 10) {
+        const originalEnergy = (currentStatus[5] || 0) + ENERGY_REQUIREMENT;
+        const revertedStatus = [...currentStatus];
+        revertedStatus[5] = Math.min(100, originalEnergy);
+        console.log("↩️ [Play] Reverting energy optimistic update on error");
+        useAppStore.getState().setRealTimeStatus(revertedStatus, true);
+      }
+      
       toast.error("Failed to start game - could not consume energy");
       return false;
     }
+  };
+
+  /**
+   * Consume energy with immediate optimistic update and background transaction
+   * Returns true if optimistic update succeeded, transaction executes in background
+   */
+  const consumeEnergyOptimistic = (): boolean => {
+    // Validation: Check if Cavos is authenticated
+    if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) {
+      console.warn("No Cavos authentication for energy consumption");
+      toast.error("Please login with ByteBeasts to play");
+      return false;
+    }
+
+    // Validation: Check if player exists
+    if (!player) {
+      console.warn("No player data found");
+      toast.error("Player data not found");
+      return false;
+    }
+
+    // Apply optimistic energy update immediately
+    const originalStatus = useAppStore.getState().realTimeStatus;
+    if (originalStatus.length >= 10) {
+      const newStatus = [...originalStatus];
+      const currentEnergy = newStatus[5] || 100;
+      newStatus[5] = Math.max(0, currentEnergy - ENERGY_REQUIREMENT);
+      
+      console.log("🔮 [Play] Immediate optimistic energy update:", {
+        before: currentEnergy,
+        after: newStatus[5],
+        consumed: ENERGY_REQUIREMENT
+      });
+      
+      // Update store immediately (optimistic)
+      useAppStore.getState().setRealTimeStatus(newStatus, true); // skipSync = true
+    }
+
+    // Execute transaction in background (fire and forget)
+    const executeBackgroundTransaction = async () => {
+      try {
+        const contractAddresses = getContractAddresses();
+        
+        const calls = [{
+          contractAddress: contractAddresses.game,
+          entrypoint: 'play',
+          calldata: []
+        }];
+        
+        console.log('🎮 Executing background play transaction...');
+        const txHash = await executeTransaction(calls);
+        
+        if (txHash) {
+          console.log('✅ Background energy transaction completed:', txHash);
+        } else {
+          console.warn('⚠️ Background energy transaction returned null');
+        }
+      } catch (error) {
+        console.error("❌ Background energy transaction failed:", error);
+        // Note: We don't revert optimistic updates for background failures
+        // since the game has already started and polling will sync eventually
+      }
+    };
+
+    // Fire and forget the background transaction
+    executeBackgroundTransaction();
+
+    // Return true immediately to allow game to start
+    return true;
   };
 
   /**
@@ -370,6 +479,7 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
     // Energy management
     checkEnergyRequirement,
     consumeEnergy,
+    consumeEnergyOptimistic,
     showEnergyToast,
     setShowEnergyToast,
     
