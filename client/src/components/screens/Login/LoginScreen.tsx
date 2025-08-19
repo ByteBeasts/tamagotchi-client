@@ -2,7 +2,7 @@ import { useWorldcoinCavosAuth } from '../../../dojo/hooks/useWorldcoinCavosAuth
 import { usePlayerInitializationCavos } from '../../../dojo/hooks/usePlayerInitializationCavos';
 import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
-import { VennDiagram } from './components/VennDiagram';
+import { LoginBackground } from './components/LoginBackground';
 import { BrowserLoginModal } from './components/BrowserLoginModal';
 import { useEffect, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -249,7 +249,7 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     case 'cover':
       return (
         <>
-          <VennDiagram 
+          <LoginBackground 
             currentCircle={currentCircle} 
             onConnect={handleConnect}
             isConnecting={isConnecting || authLoading}

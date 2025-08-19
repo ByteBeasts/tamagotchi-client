@@ -1,10 +1,9 @@
 import type { CircleType } from '../../../types/login.types';
-import { SVGDefinitions, BackgroundElements } from './SVGComponents';
-import { InteractiveCircles } from './InteractiveCircles';
 import useAppStore from '../../../../zustand/store';
 import { motion } from 'framer-motion';
+import bgLoging from '../../../../assets/backgrounds/bg-loging.png';
 
-interface VennDiagramProps {
+interface LoginBackgroundProps {
   currentCircle: CircleType;
   onConnect?: () => void;
   isConnecting?: boolean;
@@ -12,7 +11,7 @@ interface VennDiagramProps {
   worldcoinCredentials?: any;
 }
 
-export const VennDiagram = ({ currentCircle, onConnect, isConnecting }: VennDiagramProps) => {
+export const LoginBackground = ({ currentCircle, onConnect, isConnecting }: LoginBackgroundProps) => {
   // Get connection state for button styling from Cavos store
   const isAuthenticated = useAppStore(state => state.cavos.isAuthenticated);
   const isLoading = useAppStore(state => state.cavos.loading);
@@ -38,7 +37,15 @@ export const VennDiagram = ({ currentCircle, onConnect, isConnecting }: VennDiag
   const buttonState = getButtonState();
 
   return (
-    <div className="h-screen w-full bg-screen flex flex-col items-center justify-center absolute top-0 left-0 z-10 opacity-0 translate-y-8 animate-fadeInUp">
+    <div 
+      className="h-screen w-full flex flex-col items-center justify-center absolute top-0 left-0 z-10 opacity-0 translate-y-8 animate-fadeInUp"
+      style={{
+        backgroundImage: `url(${bgLoging})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="max-w-md mx-auto">
         
         {/* Main title */}
@@ -48,18 +55,6 @@ export const VennDiagram = ({ currentCircle, onConnect, isConnecting }: VennDiag
         >
           Beasts Awaits You!
         </h1>
-        
-        {/* Interactive diagram */}
-        <div 
-          className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 mx-auto opacity-0 translate-y-8 animate-fadeInUp"
-          style={{ animationDelay: '0.4s' }}
-        >
-          <svg viewBox="0 0 400 400" className="w-full h-full">
-            <SVGDefinitions />
-            <BackgroundElements />
-            <InteractiveCircles currentCircle={currentCircle} />
-          </svg>
-        </div>
         
         {/* Connect Button with dynamic state */}
         <div 
