@@ -1,6 +1,6 @@
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import sleepBackground from "../../../assets/backgrounds/bg-sleep.png";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { SleepScreenProps } from "../../types/sleep.types";
@@ -8,8 +8,6 @@ import { SleepScreenProps } from "../../types/sleep.types";
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
 
-// Hook for real-time status
-import { useRealTimeStatus } from "../../../dojo/hooks/useRealTimeStatus";
 
 // Music Context
 import { useMusic } from "../../../context/MusicContext";

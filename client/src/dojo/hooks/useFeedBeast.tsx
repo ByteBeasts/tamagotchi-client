@@ -8,8 +8,7 @@ import { getContractAddresses } from '../../config/cavosConfig';
 
 // Optimistic helpers
 import { 
-  calculateOptimisticFeed, 
-  calculateOptimisticFoodInventory,
+  calculateOptimisticFeed,
   getBeastType,
   isBeastAlive 
 } from '../../utils/optimisticHelpers';
