@@ -44,7 +44,7 @@ export default defineConfig(({ command }) => {
           enabled: isDev
         },
         workbox: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
+          maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MiB
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,ttf,eot,jpeg,jpg}"],
           runtimeCaching: [
             {

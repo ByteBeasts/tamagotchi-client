@@ -65,7 +65,7 @@ const MagicalParticles = () => {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      particlesRef.current.forEach((particle, index) => {
+      particlesRef.current.forEach((particle) => {
         // Update position
         particle.x += particle.vx;
         particle.y += particle.vy;

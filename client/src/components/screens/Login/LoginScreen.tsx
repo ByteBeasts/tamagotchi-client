@@ -18,7 +18,7 @@ interface LoginScreenProps {
  * includes fetchStatus + updateBeast validation before navigation
  */
 export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
-  const { view, currentCircle } = useLoginAnimations();
+  const { view } = useLoginAnimations();
   const [isConnecting, setIsConnecting] = useState(false);
   const [showBrowserModal, setShowBrowserModal] = useState(false);
   
@@ -250,7 +250,6 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
       return (
         <>
           <LoginBackground 
-            currentCircle={currentCircle} 
             onConnect={handleConnect}
             isConnecting={isConnecting || authLoading}
             isWorldApp={isWorldApp}

@@ -1,11 +1,9 @@
-import type { CircleType } from '../../../types/login.types';
 import useAppStore from '../../../../zustand/store';
 import { motion } from 'framer-motion';
 import bgLoging from '../../../../assets/backgrounds/bg-loging.png';
 import MagicalParticles from './MagicalParticles';
 
 interface LoginBackgroundProps {
-  currentCircle: CircleType;
   onConnect?: () => void;
   isConnecting?: boolean;
   isWorldApp?: boolean;
