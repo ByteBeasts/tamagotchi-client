@@ -19,6 +19,7 @@ interface UseUpdateBeastReturn {
   
   // Actions
   updateBeast: () => Promise<boolean>;
+  forceUpdateBeast: () => Promise<boolean>; // Force update without validations (for login)
   triggerUpdate: () => void; // Fire-and-forget for navigation
   resetError: () => void;
 }
@@ -118,6 +119,80 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
   }, [cavosWallet, hasLiveBeast, executeTransaction, fetchLatestStatus]);
   
   /**
+   * Force update beast without validations - FOR LOGIN ONLY
+   * Bypasses hasLiveBeast check to force Torii sync with contract
+   */
+  const forceUpdateBeast = useCallback(async (): Promise<boolean> => {
+    // Minimal validation - only check wallet exists
+    if (!cavosWallet?.address) {
+      console.log('⏸️ Skipping force update - no wallet address');
+      return false;
+    }
+    
+    if (isUpdatingRef.current) {
+      console.log('⏸️ Force update already in progress, skipping');
+      return false;
+    }
+    
+    try {
+      isUpdatingRef.current = true;
+      setState(prev => ({ 
+        ...prev, 
+        isUpdating: true, 
+        error: null 
+      }));
+      
+      console.log('🔧 Force executing update_beast to sync Torii with contract...');
+      
+      // Execute the contract transaction using Cavos (same as normal updateBeast)
+      const contractAddresses = getContractAddresses();
+      
+      const calls = [{
+        contractAddress: contractAddresses.game,
+        entrypoint: 'update_beast',
+        calldata: []
+      }];
+      
+      const transactionHash = await executeTransaction(calls);
+      
+      if (transactionHash) {
+        console.log('✅ Force update_beast transaction submitted:', transactionHash);
+        
+        setState(prev => ({
+          ...prev,
+          isUpdating: false,
+          lastUpdate: Date.now(),
+          retryCount: 0,
+        }));
+        
+        // Fetch updated status after successful transaction
+        setTimeout(() => {
+          fetchLatestStatus();
+        }, 2000);
+        
+        return true;
+      } else {
+        throw new Error('Force update transaction returned null');
+      }
+      
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Force update beast failed';
+      console.error('❌ Force update_beast failed:', error);
+      
+      setState(prev => ({
+        ...prev,
+        isUpdating: false,
+        error: errorMessage,
+        retryCount: prev.retryCount + 1,
+      }));
+      
+      return false;
+    } finally {
+      isUpdatingRef.current = false;
+    }
+  }, [cavosWallet, executeTransaction, fetchLatestStatus]);
+  
+  /**
    * Fire-and-forget update for navigation
    * Executes update_beast in background without blocking UI
    */
@@ -156,6 +231,7 @@ export const useUpdateBeast = (): UseUpdateBeastReturn => {
     
     // Actions
     updateBeast,
+    forceUpdateBeast,
     triggerUpdate,
     resetError,
   };
