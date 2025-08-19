@@ -9,9 +9,7 @@ import { getContractAddresses } from '../../config/cavosConfig';
 // Optimistic helpers
 import { calculateOptimisticClean, isBeastAlive } from '../../utils/optimisticHelpers';
 
-// Hooks for post-transaction sync
-import { useRealTimeStatus } from './useRealTimeStatus';
-import { useUpdateBeast } from './useUpdateBeast';
+// No more post-transaction sync - confiar en optimistic updates
 
 // Types imports
 import { CleanTransactionState } from '../../components/types/clean.types';
@@ -45,9 +43,7 @@ interface CleanActionResult {
 export const useCleanBeast = (): UseCleanBeastReturn => {
   const { executeOptimistic } = useOptimisticTransaction();
   
-  // Get sync hooks for post-transaction updates
-  const { fetchLatestStatus } = useRealTimeStatus();
-  const { updateBeast } = useUpdateBeast();
+  // No sync hooks needed - optimistic updates only
   
   // Get Cavos auth state for validation
   const cavosAuth = useAppStore(state => state.cavos);
@@ -143,31 +139,8 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
           error: null,
         });
         
-        // Schedule background sync after blockchain confirmation
-        setTimeout(async () => {
-          try {
-            console.log('🔄 Starting post-clean sync...');
-            
-            // Update beast to trigger contract recalculation
-            const updateSuccess = await updateBeast();
-            if (updateSuccess) {
-              console.log('✅ Beast updated successfully');
-            }
-            
-            // Fetch latest status with skipSync to avoid re-mounting
-            await fetchLatestStatus(true);
-            console.log('✅ Status synced with blockchain');
-            
-          } catch (syncError) {
-            console.error('⚠️ Background sync failed:', syncError);
-            // Try to at least sync status
-            try {
-              await fetchLatestStatus(true);
-            } catch (e) {
-              console.error('Failed to sync status:', e);
-            }
-          }
-        }, 2000); // Wait 2 seconds for blockchain confirmation
+        // Sin sync post-transacción - confiamos en optimistic updates
+        console.log('✅ Clean optimistic update applied - polling mantendrá consistencia eventual');
       },
       
       // On error
@@ -207,9 +180,7 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
     setCleanTransaction,
     executeOptimistic,
     realTimeStatus,
-    setRealTimeStatus,
-    updateBeast,
-    fetchLatestStatus
+    setRealTimeStatus
   ]);
 
   // Reset transaction state
