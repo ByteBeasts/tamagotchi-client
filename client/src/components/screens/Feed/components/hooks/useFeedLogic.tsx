@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 // Types and constants
 import { FoodItem, DragState } from '../../../../types/feed.types';
-import { DROP_TOLERANCE, BEAST_DROP_ZONE_ID, FOOD_UI_CONFIG } from '../../../../../constants/feed.constants';
+import { DROP_TOLERANCE, BEAST_DROP_ZONE_ID } from '../../../../../constants/feed.constants';
 
 // Hooks
 import { useFoodInventory } from '../../../../../dojo/hooks/useFoodInventory';

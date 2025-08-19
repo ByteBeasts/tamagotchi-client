@@ -1,5 +1,4 @@
 import { useCallback, useState, useRef } from "react";
-import toast from "react-hot-toast";
 
 // Hooks imports
 import { useCleanBeast } from '../../../../../dojo/hooks/useCleanBeast';

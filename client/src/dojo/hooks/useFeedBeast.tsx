@@ -161,7 +161,7 @@ export const useFeedBeast = (): UseFeedBeastReturn => {
         setFoods(optimisticFoods);
         
         // Show success toast immediately
-        toast.success(`🎉 Fed ${currentFood.name} to your beast!`, {
+        toast.success(`🎉 Food fed to your beast!`, {
           duration: 3000,
           position: 'top-center',
           style: {
