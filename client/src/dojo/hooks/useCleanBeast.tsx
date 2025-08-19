@@ -1,10 +1,17 @@
 import { useCallback } from 'react';
-import { useCavosTransaction } from './useCavosTransaction';
+import { useOptimisticTransaction } from './useOptimisticTransaction';
 import toast from 'react-hot-toast';
 
 // Store imports
 import useAppStore from '../../zustand/store';
 import { getContractAddresses } from '../../config/cavosConfig';
+
+// Optimistic helpers
+import { calculateOptimisticClean, isBeastAlive } from '../../utils/optimisticHelpers';
+
+// Hooks for post-transaction sync
+import { useRealTimeStatus } from './useRealTimeStatus';
+import { useUpdateBeast } from './useUpdateBeast';
 
 // Types imports
 import { CleanTransactionState } from '../../components/types/clean.types';
@@ -36,7 +43,11 @@ interface CleanActionResult {
  * Follows the same pattern as useFeedBeast for consistency
  */
 export const useCleanBeast = (): UseCleanBeastReturn => {
-  const { executeTransaction } = useCavosTransaction();
+  const { executeOptimistic } = useOptimisticTransaction();
+  
+  // Get sync hooks for post-transaction updates
+  const { fetchLatestStatus } = useRealTimeStatus();
+  const { updateBeast } = useUpdateBeast();
   
   // Get Cavos auth state for validation
   const cavosAuth = useAppStore(state => state.cavos);
@@ -47,6 +58,10 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
   const resetCleanTransaction = useAppStore(state => state.resetCleanTransaction);
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast);
   const player = useAppStore(state => state.player);
+  
+  // Get data needed for optimistic updates
+  const realTimeStatus = useAppStore(state => state.realTimeStatus);
+  const setRealTimeStatus = useAppStore(state => state.setRealTimeStatus);
 
   // Execute clean beast transaction
   const cleanBeast = useCallback(async (): Promise<CleanActionResult> => {
@@ -77,80 +92,111 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
       toast.error('Your beast is still being cleaned!');
       return { success: false, error };
     }
+    
+    // Validation: Check if beast is alive
+    if (!isBeastAlive(realTimeStatus)) {
+      const error = 'Beast is not alive';
+      toast.error('Your beast needs to be revived first!');
+      return { success: false, error };
+    }
 
-    try {
-      // Start transaction - set loading state
-      setCleanTransaction({
-        isCleaningInProgress: true,
-        transactionHash: null,
-        error: null,
-      });
+    // DON'T set loading state here - we want optimistic UI without spinner
 
-      // Execute transaction using Cavos with dynamic contract address
-      const contractAddresses = getContractAddresses();
+    // Execute transaction with optimistic updates
+    const contractAddresses = getContractAddresses();
+    
+    const calls = [{
+      contractAddress: contractAddresses.game,
+      entrypoint: 'clean',
+      calldata: []
+    }];
+    
+    const result = await executeOptimistic(calls, {
+      // Capture current state
+      captureState: () => ({
+        originalStatus: [...realTimeStatus]
+      }),
       
-      const calls = [{
-        contractAddress: contractAddresses.game,
-        entrypoint: 'clean',
-        calldata: []
-      }];
+      // Apply optimistic update
+      onOptimisticUpdate: () => {
+        // Update stats optimistically
+        const optimisticStats = calculateOptimisticClean(realTimeStatus);
+        setRealTimeStatus(optimisticStats, true); // skipSync = true
+        
+        // No toast here - let the UI handle visual feedback
+      },
       
-      const transactionHash = await executeTransaction(calls);
+      // Rollback on failure
+      onRollback: (originalState: any) => {
+        setRealTimeStatus(originalState.originalStatus, true);
+        console.log('Clean transaction rolled back');
+      },
       
-      // Create a compatible response object
-      const tx = {
-        transaction_hash: transactionHash,
-        code: "SUCCESS"
-      };
-      
-      // Check transaction result
-      if (tx && tx.code === "SUCCESS") {
-        // Update transaction state with success
+      // On success, schedule background sync
+      onSuccess: (txHash: string) => {
+        console.log('✅ Clean transaction successful:', txHash);
+        
+        // Clear any transaction state
         setCleanTransaction({
           isCleaningInProgress: false,
-          transactionHash: tx.transaction_hash,
+          transactionHash: txHash,
           error: null,
         });
-
-        return {
-          success: true,
-          transactionHash: tx.transaction_hash,
-        };
         
-      } else {
-        throw new Error("Clean transaction failed with code: " + tx?.code);
+        // Schedule background sync after blockchain confirmation
+        setTimeout(async () => {
+          try {
+            console.log('🔄 Starting post-clean sync...');
+            
+            // Update beast to trigger contract recalculation
+            const updateSuccess = await updateBeast();
+            if (updateSuccess) {
+              console.log('✅ Beast updated successfully');
+            }
+            
+            // Fetch latest status with skipSync to avoid re-mounting
+            await fetchLatestStatus(true);
+            console.log('✅ Status synced with blockchain');
+            
+          } catch (syncError) {
+            console.error('⚠️ Background sync failed:', syncError);
+            // Try to at least sync status
+            try {
+              await fetchLatestStatus(true);
+            } catch (e) {
+              console.error('Failed to sync status:', e);
+            }
+          }
+        }, 2000); // Wait 2 seconds for blockchain confirmation
+      },
+      
+      // On error
+      onError: (error: any) => {
+        console.error('Clean transaction failed:', error);
+        
+        // Clear transaction state on error
+        setCleanTransaction({
+          isCleaningInProgress: false,
+          transactionHash: null,
+          error: error?.message || 'Transaction failed',
+        });
+        
+        // No error toast - already handled by validation
       }
-
-    } catch (error: any) {
-      console.error('Clean transaction failed:', error);
-
-      // Update transaction state with error
-      const errorMessage = error?.message || error?.toString() || 'Transaction failed';
-      setCleanTransaction({
-        isCleaningInProgress: false,
-        transactionHash: null,
-        error: errorMessage,
-      });
-
-      // Show error toast
-      toast.error('Unable to clean your beast. Try again!', {
-        duration: 4000,
-        position: 'top-center',
-        style: {
-          background: '#EF4444',
-          color: 'white',
-          fontWeight: 'bold',
-          borderRadius: '12px',
-          padding: '12px 16px',
-          fontSize: '16px',
-        },
-      });
-
+    });
+    
+    if (result.success) {
+      return {
+        success: true,
+        transactionHash: result.txHash,
+      };
+    } else {
       return {
         success: false,
-        error: errorMessage,
+        error: result.error?.message || 'Transaction failed',
       };
     }
+
   }, [
     cavosAuth.isAuthenticated,
     cavosAuth.wallet,
@@ -159,7 +205,11 @@ export const useCleanBeast = (): UseCleanBeastReturn => {
     hasLiveBeast,
     cleanTransaction.isCleaningInProgress,
     setCleanTransaction,
-    executeTransaction
+    executeOptimistic,
+    realTimeStatus,
+    setRealTimeStatus,
+    updateBeast,
+    fetchLatestStatus
   ]);
 
   // Reset transaction state

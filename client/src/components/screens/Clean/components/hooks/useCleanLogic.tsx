@@ -3,8 +3,6 @@ import toast from "react-hot-toast";
 
 // Hooks imports
 import { useCleanBeast } from '../../../../../dojo/hooks/useCleanBeast';
-import { useRealTimeStatus } from '../../../../../dojo/hooks/useRealTimeStatus';
-import { useUpdateBeast } from '../../../../../dojo/hooks/useUpdateBeast';
 import { useRainSystem } from './useRainSystem';
 
 // Hook return interface
@@ -39,12 +37,6 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
     canClean
   } = useCleanBeast();
   
-  // Get real-time status management
-  const { fetchLatestStatus } = useRealTimeStatus();
-  
-  // Get beast update capabilities
-  const { updateBeast } = useUpdateBeast();
-  
   // Get rain animation system
   const {
     isRainActive,
@@ -67,39 +59,23 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
    */
   const handleSuccessfulClean = useCallback(async (): Promise<boolean> => {
     try {
-      // Execute blockchain transaction
+      // Start rain animation IMMEDIATELY (optimistic)
+      startRain();
+      
+      // Execute blockchain transaction (optimistic updates handled inside)
       const result = await cleanBeast();
       
+      // Reset processing state quickly to allow consecutive clicks
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+      }
+      
+      processingTimeoutRef.current = setTimeout(() => {
+        setIsProcessingClean(false);
+      }, 500);
+      
       if (result.success) {
-        // Start rain animation immediately after successful transaction
-        startRain();
-        
-        // Reset processing state quickly to allow consecutive clicks
-        if (processingTimeoutRef.current) {
-          clearTimeout(processingTimeoutRef.current);
-        }
-        
-        processingTimeoutRef.current = setTimeout(() => {
-          setIsProcessingClean(false);
-        }, 500);
-        
-        // Background updates (non-blocking)
-        setTimeout(async () => {
-          try {
-            const updateSuccess = await updateBeast();
-            if (updateSuccess) {
-              await fetchLatestStatus();
-            } else {
-              await fetchLatestStatus();
-            }
-          } catch (error) {
-            console.error('Error in post-cleaning updates:', error);
-            await fetchLatestStatus();
-          }
-        }, 100);
-        
         return true;
-        
       } else {
         console.error('Clean transaction failed:', result.error);
         setIsProcessingClean(false);
@@ -111,7 +87,7 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
       setIsProcessingClean(false);
       return false;
     }
-  }, [cleanBeast, startRain, updateBeast, fetchLatestStatus]);
+  }, [cleanBeast, startRain]);
 
   /**
    * Handle cloud click - main action for clean screen
@@ -120,10 +96,7 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
   const handleCloudClick = useCallback(async (): Promise<boolean> => {
     // Only block if blockchain transaction is already active
     if (isCleaningInProgress) {
-      toast.error('Blockchain transaction in progress, please wait!', {
-        duration: 2000,
-        position: 'top-center',
-      });
+      // No toast - let the UI handle the feedback
       return false;
     }
     
@@ -137,7 +110,6 @@ export const useCleanLogic = (rainDuration: number = 5): UseCleanLogicReturn => 
       
     } catch (error) {
       console.error('Error in handleCloudClick:', error);
-      toast.error('Failed to start cleaning process');
       setIsProcessingClean(false);
       return false;
     }
