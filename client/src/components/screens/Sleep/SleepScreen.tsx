@@ -59,32 +59,23 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
     isLoading
   } = useBeastDisplay();
   
-  // Track if we've done initial fetch
-  const hasFetchedInitial = useRef(false);
+  // No longer needed - store already has data from polling
 
   // Set current screen for music control
   useEffect(() => {
     setCurrentScreen("sleep");
   }, [setCurrentScreen]);
 
-  // Main sleep logic hook (refactorizado)
+  // Main sleep logic hook (simplificado - sin fetch)
   const {
     isBeastSleeping,
     isSleepTransactionInProgress,
     handleCampfireClick,
-    isInteractionDisabled,
-    fetchInitialStatus,
-    isLoading: isSleepDataLoading
+    isInteractionDisabled
   } = useSleepLogic();
   
-  // Fetch inicial al montar (plan original - paso 1)
-  useEffect(() => {
-    if (!hasFetchedInitial.current && hasLiveBeast) {
-      hasFetchedInitial.current = true;
-      console.log('🌙 SleepScreen: Executing initial fetch (plan original - paso 1)');
-      fetchInitialStatus();
-    }
-  }, [hasLiveBeast, fetchInitialStatus]);
+  // No fetch needed - store ya tiene datos del polling automático
+  // El useBeastDisplay lee del store que se actualiza cada 2 min
 
   // Frame configuration
   const extinguishedFrames = [
@@ -135,8 +126,8 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
     await handleCampfireClick();
   };
 
-  // Loading state (combinando ambos loadings)
-  if (isLoading || isSleepDataLoading) {
+  // Loading state (solo useBeastDisplay)
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-900 to-purple-900">
         <div className="text-center">

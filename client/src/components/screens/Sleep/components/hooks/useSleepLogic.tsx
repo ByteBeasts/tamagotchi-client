@@ -16,25 +16,19 @@ interface UseSleepLogicReturn {
   // Computed
   isInteractionDisabled: boolean;
   
-  // Data fetching
-  fetchInitialStatus: () => Promise<void>;
-  isLoading: boolean;
+  // No longer needed - store has data from polling
 }
 
 /**
- * Hook refactorizado que coordina sleep/awake siguiendo el plan original:
- * 1. Fetch manual al montar
- * 2. Optimistic updates instantáneos  
- * 3. Sync manual post-transacción
- * Sin polling automático que interfiera
+ * Hook simplificado que coordina sleep/awake:
+ * 1. Lee datos del store (actualizado por polling 2 min)
+ * 2. Optimistic updates instantáneos
+ * 3. Sin fetch manual - confía en store + polling
  */
 export const useSleepLogic = (): UseSleepLogicReturn => {
-  // Hook refactorizado para fetch manual (plan original)
+  // Hook para obtener currentBeastAwakeStatus del store
   const { 
-    currentBeastAwakeStatus,
-    fetchInitialStatus,
-    fetchStatusSync,
-    isLoading
+    currentBeastAwakeStatus
   } = useSleepAwakeRefactored();
   
   // Hook de transacciones (modificado para usar callbacks)
@@ -114,8 +108,6 @@ export const useSleepLogic = (): UseSleepLogicReturn => {
     // Computed
     isInteractionDisabled,
     
-    // Data fetching (plan original - paso 1)
-    fetchInitialStatus,
-    isLoading,
+    // Store ya contiene los datos necesarios
   };
 };

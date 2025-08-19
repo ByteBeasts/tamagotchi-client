@@ -7,8 +7,7 @@ import HomeIcon from '../../assets/icons/navBar/icon-home.webp';
 import CleanIcon from '../../assets/icons/navBar/icon-clean.webp';
 import PlayIcon from '../../assets/icons/navBar/icon-play.webp';
 
-// Real-time status integration
-import { useUpdateBeast } from '../../dojo/hooks/useUpdateBeast';
+// No longer needed - polling maintains data consistency
 
 type Screen = "login" | "cover" | "home" | "sleep" | "feed" | "clean" | "play";
 
@@ -24,9 +23,6 @@ export function NavBar({
   shouldBlockNavigation = false, // NEW: Default to false
 }: NavBarProps) {
   const [active, setActive] = useState<Screen>(activeTab);
-  
-  // Hook for background beast updates
-  const { triggerUpdate } = useUpdateBeast();
 
   useEffect(() => {
     setActive(activeTab);
@@ -48,8 +44,7 @@ export function NavBar({
     // Note: Navigation blocking logic is handled in App.tsx
     onNavigation?.(id);
     
-    // Trigger background update_beast (fire-and-forget)
-    triggerUpdate();
+    // No update_beast needed - polling maintains data consistency
   };
 
   /**
