@@ -121,7 +121,7 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
   /**
    * Start polling for status updates
    */
-  const startPolling = useCallback((intervalMs: number = 30000) => {
+  const startPolling = useCallback((intervalMs: number = 120000) => {
     if (isPollingRef.current) {
       console.log('⚠️ Polling already active');
       return;

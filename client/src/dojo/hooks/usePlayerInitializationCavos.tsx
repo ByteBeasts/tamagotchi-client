@@ -42,7 +42,7 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
   } = useSpawnPlayerCavos();
 
   const { refetch: refetchBeast } = useLiveBeast();
-  const { updateBeast } = useUpdateBeast();
+  const { forceUpdateBeast } = useUpdateBeast();
 
   const [state, setState] = useState({
     isInitializing: false,
@@ -121,19 +121,38 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
         currentStep: 'validating_beast'
       }));
 
-      // Step 3: Validate beast with real-time status if beast exists
-      if (hasLiveBeast && liveBeast.beast) {
-        console.log('🔄 Validating beast with real-time status...');
-        
-        // TODO: Implement fetchStatus for Cavos wallets
-        // For now, just update the beast without status validation
+      // Step 3: Force beast update to sync Torii with contract (only for existing players)
+      if (wasExistingPlayer) {
+        console.log('🔧 Force updating beast data to sync Torii with contract (existing player)...');
         try {
-          console.log('🔄 Updating beast data...');
-          await updateBeast();
-          console.log('✅ Beast validation complete');
+          await forceUpdateBeast();
+          console.log('✅ Force beast update complete - Torii synchronized');
+          
+          // Re-fetch beast data after forced update to get accurate status
+          await refetchBeast();
+          
+          // Re-check beast status after sync
+          const updatedStoreState = useAppStore.getState();
+          const updatedLiveBeast = updatedStoreState.liveBeast;
+          const updatedHasLiveBeast = updatedLiveBeast.isAlive && updatedLiveBeast.beast !== null;
+          
+          console.log('📊 Updated beast status after sync:', {
+            hasLiveBeast: updatedHasLiveBeast,
+            isAlive: updatedLiveBeast.isAlive,
+            beastExists: !!updatedLiveBeast.beast
+          });
+          
+          // Update state with correct beast status
+          setState(prev => ({
+            ...prev,
+            hasLiveBeast: updatedHasLiveBeast
+          }));
+          
         } catch (statusError) {
-          console.error('⚠️ Beast update failed but continuing:', statusError);
+          console.error('⚠️ Force beast update failed but continuing:', statusError);
         }
+      } else {
+        console.log('🆕 New player - skipping beast update (no beast to update)');
       }
 
       // Determine navigation destination
@@ -187,7 +206,7 @@ export const usePlayerInitializationCavos = (): UsePlayerInitializationCavosRetu
         error: errorMessage
       };
     }
-  }, [state.isInitializing, initializePlayer, refetchBeast, updateBeast]);
+  }, [state.isInitializing, initializePlayer, refetchBeast, forceUpdateBeast]);
 
   const resetInitialization = useCallback(() => {
     setState({

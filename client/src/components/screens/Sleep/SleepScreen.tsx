@@ -8,6 +8,7 @@ import { SleepScreenProps } from "../../types/sleep.types";
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
 
+
 // Music Context
 import { useMusic } from "../../../context/MusicContext";
 
@@ -55,19 +56,24 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
     hasLiveBeast,
     isLoading
   } = useBeastDisplay();
+  
+  // No longer needed - store already has data from polling
 
   // Set current screen for music control
   useEffect(() => {
     setCurrentScreen("sleep");
   }, [setCurrentScreen]);
 
-  // Main sleep logic hook
+  // Main sleep logic hook (simplificado - sin fetch)
   const {
     isBeastSleeping,
     isSleepTransactionInProgress,
     handleCampfireClick,
     isInteractionDisabled
   } = useSleepLogic();
+  
+  // No fetch needed - store ya tiene datos del polling automático
+  // El useBeastDisplay lee del store que se actualiza cada 2 min
 
   // Frame configuration
   const extinguishedFrames = [
@@ -118,7 +124,7 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
     await handleCampfireClick();
   };
 
-  // Loading state
+  // Loading state (solo useBeastDisplay)
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-indigo-900 to-purple-900">

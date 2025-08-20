@@ -31,20 +31,20 @@ export const GameOverModal = ({
   const { score, rewards, isNewHighScore, gameData } = gameResult;
   const { coins, gems, range } = rewards;
 
-  // Handlers with touch support
-  const handlePlayAgainClick = (e: React.MouseEvent | React.TouchEvent) => {
+  // Handlers
+  const handlePlayAgainClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     onPlayAgain();
   };
 
-  const handleExitClick = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleExitClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     onExitGame();
   };
 
-  const handleBackdropClick = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       e.stopPropagation();
       e.preventDefault();
@@ -63,7 +63,6 @@ export const GameOverModal = ({
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={handleBackdropClick}
-            onTouchStart={handleBackdropClick}
             style={{ 
               touchAction: 'none',
               WebkitTouchCallout: 'none',
@@ -79,7 +78,6 @@ export const GameOverModal = ({
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-sm w-full mx-auto shadow-2xl border border-slate-700"
               onClick={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
               style={{ touchAction: 'auto' }}
             >
               {/* Header */}
@@ -179,7 +177,6 @@ export const GameOverModal = ({
               <div className="flex gap-3">
                 <button
                   onClick={handlePlayAgainClick}
-                  onTouchStart={handlePlayAgainClick}
                   className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95 touch-manipulation"
                   style={{ 
                     touchAction: 'manipulation',
@@ -191,7 +188,6 @@ export const GameOverModal = ({
                 </button>
                 <button
                   onClick={handleExitClick}
-                  onTouchStart={handleExitClick}
                   className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95 touch-manipulation"
                   style={{ 
                     touchAction: 'manipulation',
@@ -206,7 +202,6 @@ export const GameOverModal = ({
               {/* Close Button */}
               <button
                 onClick={handleExitClick}
-                onTouchStart={handleExitClick}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors touch-manipulation"
                 style={{ 
                   touchAction: 'manipulation',

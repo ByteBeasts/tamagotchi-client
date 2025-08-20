@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 // Cavos transaction hook
 import { useCavosTransaction } from '../../../../dojo/hooks/useCavosTransaction';
 import { usePlayer } from '../../../../dojo/hooks/usePlayer';
+import { useFoodInventory } from '../../../../dojo/hooks/useFoodInventory';
 import { getContractAddresses } from '../../../../config/cavosConfig';
 
 // Types
@@ -27,6 +28,7 @@ export const useMarketPurchase = ({
 }: UseMarketPurchaseProps = {}): UseMarketPurchaseReturn => {
   const { executeTransaction } = useCavosTransaction();
   const { refetch: refetchPlayer } = usePlayer();
+  const { silentRefetch: refetchFoodInventory } = useFoodInventory();
   
   // Get Cavos auth state and player data
   const cavosAuth = useAppStore(state => state.cavos);
@@ -126,10 +128,12 @@ export const useMarketPurchase = ({
         console.log("💰 [MarketPurchase] Player coins before refetch:", currentPlayerBeforeRefetch?.total_coins);
         
         await refetchPlayer();
+        await refetchFoodInventory();
         
         // Log after refetch to see what happened
         const currentPlayerAfterRefetch = useAppStore.getState().player;
         console.log("💰 [MarketPurchase] Player coins after refetch:", currentPlayerAfterRefetch?.total_coins);
+        console.log("🍎 [MarketPurchase] Food inventory refreshed after purchase");
         
         // If blockchain hasn't processed yet, keep optimistic state
         if (currentPlayerAfterRefetch && currentPlayerBeforeRefetch && 

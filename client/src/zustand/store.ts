@@ -77,6 +77,15 @@ interface AppStore {
   realTimeStatus: number[];
   lastStatusUpdate: number | null;
   isStatusLoading: boolean;
+  hasOptimisticSleepUpdate: boolean; // Track if there's a pending sleep/awake optimistic update
+  
+  // State snapshot for rollback
+  stateSnapshot: {
+    realTimeStatus: number[] | null;
+    foods: Food[] | null;
+    feedTransaction: FeedTransactionState | null;
+    cleanTransaction: CleanTransactionState | null;
+  } | null;
   
   // Player actions
   setPlayer: (player: Player | null) => void;
@@ -98,6 +107,7 @@ interface AppStore {
     hygiene: number;
   }>) => void;
   clearRealTimeStatus: () => void;
+  setOptimisticSleepFlag: (value: boolean) => void;
   getRealTimeStatusForUI: () => {
     energy: number;
     hunger: number;
@@ -135,6 +145,15 @@ interface AppStore {
   
   // Utility actions
   resetStore: () => void;
+  
+  // Optimistic update utilities
+  saveStateSnapshot: () => void;
+  rollbackToSnapshot: () => void;
+  clearSnapshot: () => void;
+  optimisticUpdateWithRollback: <T>(
+    update: () => void,
+    captureSpecificState?: () => T
+  ) => { rollback: () => void; capturedState: T | null };
   
   // Convenience getters
   hasLiveBeast: () => boolean;
@@ -198,6 +217,8 @@ const initialState = {
   realTimeStatus: [],
   lastStatusUpdate: null,
   isStatusLoading: false,
+  hasOptimisticSleepUpdate: false,
+  stateSnapshot: null,
 };
 
 // Create the store
@@ -272,8 +293,15 @@ const useAppStore = create<AppStore>()(
       syncWithContractData: (contractStatus) => {
         if (!contractStatus || contractStatus.length < 10) return;
         
-        const contractBeastId = contractStatus[1];
         const state = get();
+        
+        // Don't sync if there's an optimistic sleep update in progress
+        if (state.hasOptimisticSleepUpdate) {
+          console.log('⏸️ Skipping contract sync - optimistic sleep update in progress');
+          return;
+        }
+        
+        const contractBeastId = contractStatus[1];
         
         // Update player.current_beast_id if different
         if (state.player && state.player.current_beast_id !== contractBeastId) {
@@ -298,9 +326,16 @@ const useAppStore = create<AppStore>()(
       
       // Real-time status actions with auto-sync
       setRealTimeStatus: (status, skipSync = false) => {
+        const state = get();
+        
+        // Don't overwrite if there's an optimistic sleep update in progress
+        if (state.hasOptimisticSleepUpdate && !skipSync) {
+          console.log('⏸️ Skipping status update - optimistic sleep update in progress');
+          return;
+        }
+        
         // AUTO-SYNC before setting status (unless skipped)
         if (!skipSync) {
-          const state = get();
           state.syncWithContractData(status);
         }
         
@@ -336,6 +371,10 @@ const useAppStore = create<AppStore>()(
           lastStatusUpdate: null,
           isStatusLoading: false
         });
+      },
+      
+      setOptimisticSleepFlag: (value) => {
+        set({ hasOptimisticSleepUpdate: value });
       },
       
       // Contract-first validation with auto-sync
@@ -558,6 +597,57 @@ const useAppStore = create<AppStore>()(
       
       // Utility actions
       resetStore: () => set(initialState),
+      
+      // Optimistic update utilities
+      saveStateSnapshot: () => {
+        const state = get();
+        set({
+          stateSnapshot: {
+            realTimeStatus: [...state.realTimeStatus],
+            foods: [...state.foods],
+            feedTransaction: { ...state.feedTransaction },
+            cleanTransaction: { ...state.cleanTransaction }
+          }
+        });
+      },
+      
+      rollbackToSnapshot: () => {
+        const state = get();
+        if (state.stateSnapshot) {
+          set({
+            realTimeStatus: state.stateSnapshot.realTimeStatus || [],
+            foods: state.stateSnapshot.foods || [],
+            feedTransaction: state.stateSnapshot.feedTransaction || initialState.feedTransaction,
+            cleanTransaction: state.stateSnapshot.cleanTransaction || initialState.cleanTransaction,
+          });
+        }
+      },
+      
+      clearSnapshot: () => {
+        set({ stateSnapshot: null });
+      },
+      
+      optimisticUpdateWithRollback: (update, captureSpecificState) => {
+        const state = get();
+        
+        // Save full snapshot before update
+        state.saveStateSnapshot();
+        
+        // Capture specific state if provided
+        const capturedState = captureSpecificState ? captureSpecificState() : null;
+        
+        // Apply the optimistic update
+        update();
+        
+        // Return rollback function
+        return {
+          rollback: () => {
+            state.rollbackToSnapshot();
+            state.clearSnapshot();
+          },
+          capturedState
+        };
+      },
     }),
     {
       name: 'tamagotchi-store',

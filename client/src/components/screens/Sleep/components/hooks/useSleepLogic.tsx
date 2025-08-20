@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useSleepAwake } from '../../../../../dojo/hooks/useSleepAwake';
-import { useRealTimeStatus } from '../../../../../dojo/hooks/useRealTimeStatus';
-import { useUpdateBeast } from '../../../../../dojo/hooks/useUpdateBeast';
+import { useSleepAwakeRefactored } from '../../../../../dojo/hooks/useSleepAwakeRefactored';
 
 interface UseSleepLogicReturn {
   // Beast state
@@ -16,26 +15,28 @@ interface UseSleepLogicReturn {
   
   // Computed
   isInteractionDisabled: boolean;
+  
+  // No longer needed - store has data from polling
 }
 
 /**
- * Hook that integrates Sleep/Awake transactions with navigation control
- * Coordinates the complete sleep/awake flow including blockchain updates and UI synchronization
+ * Hook simplificado que coordina sleep/awake:
+ * 1. Lee datos del store (actualizado por polling 2 min)
+ * 2. Optimistic updates instantáneos
+ * 3. Sin fetch manual - confía en store + polling
  */
 export const useSleepLogic = (): UseSleepLogicReturn => {
-  // Get sleep/awake transaction capabilities
+  // Hook para obtener currentBeastAwakeStatus del store
+  const { 
+    currentBeastAwakeStatus
+  } = useSleepAwakeRefactored();
+  
+  // Hook de transacciones (modificado para usar callbacks)
   const { 
     putToSleep, 
     wakeUp, 
-    isSleepTransactionInProgress,
-    currentBeastAwakeStatus 
+    isSleepTransactionInProgress
   } = useSleepAwake();
-  
-  // Get real-time status management
-  const { fetchLatestStatus } = useRealTimeStatus();
-  
-  // Get beast update capabilities
-  const { updateBeast } = useUpdateBeast();
   
   /**
    * Determine if beast is currently sleeping
@@ -56,8 +57,8 @@ export const useSleepLogic = (): UseSleepLogicReturn => {
   const isInteractionDisabled = isSleepTransactionInProgress || currentBeastAwakeStatus === null;
   
   /**
-   * Main campfire click handler
-   * animations be controlled by beast state
+   * Main campfire click handler - Plan original implementado
+   * Ejecuta optimistic update y programa sync post-transacción
    */
   const handleCampfireClick = useCallback(async () => {
     if (isInteractionDisabled) return;
@@ -68,48 +69,19 @@ export const useSleepLogic = (): UseSleepLogicReturn => {
       // Determine action based on current beast state
       if (isBeastSleeping) {
         console.log('🔥 Beast is sleeping, attempting to wake up...');
+        // Sin callback - confiamos en optimistic updates
         result = await wakeUp();
       } else {
         console.log('🌙 Beast is awake, attempting to put to sleep...');
+        // Sin callback - confiamos en optimistic updates  
         result = await putToSleep();
       }
       
-      // Post-transaction sequence (same pattern as Feed/Clean)
-      if (result.success) {
-        console.log('✅ Sleep/Awake transaction successful, starting post-transaction updates...');
-        
-        // Wait for blockchain confirmation before updating
-        setTimeout(async () => {
-          try {
-            console.log('🔄 Starting post-sleep/awake updates...');
-            
-            // Step 1: Update beast (recalculates status in contract)
-            const updateSuccess = await updateBeast();
-            
-            if (updateSuccess) {
-              console.log('✅ Beast updated successfully after sleep/awake');
-              
-              // Step 2: Fetch latest status (gets new is_awake value + other stats)
-              await fetchLatestStatus();
-              console.log('✅ Status fetched and updated after sleep/awake');
-              
-            } else {
-              console.warn('⚠️ Beast update failed after sleep/awake, fetching status anyway');
-              await fetchLatestStatus();
-            }
-            
-          } catch (error) {
-            console.error('❌ Error in post-sleep/awake updates:', error);
-            // Even if updates fail, try to fetch status to keep UI in sync
-            try {
-              await fetchLatestStatus();
-            } catch (fetchError) {
-              console.error('❌ Failed to fetch status as fallback:', fetchError);
-            }
-          }
-        }, 1500); // Wait for blockchain confirmation
-      } else {
+      // Transaction result handling (optimistic updates already applied)
+      if (!result.success) {
         console.error('❌ Sleep/Awake transaction failed:', result.error);
+      } else {
+        console.log('✅ Sleep/Awake optimistic update completed - no sync needed');
       }
       
     } catch (error) {
@@ -119,9 +91,7 @@ export const useSleepLogic = (): UseSleepLogicReturn => {
     isInteractionDisabled,
     isBeastSleeping,
     wakeUp,
-    putToSleep,
-    updateBeast,
-    fetchLatestStatus
+    putToSleep
   ]);
   
   return {
@@ -137,5 +107,7 @@ export const useSleepLogic = (): UseSleepLogicReturn => {
     
     // Computed
     isInteractionDisabled,
+    
+    // Store ya contiene los datos necesarios
   };
 };

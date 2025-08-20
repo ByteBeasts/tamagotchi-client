@@ -22,6 +22,7 @@ interface UseFoodInventoryReturn {
   availableFoods: FoodItem[];
   totalFoodCount: number;
   hasFoodAvailable: boolean;
+  updateFoodAmountOptimistic: (foodId: number, amount: number) => void;
 }
 
 // Torii GraphQL configuration
@@ -159,17 +160,43 @@ export const useFoodInventory = (): UseFoodInventoryReturn => {
     if (!userAddress) return;
 
     try {
+      // Check if there are pending transactions before syncing
+      const feedState = useAppStore.getState().feedTransaction;
+      if (feedState.isFeeding) {
+        console.log('🔄 Skipping silent refetch - feeding transaction in progress');
+        return;
+      }
+
       // Fetch without setting loading states
       const contractFoods = await fetchFoodInventory(userAddress);
       
-      const storeFoods: Food[] = contractFoods.map(contractFood => ({
+      const newStoreFoods: Food[] = contractFoods.map(contractFood => ({
         player: contractFood.player,
         id: contractFood.id,
         amount: contractFood.amount,
       }));
 
-      setStoreFoods(storeFoods);
-      console.log('🔄 Food inventory silently updated');
+      // Smart merge: Only update if blockchain data is more recent or equal
+      const currentStoreFoods = useAppStore.getState().foods;
+      let shouldUpdate = true;
+      
+      // Compare food amounts - if our optimistic updates are "ahead" of blockchain, keep them
+      for (const newFood of newStoreFoods) {
+        const currentFood = currentStoreFoods.find(f => Number(f.id) === Number(newFood.id));
+        if (currentFood && Number(currentFood.amount) < Number(newFood.amount)) {
+          // Blockchain has more food than our optimistic state - this means we should sync
+          console.log(`🔄 Blockchain has more food (${newFood.amount}) than optimistic (${currentFood.amount}) for food ${newFood.id}`);
+          shouldUpdate = true;
+          break;
+        }
+      }
+
+      if (shouldUpdate) {
+        setStoreFoods(newStoreFoods);
+        console.log('🔄 Food inventory silently updated from blockchain');
+      } else {
+        console.log('🔄 Keeping optimistic food state - blockchain not yet updated');
+      }
     } catch (error) {
       console.warn('⚠️ Silent food refresh failed:', error);
       // Don't set error state to avoid disrupting UI
@@ -205,6 +232,22 @@ export const useFoodInventory = (): UseFoodInventoryReturn => {
     [availableFoods]
   );
 
+  // Optimistic update for food inventory
+  const updateFoodAmountOptimistic = useCallback((foodId: number, amount: number) => {
+    // Get current foods and update optimistically
+    const currentFoods = Array.isArray(storeFoods) ? storeFoods : [];
+    const updatedFoods = currentFoods.map(food => {
+      if (Number(food.id) === foodId) {
+        const newAmount = Math.max(0, Number(food.amount) + amount);
+        return { ...food, amount: newAmount };
+      }
+      return food;
+    });
+    
+    setStoreFoods(updatedFoods);
+    console.log(`🔄 Food ${foodId} optimistically updated by ${amount}`);
+  }, [storeFoods, setStoreFoods]);
+
   return {
     foods: availableFoods,
     isLoading,
@@ -214,5 +257,6 @@ export const useFoodInventory = (): UseFoodInventoryReturn => {
     availableFoods,               
     totalFoodCount,
     hasFoodAvailable,
+    updateFoodAmountOptimistic,
   };
 };
