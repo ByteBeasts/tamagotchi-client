@@ -58,7 +58,6 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   // === Business logic hook ===
   const {
     checkEnergyRequirement,
-    consumeEnergy,
     consumeEnergyOptimistic,
     handleGameCompletion,
     showEnergyToast,
