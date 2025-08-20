@@ -5,6 +5,7 @@ import { NavBar } from "../../layout/NavBar";
 import { GameId, PlayScreenProps } from "../../types/play.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import playBackground from "../../../assets/backgrounds/bg-play.png";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
 
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -94,22 +95,37 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
           status={{ energy: 0, hunger: 0, happiness: 0, hygiene: 0 }}
         />
 
-        <div className="flex-grow flex items-center justify-center w-full">
-          <div className="text-center space-y-6 z-10">
-            <div className="text-6xl opacity-50">🎮</div>
-            <h2 className="text-2xl font-luckiest text-cream drop-shadow-lg">
-              No Beast to Play With!
-            </h2>
-            <p className="text-white/80 drop-shadow-md">
-              You need a beast to play mini-games
-            </p>
-            <button 
-              onClick={() => onNavigation("hatch")}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
-            >
-              Hatch New Beast
-            </button>
-          </div>
+        <div className="flex-grow flex flex-col items-center justify-center w-full px-6 py-8 space-y-6">
+          {/* Título por encima de la imagen */}
+          <h3 className="text-2xl font-bold text-white drop-shadow-lg font-luckiest text-center">
+            NO BEAST TO PLAY WITH
+          </h3>
+          
+          {/* Imagen del corazón roto */}
+          <div 
+            className="w-full max-w-sm mx-auto"
+            style={{
+              backgroundImage: `url(${deadBeastBackground})`,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              aspectRatio: "1/1",
+              height: "200px"
+            }}
+          />
+          
+          {/* Texto descriptivo por debajo de la imagen */}
+          <p className="text-base text-white/90 drop-shadow-md leading-relaxed text-center max-w-xs">
+            You need a beast to play mini-games
+          </p>
+          
+          {/* Botón */}
+          <button 
+            onClick={() => onNavigation("hatch")}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg font-luckiest text-lg"
+          >
+            🥚 Hatch New Beast
+          </button>
         </div>
 
         {/* Navigation Bar */}

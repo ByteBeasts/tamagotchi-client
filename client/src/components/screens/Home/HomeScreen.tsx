@@ -5,6 +5,7 @@ import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import { BeastNameModal } from "./components/BeastNameModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
 import { lookupAddresses } from '@cartridge/controller';
 
 // Universal hook to encapsulate beast display logic
@@ -178,24 +179,39 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     // No live beast case
     if (!hasLiveBeast || !currentBeastDisplay) {
       return (
-        <div className="flex-grow flex items-center justify-center w-full">
-          <div className="text-center space-y-4">
-            <div className="text-6xl opacity-50">💔</div>
-            <h3 className="text-xl font-semibold text-white/90 drop-shadow-lg">
-              {!currentBeastDisplay ? "No Beast Found" : "Beast Needs Attention"}
-            </h3>
-            <p className="text-sm text-white/70 drop-shadow-md">
-              {!currentBeastDisplay 
-                ? "Time to hatch your first beast!" 
-                : "Your beast needs care to come back to life"}
-            </p>
-            <button 
-              onClick={() => onNavigation("hatch")}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
-            >
-              {!currentBeastDisplay ? "Hatch New Beast" : "Revive Beast"}
-            </button>
-          </div>
+        <div className="flex-grow flex flex-col items-center justify-center w-full px-6 py-8 space-y-6">
+          {/* Título por encima de la imagen */}
+          <h3 className="text-2xl font-bold text-white drop-shadow-lg font-luckiest text-center">
+            {!currentBeastDisplay ? "NO BEAST FOUND" : "BEAST NEEDS CARE"}
+          </h3>
+          
+          {/* Imagen del corazón roto */}
+          <div 
+            className="w-full max-w-sm mx-auto"
+            style={{
+              backgroundImage: `url(${deadBeastBackground})`,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              aspectRatio: "1/1",
+              height: "200px"
+            }}
+          />
+          
+          {/* Texto descriptivo por debajo de la imagen */}
+          <p className="text-base text-white/90 drop-shadow-md leading-relaxed text-center max-w-xs">
+            {!currentBeastDisplay 
+              ? "Time to hatch your first beast and begin your adventure!" 
+              : "Your beloved companion needs your care to return to life"}
+          </p>
+          
+          {/* Botón */}
+          <button 
+            onClick={() => onNavigation("hatch")}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg font-luckiest text-lg"
+          >
+            {!currentBeastDisplay ? "🥚 Hatch New Beast" : "✨ Revive Beast"}
+          </button>
         </div>
       );
     }

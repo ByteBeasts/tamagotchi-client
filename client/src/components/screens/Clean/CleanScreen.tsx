@@ -2,6 +2,7 @@ import { TamagotchiTopBar } from "../../layout/TopBar";
 import { useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import cleanBackground from "../../../assets/backgrounds/bg-clean.png";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import RainParticles from "./components/RainParticles";
 import { CleanScreenProps } from "../../types/clean.types";
@@ -99,22 +100,37 @@ export const CleanScreen = ({
           status={{ energy: 0, hunger: 0, happiness: 0, hygiene: 0 }}
         />
 
-        <div className="flex-grow flex items-center justify-center w-full">
-          <div className="text-center space-y-6 z-10">
-            <div className="text-6xl opacity-50">🧼</div>
-            <h2 className="text-2xl font-luckiest text-cream drop-shadow-lg">
-              No Beast to Clean!
-            </h2>
-            <p className="text-white/80 drop-shadow-md">
-              You need a beast to use the cleaning feature
-            </p>
-            <button 
-              onClick={() => onNavigation("home")}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
-            >
-              Go to Home
-            </button>
-          </div>
+        <div className="flex-grow flex flex-col items-center justify-center w-full px-6 py-8 space-y-6">
+          {/* Título por encima de la imagen */}
+          <h3 className="text-2xl font-bold text-white drop-shadow-lg font-luckiest text-center">
+            NO BEAST TO CLEAN
+          </h3>
+          
+          {/* Imagen del corazón roto */}
+          <div 
+            className="w-full max-w-sm mx-auto"
+            style={{
+              backgroundImage: `url(${deadBeastBackground})`,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              aspectRatio: "1/1",
+              height: "200px"
+            }}
+          />
+          
+          {/* Texto descriptivo por debajo de la imagen */}
+          <p className="text-base text-white/90 drop-shadow-md leading-relaxed text-center max-w-xs">
+            You need a beast to use the cleaning feature
+          </p>
+          
+          {/* Botón */}
+          <button 
+            onClick={() => onNavigation("home")}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg font-luckiest text-lg"
+          >
+            🥚 HATCH NEW BEAST
+          </button>
         </div>
       </div>
     );
