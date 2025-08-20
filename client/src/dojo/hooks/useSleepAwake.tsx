@@ -50,6 +50,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
   const hasLiveBeast = useAppStore(state => state.hasLiveBeast());
   const realTimeStatus = useAppStore(state => state.realTimeStatus);
   const setRealTimeStatus = useAppStore(state => state.setRealTimeStatus);
+  const setOptimisticSleepFlag = useAppStore(state => state.setOptimisticSleepFlag);
   
   const [sleepAwakeTransaction, setSleepAwakeTransaction] = useState<SleepAwakeTransactionState>({
     isInProgress: false,
@@ -123,6 +124,8 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       // Apply optimistic update
       onOptimisticUpdate: () => {
+        // Set flag to prevent overwrites
+        setOptimisticSleepFlag(true);
         // Update awake status optimistically
         const optimisticStats = calculateOptimisticSleepAwake(realTimeStatus);
         setRealTimeStatus(optimisticStats, true); // skipSync = true
@@ -131,6 +134,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       // Rollback on failure
       onRollback: (originalState: any) => {
+        setOptimisticSleepFlag(false); // Clear flag on rollback
         setRealTimeStatus(originalState.originalStatus, true);
         console.log('Sleep transaction rolled back');
       },
@@ -138,6 +142,9 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       // On success, schedule background sync
       onSuccess: (txHash: string) => {
         console.log('✅ Sleep transaction successful:', txHash);
+        
+        // Clear flag after successful transaction
+        setOptimisticSleepFlag(false);
         
         // Clear transaction state
         setSleepAwakeTransaction({
@@ -154,6 +161,9 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       // On error
       onError: (error: any) => {
         console.error('Sleep transaction failed:', error);
+        
+        // Clear flag on error
+        setOptimisticSleepFlag(false);
         
         // Clear transaction state
         setSleepAwakeTransaction({
@@ -186,7 +196,8 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
     currentBeastAwakeStatus, 
     executeOptimistic, 
     realTimeStatus, 
-    setRealTimeStatus
+    setRealTimeStatus,
+    setOptimisticSleepFlag
   ]);
   
   const wakeUp = useCallback(async (): Promise<SleepAwakeResult> => {
@@ -240,6 +251,8 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       // Apply optimistic update
       onOptimisticUpdate: () => {
+        // Set flag to prevent overwrites
+        setOptimisticSleepFlag(true);
         // Update awake status optimistically
         const optimisticStats = calculateOptimisticSleepAwake(realTimeStatus);
         setRealTimeStatus(optimisticStats, true); // skipSync = true
@@ -248,6 +261,7 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       
       // Rollback on failure
       onRollback: (originalState: any) => {
+        setOptimisticSleepFlag(false); // Clear flag on rollback
         setRealTimeStatus(originalState.originalStatus, true);
         console.log('Awake transaction rolled back');
       },
@@ -255,6 +269,9 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       // On success, schedule background sync
       onSuccess: (txHash: string) => {
         console.log('✅ Awake transaction successful:', txHash);
+        
+        // Clear flag after successful transaction
+        setOptimisticSleepFlag(false);
         
         // Clear transaction state
         setSleepAwakeTransaction({
@@ -271,6 +288,9 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
       // On error
       onError: (error: any) => {
         console.error('Awake transaction failed:', error);
+        
+        // Clear flag on error
+        setOptimisticSleepFlag(false);
         
         // Clear transaction state
         setSleepAwakeTransaction({
@@ -303,7 +323,8 @@ export const useSleepAwake = (): UseSleepAwakeReturn => {
     currentBeastAwakeStatus, 
     executeOptimistic, 
     realTimeStatus, 
-    setRealTimeStatus
+    setRealTimeStatus,
+    setOptimisticSleepFlag
   ]);
   
   const resetTransaction = useCallback(() => {

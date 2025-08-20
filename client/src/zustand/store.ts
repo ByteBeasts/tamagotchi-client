@@ -77,6 +77,7 @@ interface AppStore {
   realTimeStatus: number[];
   lastStatusUpdate: number | null;
   isStatusLoading: boolean;
+  hasOptimisticSleepUpdate: boolean; // Track if there's a pending sleep/awake optimistic update
   
   // State snapshot for rollback
   stateSnapshot: {
@@ -106,6 +107,7 @@ interface AppStore {
     hygiene: number;
   }>) => void;
   clearRealTimeStatus: () => void;
+  setOptimisticSleepFlag: (value: boolean) => void;
   getRealTimeStatusForUI: () => {
     energy: number;
     hunger: number;
@@ -215,6 +217,7 @@ const initialState = {
   realTimeStatus: [],
   lastStatusUpdate: null,
   isStatusLoading: false,
+  hasOptimisticSleepUpdate: false,
   stateSnapshot: null,
 };
 
@@ -290,8 +293,15 @@ const useAppStore = create<AppStore>()(
       syncWithContractData: (contractStatus) => {
         if (!contractStatus || contractStatus.length < 10) return;
         
-        const contractBeastId = contractStatus[1];
         const state = get();
+        
+        // Don't sync if there's an optimistic sleep update in progress
+        if (state.hasOptimisticSleepUpdate) {
+          console.log('⏸️ Skipping contract sync - optimistic sleep update in progress');
+          return;
+        }
+        
+        const contractBeastId = contractStatus[1];
         
         // Update player.current_beast_id if different
         if (state.player && state.player.current_beast_id !== contractBeastId) {
@@ -316,9 +326,16 @@ const useAppStore = create<AppStore>()(
       
       // Real-time status actions with auto-sync
       setRealTimeStatus: (status, skipSync = false) => {
+        const state = get();
+        
+        // Don't overwrite if there's an optimistic sleep update in progress
+        if (state.hasOptimisticSleepUpdate && !skipSync) {
+          console.log('⏸️ Skipping status update - optimistic sleep update in progress');
+          return;
+        }
+        
         // AUTO-SYNC before setting status (unless skipped)
         if (!skipSync) {
-          const state = get();
           state.syncWithContractData(status);
         }
         
@@ -354,6 +371,10 @@ const useAppStore = create<AppStore>()(
           lastStatusUpdate: null,
           isStatusLoading: false
         });
+      },
+      
+      setOptimisticSleepFlag: (value) => {
+        set({ hasOptimisticSleepUpdate: value });
       },
       
       // Contract-first validation with auto-sync
