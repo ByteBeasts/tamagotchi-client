@@ -26,6 +26,7 @@ const PLAYER_QUERY = `
       edges {
         node {
           address
+          name
           current_beast_id
           daily_streak
           total_points
