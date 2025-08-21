@@ -6,7 +6,6 @@ import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import { BeastNameModal } from "./components/BeastNameModal";
 import { PlayerNameModal } from "./components/PlayerNameModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
-import { lookupAddresses } from '@cartridge/controller';
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -115,45 +114,24 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     setCurrentScreen("home");
   }, [setCurrentScreen]);
 
-  // Username lookup effect using Cavos wallet or decoded name
+  // Username effect using decoded name or Cavos wallet address
   useEffect(() => {
-    const updatePlayerName = async () => {
+    const updatePlayerName = () => {
       // First priority: Use decoded name from contract
       if (decodedPlayerName) {
         setPlayerName(decodedPlayerName);
         return;
       }
 
-      // Second priority: Use Cartridge username lookup
-      if (!cavosWallet?.address) {
-        setPlayerName('Player');
+      // Second priority: Use truncated Cavos wallet address
+      if (cavosWallet?.address) {
+        const truncated = cavosWallet.address.slice(0, 6) + '...' + cavosWallet.address.slice(-4);
+        setPlayerName(truncated);
         return;
       }
 
-      try {
-        console.log("🔍 Looking up username for Cavos address:", cavosWallet.address);
-        
-        // Use lookupAddresses with the Cavos wallet address
-        const addressMap = await lookupAddresses([cavosWallet.address]);
-        
-        // Get the username from the map
-        const username = addressMap.get(cavosWallet.address);
-        
-        console.log("📋 Username lookup result:", username);
-        
-        if (username) {
-          setPlayerName(username);
-        } else {
-          // Fallback to truncated address if no username found
-          const truncated = cavosWallet.address.slice(0, 6) + '...' + cavosWallet.address.slice(-4);
-          setPlayerName(truncated);
-        }
-      } catch (error) {
-        console.error("❌ Error looking up username:", error);
-        // Fallback to truncated address on error
-        const truncated = cavosWallet.address.slice(0, 6) + '...' + cavosWallet.address.slice(-4);
-        setPlayerName(truncated);
-      }
+      // Fallback if no wallet
+      setPlayerName('Player');
     };
 
     updatePlayerName();
