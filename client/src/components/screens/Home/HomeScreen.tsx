@@ -4,12 +4,13 @@ import { HomeScreenProps, BeastData, PlayerData } from "../../types/home.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import { BeastNameModal } from "./components/BeastNameModal";
+import { PlayerNameModal } from "./components/PlayerNameModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.png";
-import { lookupAddresses } from '@cartridge/controller';
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
 import { useSetBeastName } from "../../../dojo/hooks/useSetBeastName";
+import { useSetPlayerName } from "../../../dojo/hooks/useSetPlayerName";
 import { useLiveBeast } from "../../../dojo/hooks/useLiveBeast";
 import { usePlayer } from "../../../dojo/hooks/usePlayer";
 
@@ -17,7 +18,7 @@ import { usePlayer } from "../../../dojo/hooks/usePlayer";
 import useAppStore from "../../../zustand/store";
 
 // Utils
-import { hexToString } from "../../../utils/dataConversion";
+import { shortString } from "starknet";
 
 // Music Context
 import { useMusic } from "../../../context/MusicContext";
@@ -32,7 +33,9 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [isPlayerNameModalOpen, setIsPlayerNameModalOpen] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [playerNameError, setPlayerNameError] = useState<string | null>(null);
   
   // Get Cavos wallet address instead of Starknet account
   const cavosWallet = useAppStore(state => state.cavos.wallet);
@@ -51,78 +54,90 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   // Hook for setting beast name
   const { setBeastName, optimisticName } = useSetBeastName();
   
+  // Hook for setting player name
+  const { setPlayerName: setPlayerNameAction, optimisticName: optimisticPlayerName } = useSetPlayerName();
+  
   // Hook for refetching beast data
   const { refetch: refetchBeast } = useLiveBeast();
   
   // Hook for refetching player data
   const { refetch: refetchPlayer } = usePlayer();
   
-  // Get current beast name from store and decode it
+  // Get current beast name from store
   const liveBeast = useAppStore(state => state.liveBeast.beast);
   const beastName = useMemo(() => {
     // Use optimistic name if available (during transaction)
     if (optimisticName) return optimisticName;
     
-    // Otherwise decode from contract data
-    if (!liveBeast?.name || liveBeast.name === 0) return null;
+    // Otherwise use name directly from contract (already decoded by Torii)
+    if (!liveBeast?.name || liveBeast.name === '' || liveBeast.name === '0x0') return null;
     
     try {
-      // Convert the number (felt252) to hex and then to string
-      const nameHex = '0x' + liveBeast.name.toString(16);
-      const decodedName = hexToString(nameHex);
+      // Use shortString to decode if it comes as a hex string
+      const decodedName = liveBeast.name.startsWith('0x') 
+        ? shortString.decodeShortString(liveBeast.name)
+        : liveBeast.name;
       
-      // Return null if the decoded name is empty or only contains null/invisible characters
-      return decodedName && decodedName.length > 0 ? decodedName : null;
+      // Return null if the decoded name is empty
+      return decodedName && decodedName.trim().length > 0 ? decodedName.trim() : null;
     } catch (error) {
       console.error('Failed to decode beast name:', error);
       return null;
     }
   }, [liveBeast?.name, optimisticName]);
 
+  // Store data
+  const storePlayer = useAppStore(state => state.player);
+  
+  // Get current player name from store
+  const decodedPlayerName = useMemo(() => {
+    // Use optimistic name if available (during transaction)
+    if (optimisticPlayerName) return optimisticPlayerName;
+    
+    // Otherwise use name directly from contract (already decoded by Torii)
+    if (!storePlayer?.name || storePlayer.name === '' || storePlayer.name === '0x0') return null;
+    
+    try {
+      // Use shortString to decode if it comes as a hex string
+      const decodedName = storePlayer.name.startsWith('0x') 
+        ? shortString.decodeShortString(storePlayer.name)
+        : storePlayer.name;
+      
+      // Return null if the decoded name is empty
+      return decodedName && decodedName.trim().length > 0 ? decodedName.trim() : null;
+    } catch (error) {
+      console.error('Failed to decode player name:', error);
+      return null;
+    }
+  }, [storePlayer?.name, optimisticPlayerName]);
+
   // Set current screen for music control
   useEffect(() => {
     setCurrentScreen("home");
   }, [setCurrentScreen]);
 
-  // Username lookup effect using Cavos wallet
+  // Username effect using decoded name or Cavos wallet address
   useEffect(() => {
-    const fetchPlayerName = async () => {
-      if (!cavosWallet?.address) {
-        setPlayerName('Player');
+    const updatePlayerName = () => {
+      // First priority: Use decoded name from contract
+      if (decodedPlayerName) {
+        setPlayerName(decodedPlayerName);
         return;
       }
 
-      try {
-        console.log("🔍 Looking up username for Cavos address:", cavosWallet.address);
-        
-        // Use lookupAddresses with the Cavos wallet address
-        const addressMap = await lookupAddresses([cavosWallet.address]);
-        
-        // Get the username from the map
-        const username = addressMap.get(cavosWallet.address);
-        
-        console.log("📋 Username lookup result:", username);
-        
-        if (username) {
-          setPlayerName(username);
-        } else {
-          // Fallback to truncated address if no username found
-          const truncated = cavosWallet.address.slice(0, 6) + '...' + cavosWallet.address.slice(-4);
-          setPlayerName(truncated);
-        }
-      } catch (error) {
-        console.error("❌ Error looking up username:", error);
-        // Fallback to truncated address on error
+      // Second priority: Use truncated Cavos wallet address
+      if (cavosWallet?.address) {
         const truncated = cavosWallet.address.slice(0, 6) + '...' + cavosWallet.address.slice(-4);
         setPlayerName(truncated);
+        return;
       }
+
+      // Fallback if no wallet
+      setPlayerName('Player');
     };
 
-    fetchPlayerName();
-  }, [cavosWallet?.address]);
-
-  // Store data
-  const storePlayer = useAppStore(state => state.player);
+    updatePlayerName();
+  }, [cavosWallet?.address, decodedPlayerName]);
 
   // Beast data para la UI
   const beastData: BeastData = useMemo(() => {
@@ -239,6 +254,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         age={age}
         onProfileClick={handleProfileClick}
         onNavigateLogin={handleNavigateLogin}
+        onEditName={() => setIsPlayerNameModalOpen(true)}
         beastData={beastData}
       />
 
@@ -274,6 +290,31 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         currentName={beastName || undefined}
         playerGems={storePlayer?.total_gems || 0}
         error={nameError}
+      />
+      
+      <PlayerNameModal
+        isOpen={isPlayerNameModalOpen}
+        onClose={() => {
+          setIsPlayerNameModalOpen(false);
+          setPlayerNameError(null);
+        }}
+        onSubmit={async (name) => {
+          setPlayerNameError(null);
+          const result = await setPlayerNameAction(name);
+          if (result.success) {
+            // Refetch player data after a delay to get updated name and gems from Torii
+            setTimeout(() => {
+              refetchPlayer();
+            }, 3000);
+          } else {
+            // Reopen modal with error
+            setPlayerNameError(result.error || 'Failed to set name');
+            setIsPlayerNameModalOpen(true);
+          }
+        }}
+        currentName={decodedPlayerName || undefined}
+        playerGems={storePlayer?.total_gems || 0}
+        error={playerNameError}
       />
     </div>
   );

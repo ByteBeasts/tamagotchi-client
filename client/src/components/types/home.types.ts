@@ -25,6 +25,7 @@ export interface PlayerInfoSectionProps {
   age: number;
   onProfileClick: () => void;
   onNavigateLogin: () => void;
+  onEditName?: () => void;
   beastData: BeastData;
 }
 

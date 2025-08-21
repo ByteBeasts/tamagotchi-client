@@ -8,7 +8,7 @@ export interface Beast {
     birth_date: number;
     specie: number;
     beast_type: number;
-    name: number;
+    name: string;
 }
 
 // Type definition for `tamagotchi::models::beast_status::BeastStatus` struct
@@ -42,7 +42,7 @@ export interface HighestScore {
 // Type definition for `tamagotchi::models::player::Player` struct
 export interface Player {
     address: string;
-    name: number;
+    name: string;
     current_beast_id: number;
     daily_streak: number;
     total_points: number;
@@ -111,7 +111,7 @@ export const schema: SchemaType = {
             birth_date: 0,
             specie: 0,
             beast_type: 0,
-            name: 0,
+            name: "",
         },
         BeastStatus: {
             player: "",
@@ -137,7 +137,7 @@ export const schema: SchemaType = {
         },
         Player: {
             address: "",
-            name: 0,
+            name: "",
             current_beast_id: 0,
             daily_streak: 0,
             total_points: 0,

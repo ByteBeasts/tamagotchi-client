@@ -3,6 +3,7 @@ import { PlayerInfoSectionProps } from "../../../types/home.types";
 import { DropdownMenu } from "./DropDownMenu";
 import bannerImg from "../../../../assets/banners/banner-dragon.png";
 import treeOfLifeIcon from "../../../../assets/icons/age/icon-age-tree-of-life.webp";
+import editIcon from "../../../../assets/icons/profile/edit.png";
 
 const buttonInteractionProps = {
   whileHover: { scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 15 } },
@@ -14,6 +15,7 @@ export const PlayerInfoSection = ({
   age,
   onProfileClick,
   onNavigateLogin,
+  onEditName,
 }: PlayerInfoSectionProps) => {
   return (
     <div className="w-full px-4 md:px-6 lg:px-8 flex justify-between items-start mt-3 md:mt-4 z-10">
@@ -31,9 +33,20 @@ export const PlayerInfoSection = ({
         >
           <img src={bannerImg} alt="Profile Banner" className="h-16 sm:h-20 md:h-24 w-auto" />
         </motion.button>
-        <p className="text-sm md:text-base font-rubik text-cream font-semibold select-none drop-shadow-sm">
-          {playerName}
-        </p>
+        <div className="flex items-center gap-1">
+          <p className="text-sm md:text-base font-rubik text-cream font-semibold select-none drop-shadow-sm">
+            {playerName}
+          </p>
+          {onEditName && (
+            <button
+              onClick={onEditName}
+              className="p-0.5 hover:scale-110 transition-transform"
+              aria-label="Edit player name"
+            >
+              <img src={editIcon} alt="Edit name" className="w-6 h-6" />
+            </button>
+          )}
+        </div>
       </motion.div>
 
       {/* Right: Age & Dropdown */}
