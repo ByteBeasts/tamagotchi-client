@@ -18,7 +18,7 @@ import { usePlayer } from "../../../dojo/hooks/usePlayer";
 import useAppStore from "../../../zustand/store";
 
 // Utils
-import { hexToString } from "../../../utils/dataConversion";
+import { shortString } from "starknet";
 
 // Music Context
 import { useMusic } from "../../../context/MusicContext";
@@ -63,22 +63,23 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   // Hook for refetching player data
   const { refetch: refetchPlayer } = usePlayer();
   
-  // Get current beast name from store and decode it
+  // Get current beast name from store
   const liveBeast = useAppStore(state => state.liveBeast.beast);
   const beastName = useMemo(() => {
     // Use optimistic name if available (during transaction)
     if (optimisticName) return optimisticName;
     
-    // Otherwise decode from contract data
-    if (!liveBeast?.name || liveBeast.name === 0) return null;
+    // Otherwise use name directly from contract (already decoded by Torii)
+    if (!liveBeast?.name || liveBeast.name === '' || liveBeast.name === '0x0') return null;
     
     try {
-      // Convert the number (felt252) to hex and then to string
-      const nameHex = '0x' + liveBeast.name.toString(16);
-      const decodedName = hexToString(nameHex);
+      // Use shortString to decode if it comes as a hex string
+      const decodedName = liveBeast.name.startsWith('0x') 
+        ? shortString.decodeShortString(liveBeast.name)
+        : liveBeast.name;
       
-      // Return null if the decoded name is empty or only contains null/invisible characters
-      return decodedName && decodedName.length > 0 ? decodedName : null;
+      // Return null if the decoded name is empty
+      return decodedName && decodedName.trim().length > 0 ? decodedName.trim() : null;
     } catch (error) {
       console.error('Failed to decode beast name:', error);
       return null;
@@ -88,21 +89,22 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   // Store data
   const storePlayer = useAppStore(state => state.player);
   
-  // Get current player name from store and decode it
+  // Get current player name from store
   const decodedPlayerName = useMemo(() => {
     // Use optimistic name if available (during transaction)
     if (optimisticPlayerName) return optimisticPlayerName;
     
-    // Otherwise decode from contract data
-    if (!storePlayer?.name || storePlayer.name === 0) return null;
+    // Otherwise use name directly from contract (already decoded by Torii)
+    if (!storePlayer?.name || storePlayer.name === '' || storePlayer.name === '0x0') return null;
     
     try {
-      // Convert the number (felt252) to hex and then to string
-      const nameHex = '0x' + storePlayer.name.toString(16);
-      const decodedName = hexToString(nameHex);
+      // Use shortString to decode if it comes as a hex string
+      const decodedName = storePlayer.name.startsWith('0x') 
+        ? shortString.decodeShortString(storePlayer.name)
+        : storePlayer.name;
       
-      // Return null if the decoded name is empty or only contains null/invisible characters
-      return decodedName && decodedName.length > 0 ? decodedName : null;
+      // Return null if the decoded name is empty
+      return decodedName && decodedName.trim().length > 0 ? decodedName.trim() : null;
     } catch (error) {
       console.error('Failed to decode player name:', error);
       return null;

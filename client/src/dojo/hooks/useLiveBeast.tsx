@@ -125,7 +125,7 @@ const fetchLiveBeastData = async (playerAddress: string): Promise<{
           birth_date: hexToNumber(rawBeast.birth_date),
           specie: hexToNumber(rawBeast.specie),
           beast_type: hexToNumber(rawBeast.beast_type),
-          name: hexToNumber(rawBeast.name || 0) // Keep name as number from contract
+          name: rawBeast.name || '' // Keep name as string from contract
         };
         
         return { beast, status: beastStatus };
@@ -143,7 +143,7 @@ const fetchLiveBeastData = async (playerAddress: string): Promise<{
       birth_date: hexToNumber(rawBeast.birth_date),
       specie: hexToNumber(rawBeast.specie),
       beast_type: hexToNumber(rawBeast.beast_type),
-      name: hexToNumber(rawBeast.name || 0) // Keep name as number from contract
+      name: rawBeast.name || '' // Keep name as string from contract
     };
     
     return { beast, status: beastStatus };
