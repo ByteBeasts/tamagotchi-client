@@ -167,7 +167,7 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
           className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth h-full"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {games.map((game, index) => (
+          {games.map((game) => (
             <div key={game.id} className="snap-center flex-shrink-0 w-full px-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -177,7 +177,6 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
                 <GameRankingTable 
                   rankings={getRankingsForGame(game.id)} 
                   isLoading={false}
-                  gameId={game.id}
                   gameName={game.name}
                   isAvailable={game.isAvailable}
                 />

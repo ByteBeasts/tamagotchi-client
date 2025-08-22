@@ -12,7 +12,6 @@ interface RankingPlayer {
 interface GameRankingTableProps {
   rankings: RankingPlayer[];
   isLoading?: boolean;
-  gameId?: string;
   gameName?: string;
   isAvailable?: boolean;
 }
@@ -20,7 +19,6 @@ interface GameRankingTableProps {
 export function GameRankingTable({ 
   rankings = [], 
   isLoading = false, 
-  gameId,
   gameName,
   isAvailable = true 
 }: GameRankingTableProps) {
