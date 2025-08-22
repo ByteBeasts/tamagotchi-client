@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { BackButton } from "../../shared/BackButton";
@@ -13,9 +14,33 @@ interface GameRankingScreenProps {
 
 export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
   const storePlayer = useAppStore(state => state.player);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  // Mock data for now - will be replaced with real data later
-  const mockRankings = [
+  // Available games - expandable for future games
+  const games = [
+    {
+      id: "flappy_beasts",
+      name: "FlappyBeasts",
+      description: "Top runners competing for glory!",
+      isAvailable: true,
+    },
+    {
+      id: "platform_jump",
+      name: "Sky Jump",
+      description: "Coming soon...",
+      isAvailable: false,
+    },
+    {
+      id: "beast_runner",
+      name: "Beast Runner",
+      description: "Coming soon...",
+      isAvailable: false,
+    },
+  ];
+
+  // Mock data for FlappyBeasts - others will be empty for now
+  const mockRankingsFlappy = [
     { id: "1", name: "DragonMaster", score: 2450, rank: 1, isCurrentUser: false },
     { id: "2", name: "BeastHunter", score: 2380, rank: 2, isCurrentUser: false },
     { id: "3", name: "SkyRunner", score: 2210, rank: 3, isCurrentUser: false },
@@ -25,6 +50,25 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
     { id: "7", name: "CloudJumper", score: 1580, rank: 7, isCurrentUser: false },
     { id: "8", name: "AirDancer", score: 1450, rank: 8, isCurrentUser: false },
   ];
+
+  const getRankingsForGame = (gameId: string) => {
+    if (gameId === "flappy_beasts") return mockRankingsFlappy;
+    return []; // Empty for other games
+  };
+
+  const getCurrentGame = () => games[activeIndex];
+
+  // Update active index on scroll
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const index = Math.round(el.scrollLeft / el.clientWidth);
+      setActiveIndex(index);
+    };
+    el.addEventListener("scroll", onScroll);
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <div
@@ -85,22 +129,62 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
+              key={`title-${activeIndex}`}
             >
-              FlappyBeasts Leaderboard
+              {getCurrentGame().name} Leaderboard
             </motion.h2>
           </div>
         </div>
       </motion.div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 w-full max-w-4xl px-4 pb-20 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+      {/* Game Tabs/Indicators */}
+      <div className="flex justify-center space-x-2 mb-4 z-10">
+        {games.map((game, index) => (
+          <button
+            key={game.id}
+            onClick={() => {
+              carouselRef.current?.scrollTo({
+                left: index * (carouselRef.current?.clientWidth || 0),
+                behavior: 'smooth'
+              });
+            }}
+            className={`px-4 py-2 rounded-full text-sm font-rubik transition-all ${
+              activeIndex === index
+                ? 'bg-gold-gradient text-black font-bold'
+                : 'bg-white/20 text-white hover:bg-white/30'
+            } ${!game.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={!game.isAvailable}
+          >
+            {game.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Main Content Area with Carousel */}
+      <div className="flex-1 w-full max-w-4xl pb-20 z-10">
+        <div
+          ref={carouselRef}
+          className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth h-full"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          <GameRankingTable rankings={mockRankings} isLoading={false} />
-        </motion.div>
+          {games.map((game, index) => (
+            <div key={game.id} className="snap-center flex-shrink-0 w-full px-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+              >
+                <GameRankingTable 
+                  rankings={getRankingsForGame(game.id)} 
+                  isLoading={false}
+                  gameId={game.id}
+                  gameName={game.name}
+                  isAvailable={game.isAvailable}
+                />
+              </motion.div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

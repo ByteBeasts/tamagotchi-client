@@ -12,9 +12,18 @@ interface RankingPlayer {
 interface GameRankingTableProps {
   rankings: RankingPlayer[];
   isLoading?: boolean;
+  gameId?: string;
+  gameName?: string;
+  isAvailable?: boolean;
 }
 
-export function GameRankingTable({ rankings = [], isLoading = false }: GameRankingTableProps) {
+export function GameRankingTable({ 
+  rankings = [], 
+  isLoading = false, 
+  gameId,
+  gameName,
+  isAvailable = true 
+}: GameRankingTableProps) {
   // Animation container variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -52,7 +61,7 @@ export function GameRankingTable({ rankings = [], isLoading = false }: GameRanki
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />
           <p className="text-white font-rubik text-sm">
-            Loading FlappyBeasts rankings...
+            Loading {gameName || 'game'} rankings...
           </p>
         </div>
       )}
@@ -60,10 +69,17 @@ export function GameRankingTable({ rankings = [], isLoading = false }: GameRanki
       {/* EMPTY STATE */}
       {!isLoading && rankings.length === 0 && (
         <div className="text-center py-12 text-white font-luckiest">
-          <div className="text-4xl mb-4">🏆</div>
-          <div className="text-lg mb-2">No rankings yet!</div>
+          <div className="text-4xl mb-4">
+            {isAvailable ? '🏆' : '🚧'}
+          </div>
+          <div className="text-lg mb-2">
+            {isAvailable ? 'No rankings yet!' : `${gameName} Coming Soon!`}
+          </div>
           <div className="text-sm font-rubik opacity-70">
-            Be the first to set a high score in FlappyBeasts!
+            {isAvailable 
+              ? `Be the first to set a high score in ${gameName || 'this game'}!`
+              : 'This game mode is under development.'
+            }
           </div>
         </div>
       )}
