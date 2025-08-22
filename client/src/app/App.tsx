@@ -283,11 +283,13 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      {/* NavBar - Hide on game screen for fullscreen experience */}
+      {/* NavBar - Hide on game screen, ranking screen, and market for fullscreen experience */}
       {currentScreen !== "cover" && 
        currentScreen !== "login" && 
        currentScreen !== "hatch" && 
-       currentScreen !== "game" && (
+       currentScreen !== "game" && 
+       currentScreen !== "gameRanking" && 
+       currentScreen !== "market" && (
         <NavBar
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}
