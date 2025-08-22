@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { BackButton } from "../../shared/BackButton";
+import { GameRankingTable } from "./GameRankingTable";
 import playBackground from "../../../assets/backgrounds/bg-play.png";
 import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.png";
 import useAppStore from "../../../zustand/store";
@@ -12,6 +13,18 @@ interface GameRankingScreenProps {
 
 export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
   const storePlayer = useAppStore(state => state.player);
+
+  // Mock data for now - will be replaced with real data later
+  const mockRankings = [
+    { id: "1", name: "DragonMaster", score: 2450, rank: 1, isCurrentUser: false },
+    { id: "2", name: "BeastHunter", score: 2380, rank: 2, isCurrentUser: false },
+    { id: "3", name: "SkyRunner", score: 2210, rank: 3, isCurrentUser: false },
+    { id: "4", name: "You", score: 1890, rank: 4, isCurrentUser: true },
+    { id: "5", name: "FlappyPro", score: 1750, rank: 5, isCurrentUser: false },
+    { id: "6", name: "WingMaster", score: 1620, rank: 6, isCurrentUser: false },
+    { id: "7", name: "CloudJumper", score: 1580, rank: 7, isCurrentUser: false },
+    { id: "8", name: "AirDancer", score: 1450, rank: 8, isCurrentUser: false },
+  ];
 
   return (
     <div
@@ -85,14 +98,8 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
-          className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-xl"
         >
-          {/* Placeholder for ranking content */}
-          <div className="text-center py-12">
-            <p className="text-white text-lg">
-              Rankings coming soon...
-            </p>
-          </div>
+          <GameRankingTable rankings={mockRankings} isLoading={false} />
         </motion.div>
       </div>
     </div>
