@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
+import { BackButton } from "../../shared/BackButton";
 import playBackground from "../../../assets/backgrounds/bg-play.png";
-import backIcon from "../../../assets/icons/extras/icon-close.png";
+import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.png";
 import useAppStore from "../../../zustand/store";
 
 interface GameRankingScreenProps {
@@ -37,34 +38,45 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
       />
 
       {/* Back Button */}
-      <motion.button
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
-        onClick={() => onNavigation("play")}
-        className="absolute top-32 left-4 z-50 flex items-center justify-center hover:scale-105 transition-transform"
-        aria-label="Back to Play"
-      >
-        <img
-          src={backIcon}
-          alt="Back"
-          className="w-12 h-12"
-        />
-      </motion.button>
+      <BackButton onClick={() => onNavigation("play")} variant="floating" className="!left-auto !right-2" />
 
-      {/* Title */}
+      {/* Banner with gradient and mascot */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        className="relative mt-12 mb-6 w-full max-w-4xl px-4"
+        initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="mt-8 mb-6 text-center z-10"
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        <h1 className="text-3xl md:text-4xl font-luckiest text-cream drop-shadow-lg">
-          Game Rankings
-        </h1>
-        <p className="text-white/80 text-sm mt-2">
-          Compete for the top spots!
-        </p>
+        {/* Baby Dragon Avatar */}
+        <motion.div
+          className="absolute -top-8 left-8 z-20 w-32 h-32"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+        >
+          <img
+            src={babyDragonAvatar}
+            alt="Ranking Dragon"
+            className="object-contain drop-shadow-lg"
+          />
+        </motion.div>
+
+        {/* Banner Background */}
+        <div
+          className="bg-gold-gradient py-2 px-4 pl-40 relative rounded-2xl shadow-xl"
+          style={{ minHeight: '100px' }}
+        >
+          <div className="flex flex-col justify-center h-full">
+            <motion.h2
+              className="font-luckiest text-cream text-2xl md:text-3xl drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wide"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+            >
+              FlappyBeasts Leaderboard
+            </motion.h2>
+          </div>
+        </div>
       </motion.div>
 
       {/* Main Content Area */}
