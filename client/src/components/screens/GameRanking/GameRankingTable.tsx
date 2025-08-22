@@ -30,10 +30,11 @@ export function GameRankingTable({
 
   return (
     <motion.div
-      className="bg-black/40 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden"
+      className="bg-black/40 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden flex flex-col"
       variants={containerVariants}
       initial="hidden"
       animate={isLoading ? "hidden" : "visible"}
+      style={{ height: '60vh', maxHeight: '500px' }}
     >
       {/* Table Header */}
       <div className="bg-gold-gradient p-4 border-b border-yellow-400/30">
@@ -84,18 +85,20 @@ export function GameRankingTable({
 
       {/* TABLE ROWS */}
       {!isLoading && rankings.length > 0 && (
-        <div className="flex flex-col">
-          {rankings.map((player, idx) => (
-            <GameRankingRow
-              key={`${player.id}-${idx}`}
-              rank={player.rank}
-              name={player.name}
-              score={player.score}
-              isTop3={player.rank <= 3}
-              isCurrentUser={player.isCurrentUser}
-              index={idx}
-            />
-          ))}
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex flex-col">
+            {rankings.map((player, idx) => (
+              <GameRankingRow
+                key={`${player.id}-${idx}`}
+                rank={player.rank}
+                name={player.name}
+                score={player.score}
+                isTop3={player.rank <= 3}
+                isCurrentUser={player.isCurrentUser}
+                index={idx}
+              />
+            ))}
+          </div>
         </div>
       )}
     </motion.div>

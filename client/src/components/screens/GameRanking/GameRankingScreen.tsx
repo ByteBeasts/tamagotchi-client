@@ -49,6 +49,18 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
     { id: "6", name: "WingMaster", score: 1620, rank: 6, isCurrentUser: false },
     { id: "7", name: "CloudJumper", score: 1580, rank: 7, isCurrentUser: false },
     { id: "8", name: "AirDancer", score: 1450, rank: 8, isCurrentUser: false },
+    { id: "9", name: "SkyWalker", score: 1350, rank: 9, isCurrentUser: false },
+    { id: "10", name: "WindRider", score: 1280, rank: 10, isCurrentUser: false },
+    { id: "11", name: "FeatherFly", score: 1210, rank: 11, isCurrentUser: false },
+    { id: "12", name: "SwiftWing", score: 1150, rank: 12, isCurrentUser: false },
+    { id: "13", name: "GlideMaster", score: 1080, rank: 13, isCurrentUser: false },
+    { id: "14", name: "AeroAce", score: 1020, rank: 14, isCurrentUser: false },
+    { id: "15", name: "FlightKing", score: 980, rank: 15, isCurrentUser: false },
+    { id: "16", name: "TurboPilot", score: 920, rank: 16, isCurrentUser: false },
+    { id: "17", name: "JetStream", score: 860, rank: 17, isCurrentUser: false },
+    { id: "18", name: "SoarHigh", score: 810, rank: 18, isCurrentUser: false },
+    { id: "19", name: "FlyBoy", score: 750, rank: 19, isCurrentUser: false },
+    { id: "20", name: "WingTip", score: 690, rank: 20, isCurrentUser: false },
   ];
 
   const getRankingsForGame = (gameId: string) => {
