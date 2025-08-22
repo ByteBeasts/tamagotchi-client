@@ -28,13 +28,22 @@ export function GameRankingTable({
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
+  const getContainerHeight = () => {
+    // Si está cargando, no hay rankings, o no está disponible, usa altura más pequeña
+    if (isLoading || rankings.length === 0 || !isAvailable) {
+      return { height: '300px' };
+    }
+    // Si hay rankings, usa altura completa para permitir scroll
+    return { height: '60vh', maxHeight: '500px' };
+  };
+
   return (
     <motion.div
       className="bg-black/40 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden flex flex-col"
       variants={containerVariants}
       initial="hidden"
       animate={isLoading ? "hidden" : "visible"}
-      style={{ height: '60vh', maxHeight: '500px' }}
+      style={getContainerHeight()}
     >
       {/* Table Header */}
       <div className="bg-gold-gradient p-4 border-b border-yellow-400/30">
