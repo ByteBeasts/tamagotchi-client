@@ -5,6 +5,7 @@ import { NavBar } from "../../layout/NavBar";
 import { GameId, PlayScreenProps } from "../../types/play.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import playBackground from "../../../assets/backgrounds/bg-play.png";
+import rankingIcon from "../../../assets/icons/ranking/icon-ranking.webp";
 
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -142,6 +143,29 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
           hygiene: liveBeastStatus?.hygiene || 0
         }}
       />
+
+      {/* Ranking Button - Top-right corner like dropdown menu */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
+        className="absolute top-32 right-4 z-50"
+      >
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          onClick={() => onNavigation("gameRanking")}
+          className="flex items-center justify-center hover:scale-105 transition-transform"
+          aria-label="Open Rankings"
+        >
+          <img 
+            src={rankingIcon} 
+            alt="Rankings" 
+            className="w-16 h-16"
+          />
+        </motion.button>
+      </motion.div>
 
       {/* Play Title - Dynamic with beast's name */}
       <motion.div

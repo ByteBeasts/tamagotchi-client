@@ -9,6 +9,7 @@ import { FeedScreen } from "../components/screens/Feed/FeedScreen";
 import { CleanScreen } from "../components/screens/Clean/CleanScreen";
 import { PlayScreen } from "../components/screens/Play/PlayScreen";
 import { GameScreen } from "../components/screens/Play/components/GameScreen";
+import { GameRankingScreen } from "../components/screens/GameRanking/GameRankingScreen";
 import { MarketScreen } from "../components/screens/Market/MarketScreen";
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
@@ -252,6 +253,13 @@ function AppContent() {
         />
       )}
 
+      {/* Game Ranking Screen */}
+      {currentScreen === "gameRanking" && (
+        <GameRankingScreen
+          onNavigation={handleNavigation}
+        />
+      )}
+
       {currentScreen === "market" && (
         <MarketScreen
           onNavigation={handleNavigation}
@@ -275,11 +283,13 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      {/* NavBar - Hide on game screen for fullscreen experience */}
+      {/* NavBar - Hide on game screen, ranking screen, and market for fullscreen experience */}
       {currentScreen !== "cover" && 
        currentScreen !== "login" && 
        currentScreen !== "hatch" && 
-       currentScreen !== "game" && (
+       currentScreen !== "game" && 
+       currentScreen !== "gameRanking" && 
+       currentScreen !== "market" && (
         <NavBar
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}
