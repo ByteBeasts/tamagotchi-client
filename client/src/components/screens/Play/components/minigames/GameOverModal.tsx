@@ -1,6 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { GameOverModalProps } from '../../../../types/play.types';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import closeIcon from "../../../../../assets/icons/extras/icon-close.png";
+import coinIcon from "../../../../../assets/icons/coins/icon-coin-single.webp";
+import gemIcon from "../../../../../assets/icons/gems/icon-gem-single.webp";
 
 export const GameOverModal = ({
   isOpen,
@@ -26,10 +29,30 @@ export const GameOverModal = ({
     };
   }, [isOpen]);
 
+  // Generate tweet message for minigame (same logic as ShareModal)
+  const tweetMessage = useMemo(() => {
+    if (!gameResult) return '';
+    
+    const getGameResultText = (score: number) => {
+      if (score >= 50) return "🔥 BEAST MODE!";
+      if (score >= 30) return "⚡ Crushing it!";
+      if (score >= 15) return "📈 Getting stronger!";
+      if (score >= 5) return "🎯 Making progress!";
+      return "🐣 Just started!";
+    };
+
+    return `🎮 I just played ${gameName} mini-game in ByteBeasts Tamagotchi\n\n` +
+      `${getGameResultText(gameResult.score)} Score: ${gameResult.score} 🏆\n\n` +
+      `Think you can beat it? Bring it on! 🔥\n` +
+      `👉 https://www.bytebeasts.io\n` +
+      `\n` +
+      `@0xByteBeasts`;
+  }, [gameName, gameResult]);
+
   if (!isOpen || !gameResult) return null;
 
-  const { score, rewards, isNewHighScore, gameData } = gameResult;
-  const { coins, gems, range } = rewards;
+  const { score, rewards } = gameResult;
+  const { coins, gems } = rewards;
 
   // Handlers with touch support
   const handlePlayAgainClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -38,10 +61,11 @@ export const GameOverModal = ({
     onPlayAgain();
   };
 
-  const handleExitClick = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleShareClick = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    onExitGame();
+    const tweetText = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetMessage)}`;
+    window.open(tweetText, '_blank', 'noopener,noreferrer');
   };
 
   const handleBackdropClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -55,173 +79,134 @@ export const GameOverModal = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={handleBackdropClick}
-            onTouchStart={handleBackdropClick}
-            style={{ 
-              touchAction: 'none',
-              WebkitTouchCallout: 'none',
-              WebkitUserSelect: 'none',
-              userSelect: 'none'
-            }}
+        <div 
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={handleBackdropClick}
+          onTouchStart={handleBackdropClick}
+          style={{ 
+            touchAction: 'none',
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none'
+          }}
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-cream w-[90%] max-w-md rounded-2xl shadow-[0_8px_0_rgba(0,0,0,0.2)] overflow-hidden border-4 border-gold/30"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            style={{ touchAction: 'auto' }}
           >
-            {/* Modal Content */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-sm w-full mx-auto shadow-2xl border border-slate-700"
-              onClick={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              style={{ touchAction: 'auto' }}
-            >
-              {/* Header */}
+            {/* Header */}
+            <div className="bg-gold-gradient p-4 border-b-4 border-gold/40 flex justify-between items-center">
+              <h2 className="text-gray-800 font-luckiest text-2xl tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
+                GAME OVER!
+              </h2>
+              <motion.button 
+                onClick={onExitGame}
+                onTouchStart={onExitGame}
+                className="transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gold/10 touch-manipulation"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ 
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent'
+                }}
+              >
+                <img src={closeIcon} alt="Close" className="w-8 h-8" />
+              </motion.button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 bg-gradient-to-b from-cream to-cream/80">
+              {/* Game Name */}
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Game Over!</h2>
-                <p className="text-slate-300 text-sm">{gameName}</p>
+                <p className="text-gray-600 font-rubik text-lg">{gameName}</p>
               </div>
 
-              {/* Score Section */}
+              {/* Score */}
               <div className="text-center mb-6">
-                <div className="mb-4">
-                  <div className="text-3xl font-bold text-white mb-1">
-                    {score}
-                  </div>
-                  <div className="text-slate-400 text-sm">Final Score</div>
-                </div>
-
-                {/* New High Score Badge */}
-                {isNewHighScore && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring", damping: 15 }}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold mb-4"
-                  >
-                    <span>🏆</span>
-                    New High Score!
-                  </motion.div>
-                )}
-
-                {/* Tier Badge */}
-                <div className="inline-block bg-slate-700 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {range.label} Tier
-                </div>
+                <div className="text-4xl font-bold text-gray-800 mb-2">{score}</div>
+                <div className="text-gray-600 font-rubik">Final Score</div>
               </div>
 
-              {/* Rewards Section */}
-              <div className="bg-slate-800/50 rounded-xl p-4 mb-6">
-                <h3 className="text-white font-semibold mb-3 text-center">Rewards Earned</h3>
+              {/* Rewards Earned */}
+              <div className="text-center mb-6">
+                <h3 className="text-gray-800 font-semibold mb-4 font-rubik">Rewards Earned</h3>
                 
-                <div className="flex justify-center gap-6">
+                <div className="flex justify-center gap-12">
                   {/* Coins */}
                   <div className="text-center">
-                    <div className="text-2xl mb-1">🪙</div>
-                    <div className="text-lg font-bold text-yellow-400">
+                    <div className="mb-2">
+                      <img src={coinIcon} alt="Coins" className="w-12 h-12 mx-auto" />
+                    </div>
+                    <div className="text-lg font-bold text-yellow-600">
                       +{coins}
                     </div>
-                    <div className="text-xs text-slate-400">Coins</div>
+                    <div className="text-xs text-gray-600 font-rubik">Coins</div>
                   </div>
 
                   {/* Gems */}
                   <div className="text-center">
-                    <div className="text-2xl mb-1">💎</div>
-                    <div className="text-lg font-bold text-blue-400">
+                    <div className="mb-2">
+                      <img src={gemIcon} alt="Gems" className="w-12 h-12 mx-auto" />
+                    </div>
+                    <div className="text-lg font-bold text-blue-600">
                       +{gems}
                     </div>
-                    <div className="text-xs text-slate-400">Gems</div>
+                    <div className="text-xs text-gray-600 font-rubik">Gems</div>
                   </div>
                 </div>
-
-                {/* Progress to Next Tier */}
-                {rewards.percentage < 100 && (
-                  <div className="mt-4">
-                    <div className="flex justify-between text-xs text-slate-400 mb-1">
-                      <span>Progress to next tier</span>
-                      <span>{rewards.percentage}%</span>
-                    </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${rewards.percentage}%` }}
-                        transition={{ delay: 0.5, duration: 1 }}
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
+            </div>
 
-              {/* Game Stats */}
-              {gameData && (
-                <div className="bg-slate-800/30 rounded-lg p-3 mb-6">
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-lg font-semibold text-white">{gameData.tier}</div>
-                      <div className="text-xs text-slate-400">Achievement Tier</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-semibold text-white">{gameData.accuracy}%</div>
-                      <div className="text-xs text-slate-400">Accuracy</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
+            {/* Footer */}
+            <div className="p-6 bg-gold/10 border-t-4 border-gold/30">
               <div className="flex gap-3">
-                <button
+                <motion.button
                   onClick={handlePlayAgainClick}
                   onTouchStart={handlePlayAgainClick}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95 touch-manipulation"
+                  className="flex-1 bg-gold text-gray-800 font-luckiest text-lg py-3 px-6 rounded-xl
+                    shadow-[0_4px_0_rgba(0,0,0,0.2)] hover:shadow-[0_2px_0_rgba(0,0,0,0.2)] 
+                    active:shadow-none active:translate-y-1
+                    transition-all duration-150 touch-manipulation"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   style={{ 
                     touchAction: 'manipulation',
                     WebkitTapHighlightColor: 'transparent',
                     cursor: 'pointer'
                   }}
                 >
-                  Play Again
-                </button>
-                <button
-                  onClick={handleExitClick}
-                  onTouchStart={handleExitClick}
-                  className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95 touch-manipulation"
+                  <span className="drop-shadow-[1px_1px_0px_rgba(255,255,255,0.3)]">
+                    PLAY AGAIN
+                  </span>
+                </motion.button>
+                <motion.button
+                  onClick={handleShareClick}
+                  onTouchStart={handleShareClick}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-luckiest text-lg py-3 px-6 rounded-xl
+                    shadow-[0_4px_0_rgba(0,0,0,0.2)] hover:shadow-[0_2px_0_rgba(0,0,0,0.2)] 
+                    active:shadow-none active:translate-y-1
+                    transition-all duration-150 touch-manipulation"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   style={{ 
                     touchAction: 'manipulation',
                     WebkitTapHighlightColor: 'transparent',
                     cursor: 'pointer'
                   }}
                 >
-                  Exit
-                </button>
+                  <span className="drop-shadow-[1px_1px_0px_rgba(255,255,255,0.3)]">
+                    SHARE ON X
+                  </span>
+                </motion.button>
               </div>
-
-              {/* Close Button */}
-              <button
-                onClick={handleExitClick}
-                onTouchStart={handleExitClick}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors touch-manipulation"
-                style={{ 
-                  touchAction: 'manipulation',
-                  WebkitTapHighlightColor: 'transparent',
-                  cursor: 'pointer'
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </motion.div>
+            </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

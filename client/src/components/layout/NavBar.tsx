@@ -15,13 +15,15 @@ type Screen = "login" | "cover" | "home" | "sleep" | "feed" | "clean" | "play";
 interface NavBarProps {
   onNavigation?: (screen: Screen) => void;
   activeTab?: Screen;
-  shouldBlockNavigation?: boolean; // NEW: Indicates if navigation should be blocked
+  shouldBlockNavigation?: boolean;
+  isBeastDead?: boolean; 
 }
 
 export function NavBar({
   onNavigation,
   activeTab = 'home',
-  shouldBlockNavigation = false, // NEW: Default to false
+  shouldBlockNavigation = false,
+  isBeastDead = false,
 }: NavBarProps) {
   const [active, setActive] = useState<Screen>(activeTab);
   
@@ -58,7 +60,12 @@ export function NavBar({
    * @returns true if the item should be disabled
    */
   const isItemDisabled = (itemId: Screen): boolean => {
-    // When navigation is blocked, disable all items except Sleep
+    // When beast is dead, disable all items except Home
+    if (isBeastDead && itemId !== 'home') {
+      return true;
+    }
+    
+    // When navigation is blocked (beast sleeping), disable all items except Sleep
     return shouldBlockNavigation && itemId !== 'sleep';
   };
 
@@ -136,8 +143,8 @@ export function NavBar({
                 `}
               />
               
-              {/* 🌙 Sleep indicator for disabled items */}
-              {isDisabled && (
+              {/* Sleep indicator for disabled items */}
+              {isDisabled && !isBeastDead && (
                 <div className="absolute -top-1 -right-1 text-xs">
                   🌙
                 </div>

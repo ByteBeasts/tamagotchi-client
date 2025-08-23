@@ -98,7 +98,7 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
         <div className="flex-grow flex flex-col items-center justify-center w-full px-6 py-8 space-y-6">
           {/* Título por encima de la imagen */}
           <h3 className="text-2xl font-bold text-white drop-shadow-lg font-luckiest text-center">
-            NO BEAST TO PLAY WITH
+            BEAST NEEDS CARE
           </h3>
           
           {/* Imagen del corazón roto */}
@@ -116,7 +116,7 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
           
           {/* Texto descriptivo por debajo de la imagen */}
           <p className="text-base text-white/90 drop-shadow-md leading-relaxed text-center max-w-xs">
-            You need a beast to play mini-games
+            Your beloved companion needs your care to return to life
           </p>
           
           {/* Botón */}
@@ -124,12 +124,12 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
             onClick={() => onNavigation("hatch")}
             className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg font-luckiest text-lg"
           >
-            🥚 Hatch New Beast
+            ✨ Revive Beast
           </button>
         </div>
 
         {/* Navigation Bar */}
-        <NavBar onNavigation={onNavigation} activeTab="play" />
+        <NavBar onNavigation={onNavigation} activeTab="play" isBeastDead={!hasLiveBeast} />
       </div>
     );
   }
@@ -189,7 +189,7 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
       />
 
       {/* Navigation Bar */}
-      <NavBar onNavigation={onNavigation} activeTab="play" />
+      <NavBar onNavigation={onNavigation} activeTab="play" isBeastDead={!hasLiveBeast} />
     </div>
   );
 };

@@ -43,19 +43,6 @@
     z-index: 2;
   }
   
-  .flappy-bird-game .land {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 128px;
-    background-image: url(../../../../../../assets/icons/games/flappy-beasts-assets/bg-land.png);
-    background-repeat: repeat-x;
-    background-size: auto 100%;
-    animation: animLand 2516ms linear infinite;
-    z-index: 2;
-    }
-  
   .flappy-bird-game .bird {
     position: absolute;
     left: 60px;
@@ -211,11 +198,6 @@
   @keyframes animSky {
     0% { background-position: 0px 100%; }
     100% { background-position: -275px 100%; }
-  }
-  
-  @keyframes animLand {
-    0% { background-position: 0px 0px; }
-    100% { background-position: -335px 0px; }
   }
   
   @keyframes animCeiling {

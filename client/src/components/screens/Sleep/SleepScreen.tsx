@@ -148,7 +148,7 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
         <div className="flex flex-col items-center justify-center space-y-6 z-10">
           {/* Título por encima de la imagen */}
           <h3 className="text-2xl font-bold text-white drop-shadow-lg font-luckiest text-center">
-            NO BEAST TO SLEEP
+            BEAST NEEDS CARE
           </h3>
           
           {/* Imagen del corazón roto */}
@@ -166,7 +166,7 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
           
           {/* Texto descriptivo por debajo de la imagen */}
           <p className="text-base text-white/90 drop-shadow-md leading-relaxed text-center max-w-xs">
-            You need a beast to use the sleep feature
+            Your beloved companion needs your care to return to life
           </p>
           
           {/* Botón */}
@@ -174,7 +174,7 @@ export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
             onClick={() => onNavigation("hatch")}
             className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg font-luckiest text-lg"
           >
-            🥚 Hatch New Beast
+            ✨ Revive Beast
           </button>
         </div>
       </div>

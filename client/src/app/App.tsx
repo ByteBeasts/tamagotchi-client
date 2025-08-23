@@ -24,6 +24,7 @@ import type { BeastSpawnParams } from "../utils/beastHelpers";
 
 // Wallet and cache management  
 import { useCavosAccount } from "../dojo/hooks/useCavosAccount";
+import { useBeastDisplay } from "../dojo/hooks/useBeastDisplay";
 import useAppStore from "../zustand/store";
 
 function AppContent() {
@@ -42,6 +43,9 @@ function AppContent() {
   const { account } = useCavosAccount();
   const cavosWallet = useAppStore(state => state.cavos.wallet);
   const resetStore = useAppStore(state => state.resetStore);
+  
+  // Beast state for navigation control
+  const { hasLiveBeast } = useBeastDisplay();
   
   // Get sleep state from store for global darkening effect
   const realTimeStatusUI = useAppStore(state => state.getRealTimeStatusForUI());
@@ -284,6 +288,7 @@ function AppContent() {
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}
           shouldBlockNavigation={shouldBlockNavigation}
+          isBeastDead={!hasLiveBeast}
         />
       )}
     </div>
