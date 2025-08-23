@@ -9,5 +9,6 @@ export type Screen =
   | "play"
   | "game"
   | "gameRanking"    
+  | "ageRanking"
   | "profile"
   | "market";

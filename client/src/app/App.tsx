@@ -10,6 +10,7 @@ import { CleanScreen } from "../components/screens/Clean/CleanScreen";
 import { PlayScreen } from "../components/screens/Play/PlayScreen";
 import { GameScreen } from "../components/screens/Play/components/GameScreen";
 import { GameRankingScreen } from "../components/screens/GameRanking/GameRankingScreen";
+import { AgeRankingScreen } from "../components/screens/AgeRanking/AgeRankingScreen";
 import { MarketScreen } from "../components/screens/Market/MarketScreen";
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
@@ -260,6 +261,13 @@ function AppContent() {
         />
       )}
 
+      {/* Age Ranking Screen */}
+      {currentScreen === "ageRanking" && (
+        <AgeRankingScreen
+          onNavigation={handleNavigation}
+        />
+      )}
+
       {currentScreen === "market" && (
         <MarketScreen
           onNavigation={handleNavigation}
@@ -289,6 +297,7 @@ function AppContent() {
        currentScreen !== "hatch" && 
        currentScreen !== "game" && 
        currentScreen !== "gameRanking" && 
+       currentScreen !== "ageRanking" && 
        currentScreen !== "market" && (
         <NavBar
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
