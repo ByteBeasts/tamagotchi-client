@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { FOOD_UI_CONFIG } from '../../../../constants/feed.constants';
 
 // Fallback image for when beast image is not available
-import babyWolfBeast from "../../../../assets/beasts/baby-wolf.png";
+import babyWolfBeast from "../../../../assets/beasts/baby-wolf.webp";
 
 // Props interface for Beast component
 interface BeastAnimationProps {

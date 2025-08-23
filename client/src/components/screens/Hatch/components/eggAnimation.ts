@@ -1,36 +1,36 @@
 // WOLF frames (specie 1)
-import EggShadowFrame0 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-0.png";
-import EggShadowFrame1 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-1.png";
-import EggShadowFrame2 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-2.png";
-import EggShadowFrame3 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-3.png";
-import EggShadowFrame4 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-4.png";
-import EggShadowFrame5 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-5.png";
+import EggShadowFrame0 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-0.webp";
+import EggShadowFrame1 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-1.webp";
+import EggShadowFrame2 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-2.webp";
+import EggShadowFrame3 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-3.webp";
+import EggShadowFrame4 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-4.webp";
+import EggShadowFrame5 from "../../../../assets/eggs/egg-wolf/egg-wolf-frame-5.webp";
 
 // DRAGON frames (specie 2)
-import EggDragonFrame0 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-0.png";
-import EggDragonFrame1 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-1.png";
-import EggDragonFrame2 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-2.png";
-import EggDragonFrame3 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-3.png";
-import EggDragonFrame4 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-4.png";
-import EggDragonFrame5 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-5.png";
+import EggDragonFrame0 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-0.webp";
+import EggDragonFrame1 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-1.webp";
+import EggDragonFrame2 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-2.webp";
+import EggDragonFrame3 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-3.webp";
+import EggDragonFrame4 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-4.webp";
+import EggDragonFrame5 from "../../../../assets/eggs/egg-dragon/egg-dragon-frame-5.webp";
 
 // SNAKE frames (specie 3)
-import EggWaterFrame0 from "../../../../assets/eggs/egg-snake/egg-snake-frame-0.png";
-import EggWaterFrame1 from "../../../../assets/eggs/egg-snake/egg-snake-frame-1.png";
-import EggWaterFrame2 from "../../../../assets/eggs/egg-snake/egg-snake-frame-2.png";
-import EggWaterFrame3 from "../../../../assets/eggs/egg-snake/egg-snake-frame-3.png";
-import EggWaterFrame4 from "../../../../assets/eggs/egg-snake/egg-snake-frame-4.png";
-import EggWaterFrame5 from "../../../../assets/eggs/egg-snake/egg-snake-frame-5.png";
+import EggWaterFrame0 from "../../../../assets/eggs/egg-snake/egg-snake-frame-0.webp";
+import EggWaterFrame1 from "../../../../assets/eggs/egg-snake/egg-snake-frame-1.webp";
+import EggWaterFrame2 from "../../../../assets/eggs/egg-snake/egg-snake-frame-2.webp";
+import EggWaterFrame3 from "../../../../assets/eggs/egg-snake/egg-snake-frame-3.webp";
+import EggWaterFrame4 from "../../../../assets/eggs/egg-snake/egg-snake-frame-4.webp";
+import EggWaterFrame5 from "../../../../assets/eggs/egg-snake/egg-snake-frame-5.webp";
 
 // Beast assets
-import BabyWolf from "../../../../assets/beasts/baby-wolf.png";
-import BabyDragon from "../../../../assets/beasts/baby-dragon.png";
-import BabySnake from "../../../../assets/beasts/baby-snake.png";
+import BabyWolf from "../../../../assets/beasts/baby-wolf.webp";
+import BabyDragon from "../../../../assets/beasts/baby-dragon.webp";
+import BabySnake from "../../../../assets/beasts/baby-snake.webp";
 
 // Sleeping beast assets
-import BabyWolfSleeping from "../../../../assets/beasts-sleeping/baby-wolf-sleeping.png";
-import BabyDragonSleeping from "../../../../assets/beasts-sleeping/baby-dragon-sleeping.png";
-import BabySnakeSleeping from "../../../../assets/beasts-sleeping/baby-snake-sleeping.png";
+import BabyWolfSleeping from "../../../../assets/beasts-sleeping/baby-wolf-sleeping.webp";
+import BabyDragonSleeping from "../../../../assets/beasts-sleeping/baby-dragon-sleeping.webp";
+import BabySnakeSleeping from "../../../../assets/beasts-sleeping/baby-snake-sleeping.webp";
 
 export type EggType = 'shadow' | 'dragon' | 'water';
 export type BeastType = 'wolf' | 'dragon' | 'snake';

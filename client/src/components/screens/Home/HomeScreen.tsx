@@ -4,8 +4,8 @@ import { HomeScreenProps, BeastData, PlayerData } from "../../types/home.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import { BeastNameModal } from "./components/BeastNameModal";
-import forestBackground from "../../../assets/backgrounds/bg-home.png";
-import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
+import forestBackground from "../../../assets/backgrounds/bg-home.webp";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
 import { lookupAddresses } from '@cartridge/controller';
 
 // Universal hook to encapsulate beast display logic

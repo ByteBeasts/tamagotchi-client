@@ -1,8 +1,8 @@
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
-import sleepBackground from "../../../assets/backgrounds/bg-sleep.png";
-import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
+import sleepBackground from "../../../assets/backgrounds/bg-sleep.webp";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { SleepScreenProps } from "../../types/sleep.types";
 
@@ -26,21 +26,21 @@ import { CampfireController } from "./components/CampfireController";
 import { BeastSleepDisplay } from "./components/BeastDisplay";
 
 // Campfire animation assets
-import extinguishedFrame0 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-0.png";
-import extinguishedFrame1 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-1.png";
-import extinguishedFrame2 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-4.png";
-import extinguishedFrame3 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-3.png";
-import extinguishedFrame4 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-4.png";
-import extinguishedFrame5 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-5.png";
+import extinguishedFrame0 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-0.webp";
+import extinguishedFrame1 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-1.webp";
+import extinguishedFrame2 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-4.webp";
+import extinguishedFrame3 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-3.webp";
+import extinguishedFrame4 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-4.webp";
+import extinguishedFrame5 from "../../../assets/icons/campfire/Animation/extinguished/extinguished-frame-5.webp";
 
-import litFrame0 from "../../../assets/icons/campfire/Animation/lit/lit-frame-0.png";
-import litFrame1 from "../../../assets/icons/campfire/Animation/lit/lit-frame-1.png";
-import litFrame2 from "../../../assets/icons/campfire/Animation/lit/lit-frame-2.png";
-import litFrame3 from "../../../assets/icons/campfire/Animation/lit/lit-frame-3.png";
-import litFrame4 from "../../../assets/icons/campfire/Animation/lit/lit-frame-4.png";
-import litFrame5 from "../../../assets/icons/campfire/Animation/lit/lit-frame-5.png";
+import litFrame0 from "../../../assets/icons/campfire/Animation/lit/lit-frame-0.webp";
+import litFrame1 from "../../../assets/icons/campfire/Animation/lit/lit-frame-1.webp";
+import litFrame2 from "../../../assets/icons/campfire/Animation/lit/lit-frame-2.webp";
+import litFrame3 from "../../../assets/icons/campfire/Animation/lit/lit-frame-3.webp";
+import litFrame4 from "../../../assets/icons/campfire/Animation/lit/lit-frame-4.webp";
+import litFrame5 from "../../../assets/icons/campfire/Animation/lit/lit-frame-5.webp";
 
-import trunkIcon from "../../../assets/icons/campfire/icon-trunk.png";
+import trunkIcon from "../../../assets/icons/campfire/icon-trunk.webp";
 
 export const SleepScreen = ({ onNavigation }: SleepScreenProps) => {
   // Music context

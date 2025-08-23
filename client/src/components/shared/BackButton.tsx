@@ -1,7 +1,7 @@
 // components/shared/BackButton.tsx
 
 import { motion } from "framer-motion";
-import closeIcon from "../../assets/icons/extras/icon-close.png";
+import closeIcon from "../../assets/icons/extras/icon-close.webp";
 
 interface BackButtonProps {
  onClick: () => void;

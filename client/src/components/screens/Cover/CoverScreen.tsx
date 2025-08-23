@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import CoverImgMobile from "../../../assets/LoginCovers/Mobile.jpeg";
-import CoverImgWeb from "../../../assets/LoginCovers/Web.jpg";
+import CoverImgMobile from "../../../assets/LoginCovers/Mobile.webp";
+import CoverImgWeb from "../../../assets/LoginCovers/Web.webp";
 
 interface CoverScreenProps {
   onLoadingComplete: () => void;

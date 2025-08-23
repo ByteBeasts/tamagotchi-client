@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
 // Import assets
-import bannerImg from "../../../../assets/banners/banner-dragon.png";
+import bannerImg from "../../../../assets/banners/banner-dragon.webp";
 import medalIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
-import beastIcon from "../../../../assets/icons/profile/beast.png";
-import editIcon from "../../../../assets/icons/profile/edit.png";
+import beastIcon from "../../../../assets/icons/profile/beast.webp";
+import editIcon from "../../../../assets/icons/profile/edit.webp";
 import dailyStreakIcon from "../../../../assets/icons/dailyStreak/icon-daily-streak.webp";
-import closeIcon from "../../../../assets/icons/extras/icon-close.png";
+import closeIcon from "../../../../assets/icons/extras/icon-close.webp";
 
 // Import hook for beast display
 import { useBeastDisplay } from "../../../../dojo/hooks/useBeastDisplay";

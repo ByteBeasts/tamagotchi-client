@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { PlayerInfoSectionProps } from "../../../types/home.types";
 import { DropdownMenu } from "./DropDownMenu";
-import bannerImg from "../../../../assets/banners/banner-dragon.png";
+import bannerImg from "../../../../assets/banners/banner-dragon.webp";
 import treeOfLifeIcon from "../../../../assets/icons/age/icon-age-tree-of-life.webp";
 
 const buttonInteractionProps = {

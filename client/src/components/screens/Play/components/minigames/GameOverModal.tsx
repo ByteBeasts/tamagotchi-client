@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { GameOverModalProps } from '../../../../types/play.types';
 import { useEffect, useMemo } from 'react';
-import closeIcon from "../../../../../assets/icons/extras/icon-close.png";
+import closeIcon from "../../../../../assets/icons/extras/icon-close.webp";
 import coinIcon from "../../../../../assets/icons/coins/icon-coin-single.webp";
 import gemIcon from "../../../../../assets/icons/gems/icon-gem-single.webp";
 

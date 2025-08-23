@@ -4,8 +4,8 @@ import Slider from "react-slick";
 import { FoodCarouselProps } from '../../../types/feed.types';
 import { SLIDER_SETTINGS, CAROUSEL_STYLES } from '../../../../constants/feed.constants';
 import { FoodItem } from './FoodItem';
-import ArrowLeftIcon from '../../../../assets/icons/extras/icon-arrow-left.png';
-import ArrowRightIcon from '../../../../assets/icons/extras/icon-arrow-right.png';
+import ArrowLeftIcon from '../../../../assets/icons/extras/icon-arrow-left.webp';
+import ArrowRightIcon from '../../../../assets/icons/extras/icon-arrow-right.webp';
 
 export const FoodCarousel = ({
   foods,

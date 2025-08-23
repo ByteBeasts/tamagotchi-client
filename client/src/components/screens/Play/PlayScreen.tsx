@@ -4,8 +4,8 @@ import { TamagotchiTopBar } from "../../layout/TopBar";
 import { NavBar } from "../../layout/NavBar";
 import { GameId, PlayScreenProps } from "../../types/play.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
-import playBackground from "../../../assets/backgrounds/bg-play.png";
-import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
+import playBackground from "../../../assets/backgrounds/bg-play.webp";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
 
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";

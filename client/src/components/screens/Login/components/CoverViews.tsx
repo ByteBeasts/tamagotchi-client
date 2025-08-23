@@ -1,5 +1,5 @@
-import bbBanner from '../../../../assets/LoginCovers/img-banner.png';
-import bbBannerTamagotchi from '../../../../assets/LoginCovers/img-banner-tamagotchi.png';
+import bbBanner from '../../../../assets/LoginCovers/img-banner.webp';
+import bbBannerTamagotchi from '../../../../assets/LoginCovers/img-banner-tamagotchi.webp';
 
 // Universe intro view
 export const UniverseView = () => (

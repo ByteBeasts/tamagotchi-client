@@ -11,7 +11,8 @@ const projectDir = path.join(__dirname, "..", "src");
 
 const replaceInFile = (filePath: string) => {
   const content = fs.readFileSync(filePath, "utf-8");
-  const updated = content.replace(/\.png(["'])/g, ".webp$1");
+  // Replace .png, .jpg, and .jpeg with .webp
+  let updated = content.replace(/\.(png|jpg|jpeg)(["'])/g, ".webp$2");
 
   if (content !== updated) {
     fs.writeFileSync(filePath, updated, "utf-8");

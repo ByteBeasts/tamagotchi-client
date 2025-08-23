@@ -8,14 +8,14 @@ import { useFlappyGameLogic } from '../flappybeast/useFlappyGameLogic';
 import { MiniGameScreenProps, GameResult } from '../../../../../types/play.types';
 
 // Assets
-import skyBackground from '../../../../../../assets/icons/games/flappy-beasts-assets/bg-sky.png';
-import landBackground from '../../../../../../assets/icons/games/flappy-beasts-assets/bg-land.png';
-import ceilingBackground from '../../../../../../assets/icons/games/flappy-beasts-assets/bg-ceiling.png';
-import pipeImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.png';
-import pipeUpImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.png';
-import pipeDownImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.png';
-import closeIcon from '../../../../../../assets/icons/extras/icon-close.png';
-import beastIcon from '../../../../../../assets/icons/profile/beast.png';
+import skyBackground from '../../../../../../assets/icons/games/flappy-beasts-assets/bg-sky.webp';
+import landBackground from '../../../../../../assets/icons/games/flappy-beasts-assets/bg-land.webp';
+import ceilingBackground from '../../../../../../assets/icons/games/flappy-beasts-assets/bg-ceiling.webp';
+import pipeImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.webp';
+import pipeUpImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.webp';
+import pipeDownImage from '../../../../../../assets/icons/games/flappy-beasts-assets/img-full-pipe.webp';
+import closeIcon from '../../../../../../assets/icons/extras/icon-close.webp';
+import beastIcon from '../../../../../../assets/icons/profile/beast.webp';
 
 // Styles
 import "./main.css";
