@@ -87,7 +87,7 @@ const COUNT_ALL_PLAYERS_QUERY = `
     tamagotchiHighestScoreModels(
       where: { 
         minigame_id: $minigameId,
-        score_gt: $userScore 
+        scoreGT: $userScore 
       }
     ) {
       totalCount
