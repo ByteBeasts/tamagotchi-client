@@ -225,6 +225,16 @@ export function useGameLeaderboard(
         }
       }
       
+      // Si el nombre es "Unknown", usar dirección truncada
+      if (decodedName === 'Unknown') {
+        // Formato: 0x1234...abcd (primeros 6 + últimos 4 caracteres)
+        if (address.length > 10) {
+          decodedName = `${address.slice(0, 6)}...${address.slice(-4)}`;
+        } else {
+          decodedName = address; // Si es muy corta, mostrar completa
+        }
+      }
+      
       console.log('📝 Fetched name for', address, ':', rawName, '->', decodedName);
       return decodedName;
     } catch (error) {
