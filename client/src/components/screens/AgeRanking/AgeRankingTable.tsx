@@ -42,21 +42,21 @@ export function AgeRankingTable({
       style={getContainerHeight()}
     >
       {/* Table Header */}
-      <div className="bg-gold-gradient p-4 border-b border-yellow-400/30">
-        <div className="grid grid-cols-10 gap-3 items-center">
-          <div className="col-span-1 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
+      <div className="bg-gold-gradient p-4 pr-6 border-b border-yellow-400/30">
+        <div className="grid grid-cols-12 gap-2 items-center">
+          <div className="col-span-2 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Rank
           </div>
-          <div className="col-span-3 font-luckiest text-lg text-cream drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
+          <div className="col-span-4 font-luckiest text-lg text-cream drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Player
           </div>
-          <div className="col-span-4 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
+          <div className="col-span-3 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Beast
           </div>
-          <div className="col-span-1 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
+          <div className="col-span-2 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Age
           </div>
-          <div className="col-span-1 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
+          <div className="col-span-1 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] pr-2">
             Live
           </div>
         </div>

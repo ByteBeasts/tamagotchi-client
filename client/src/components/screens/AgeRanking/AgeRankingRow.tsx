@@ -74,6 +74,12 @@ export function AgeRankingRow({
   const renderUserBadge = () => {
     if (!beast.isCurrentUserBeast) return null;
     
+    // Check if playerName is a truncated address (contains "...")
+    const isAddressName = beast.playerName.includes('...');
+    
+    // If it's just an address, don't show the badge since we'll show "YOU" instead
+    if (isAddressName) return null;
+    
     return (
       <span className="ml-2 text-xs bg-yellow-500 text-black px-2 py-1 rounded-full font-bold">
         YOU
@@ -81,14 +87,29 @@ export function AgeRankingRow({
     );
   };
 
-  const renderSeparator = () => {
-    // Add visual separator if this is user's best beast not in top 10
-    if (isUserBestNotInTop10 && index === 10) {
+  const renderPlayerName = () => {
+    if (!beast.isCurrentUserBeast) {
+      return beast.playerName;
+    }
+    
+    // Check if playerName is a truncated address (contains "...")
+    const isAddressName = beast.playerName.includes('...');
+    
+    // If it's just an address, show "YOU" instead
+    if (isAddressName) {
       return (
-        <div className="w-full border-t-2 border-dashed border-yellow-500/50 my-2">
-        </div>
+        <span className="bg-yellow-500 text-black px-2 py-1 rounded-full font-bold text-xs">
+          YOU
+        </span>
       );
     }
+    
+    // If it has a real name, show the name
+    return beast.playerName;
+  };
+
+  const renderSeparator = () => {
+    // No separator needed
     return null;
   };
 
@@ -96,26 +117,26 @@ export function AgeRankingRow({
     <>
       {renderSeparator()}
       <motion.div
-        className={`grid grid-cols-10 gap-3 items-center p-4 border-b ${getRowClasses()}`}
+        className={`grid grid-cols-12 gap-2 items-center p-4 border-b ${getRowClasses()}`}
         variants={rowVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Rank / Trophy */}
-        <div className="col-span-1 font-luckiest text-lg flex items-center justify-center">
+        <div className="col-span-2 font-luckiest text-lg flex items-center justify-center">
           {renderRankContent()}
         </div>
 
         {/* Player Name */}
-        <div className={`col-span-3 font-rubik text-base ${getTextClasses()}`}>
-          <div className="truncate">
-            {beast.playerName}
+        <div className={`col-span-4 font-rubik text-base ${getTextClasses()}`}>
+          <div className="truncate flex items-center">
+            {renderPlayerName()}
             {renderUserBadge()}
           </div>
         </div>
 
         {/* Beast Image */}
-        <div className="col-span-4 flex items-center justify-center">
+        <div className="col-span-3 flex items-center justify-center">
           <img 
             src={beast.beastAsset} 
             alt={`Beast Type ${beast.beastType}`}
@@ -124,7 +145,7 @@ export function AgeRankingRow({
         </div>
 
         {/* Age */}
-        <div className={`col-span-1 font-rubik text-base text-center ${getTextClasses()}`}>
+        <div className={`col-span-2 font-rubik text-base text-center ${getTextClasses()}`}>
           {beast.age}
         </div>
 
