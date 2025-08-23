@@ -28,7 +28,7 @@ export interface UseGameLeaderboardReturn {
 // Constants
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 
-// Query 1: Top 10 del leaderboard para FlappyBeasts
+// Query 1: Top 10 leaderboard for FlappyBeasts
 const TOP_LEADERBOARD_QUERY = `
   query GetTopLeaderboard($minigameId: Int!) {
     tamagotchiHighestScoreModels(
@@ -47,7 +47,7 @@ const TOP_LEADERBOARD_QUERY = `
   }
 `;
 
-// Query 2: Posición del usuario actual
+// Query 2: Current user position
 const USER_RANKING_QUERY = `
   query GetUserRanking($minigameId: Int!, $playerAddress: ContractAddress!) {
     tamagotchiHighestScoreModels(
@@ -67,7 +67,7 @@ const USER_RANKING_QUERY = `
   }
 `;
 
-// Query 3: Obtener nombre de un jugador individual
+// Query 3: Get individual player name
 const PLAYER_NAME_QUERY = `
   query GetPlayerName($address: ContractAddress!) {
     tamagotchiPlayerModels(where: { address: $address }) {
@@ -81,7 +81,7 @@ const PLAYER_NAME_QUERY = `
   }
 `;
 
-// Query 4: Contar todos los jugadores con puntaje para calcular ranking
+// Query 4: Count all players with score to calculate ranking
 const COUNT_ALL_PLAYERS_QUERY = `
   query CountAllPlayers($minigameId: Int!, $userScore: Int!) {
     tamagotchiHighestScoreModels(
@@ -214,24 +214,24 @@ export function useGameLeaderboard(
 
       const rawName = edges[0].node.name || '0x0';
       
-      // Decodificar el nombre si viene como hex usando shortString de Starknet
+      // Decode name if it comes as hex using shortString from Starknet
       let decodedName = 'Unknown';
       if (rawName && rawName !== '0x0') {
         try {
           decodedName = shortString.decodeShortString(rawName);
         } catch (error) {
           console.warn('⚠️ Error decoding name:', rawName, error);
-          decodedName = rawName; // Fallback al valor original
+          decodedName = rawName; // Fallback to original value
         }
       }
       
-      // Si el nombre es "Unknown", usar dirección truncada
+      // If name is "Unknown", use truncated address
       if (decodedName === 'Unknown') {
-        // Formato: 0x1234...abcd (primeros 6 + últimos 4 caracteres)
+        // Format: 0x1234...abcd (first 6 + last 4 characters)
         if (address.length > 10) {
           decodedName = `${address.slice(0, 6)}...${address.slice(-4)}`;
         } else {
-          decodedName = address; // Si es muy corta, mostrar completa
+          decodedName = address; // If too short, show complete address
         }
       }
       
@@ -250,7 +250,7 @@ export function useGameLeaderboard(
       
       const namesMap = new Map<string, string>();
       
-      // Hacer requests individuales para cada dirección
+      // Make individual requests for each address
       const namePromises = addresses.map(async (address) => {
         const name = await fetchPlayerName(address);
         return { address: address.toLowerCase(), name };
@@ -321,12 +321,12 @@ export function useGameLeaderboard(
 
       // 5. Build top players list with ranks and names
       const topPlayersWithNames: LeaderboardPlayer[] = topScores.map((score, index) => {
-        // Normalizar ambas direcciones para comparación
+        // Normalize both addresses for comparison
         const normalizedScorePlayer = score.player.toLowerCase();
         const normalizedCurrentUser = currentUserAddress ? 
           currentUserAddress.toLowerCase() : '';
         
-        // También comparar con la versión padded por si acaso
+        // Also compare with padded version just in case
         const paddedCurrentUser = currentUserAddress ? 
           addAddressPadding(currentUserAddress).toLowerCase() : '';
         
@@ -335,7 +335,7 @@ export function useGameLeaderboard(
            normalizedScorePlayer === paddedCurrentUser) : 
           false;
           
-        if (index <= 7) { // Log para las primeras posiciones donde está el usuario
+        if (index <= 7) { // Log for first positions where user might be
           console.log(`🔍 Address comparison [${index + 1}]:`, {
             scorePlayer: normalizedScorePlayer,
             currentUser: normalizedCurrentUser,
