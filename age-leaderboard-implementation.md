@@ -114,6 +114,20 @@ const PLAYER_NAME_QUERY = `
     }
   }
 `;
+
+// Query 4: Count beasts with higher age for ranking (if user's oldest beast not in top 10)
+// IMPORTANT: Use 'ageGT' not 'age_gt' - Torii uses camelCase for comparison operators
+const COUNT_OLDER_BEASTS_QUERY = `
+  query CountOlderBeasts($userAge: Int!) {
+    tamagotchiBeastModels(
+      where: { 
+        ageGT: $userAge 
+      }
+    ) {
+      totalCount
+    }
+  }
+`;
 ```
 
 #### Hook Interface
@@ -237,10 +251,12 @@ const headers = [
 ## Important Notes
 
 1. **GraphQL Limitations**: Cannot use array parameters, must fetch names individually
-2. **Address Comparison**: Always compare both normalized and padded addresses
-3. **Name Decoding**: Use `shortString.decodeShortString()` for felt252 conversion
-4. **Error Handling**: Handle cases where queries fail gracefully
-5. **Performance**: Use Promise.all for concurrent individual queries
+2. **GraphQL Operators**: Torii uses camelCase for comparison operators (e.g., `scoreGT`, `ageGT`, not `score_gt`, `age_gt`)
+3. **Address Comparison**: Always compare both normalized and padded addresses
+4. **Name Decoding**: Use `shortString.decodeShortString()` for felt252 conversion
+5. **Error Handling**: Handle cases where queries fail gracefully
+6. **Performance**: Use Promise.all for concurrent individual queries
+7. **User Ranking**: If user's beast is not in top 10, show as 11th row with real rank (e.g., #35)
 
 ## Reference Files
 
