@@ -43,7 +43,7 @@ export function AgeRankingTable({
     >
       {/* Table Header */}
       <div className="bg-gold-gradient p-4 pr-6 border-b border-yellow-400/30">
-        <div className="grid grid-cols-12 gap-2 items-center">
+        <div className="grid grid-cols-11 gap-2 items-center">
           <div className="col-span-2 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Rank
           </div>
@@ -55,9 +55,6 @@ export function AgeRankingTable({
           </div>
           <div className="col-span-2 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Age
-          </div>
-          <div className="col-span-1 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] pr-2">
-            Live
           </div>
         </div>
       </div>

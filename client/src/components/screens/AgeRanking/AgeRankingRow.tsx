@@ -117,7 +117,7 @@ export function AgeRankingRow({
     <>
       {renderSeparator()}
       <motion.div
-        className={`grid grid-cols-12 gap-2 items-center p-4 border-b ${getRowClasses()}`}
+        className={`grid grid-cols-11 gap-2 items-center p-4 border-b ${getRowClasses()}`}
         variants={rowVariants}
         initial="hidden"
         animate="visible"
@@ -147,11 +147,6 @@ export function AgeRankingRow({
         {/* Age */}
         <div className={`col-span-2 font-rubik text-base text-center ${getTextClasses()}`}>
           {beast.age}
-        </div>
-
-        {/* Live Status */}
-        <div className="col-span-1 text-center text-xl">
-          {beast.isAlive ? '❤️' : '💀'}
         </div>
       </motion.div>
     </>
