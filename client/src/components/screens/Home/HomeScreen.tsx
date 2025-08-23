@@ -29,6 +29,7 @@ import { useHomeNavigation } from "./components/hooks/useHomeNavigation";
 import { PlayerInfoSection } from "./components/PlayerInfoSection";
 import { BeastHomeDisplay } from "./components/BeastDisplay";
 
+
 export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [age] = useState(1);
   const [playerName, setPlayerName] = useState("Player");
@@ -255,6 +256,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onProfileClick={handleProfileClick}
         onNavigateLogin={handleNavigateLogin}
         onEditName={() => setIsPlayerNameModalOpen(true)}
+        onAgeLeaderboardClick={() => onNavigation("ageRanking")}
         beastData={beastData}
       />
 

@@ -16,10 +16,11 @@ export const PlayerInfoSection = ({
   onProfileClick,
   onNavigateLogin,
   onEditName,
+  onAgeLeaderboardClick,
 }: PlayerInfoSectionProps) => {
   return (
     <div className="w-full px-4 md:px-6 lg:px-8 flex justify-between items-start mt-3 md:mt-4 z-10">
-      {/* Left: Banner & Player Name */}
+      {/* Left: BanTner & Player Name */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0, transition: { delay: 0.2, duration: 0.5, ease: "easeOut" } }}
@@ -51,16 +52,20 @@ export const PlayerInfoSection = ({
 
       {/* Right: Age & Dropdown */}
       <div className="flex items-center space-x-3 md:space-x-4 lg:space-x-5 pt-1">
-        <motion.div
+        <motion.button
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0, transition: { delay: 0.3, duration: 0.5, ease: "easeOut" } }}
-          className="flex items-center space-x-1 md:space-x-1.5"
+          onClick={onAgeLeaderboardClick}
+          {...buttonInteractionProps}
+          className="flex items-center space-x-1 md:space-x-1.5 focus:outline-none cursor-pointer"
+          aria-label="Age Leaderboard"
+          title="View Age Leaderboard"
         >
           <img src={treeOfLifeIcon} alt="Tree of Life" className="h-10 w-10 lg:h-12 lg:w-12" />
           <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
             {age}
           </span>
-        </motion.div>
+        </motion.button>
 
         <motion.div
           initial={{ opacity: 0, x: 50 }}
