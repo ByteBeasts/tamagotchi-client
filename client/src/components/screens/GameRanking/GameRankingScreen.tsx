@@ -8,14 +8,40 @@ import playBackground from "../../../assets/backgrounds/bg-play.png";
 import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.png";
 import useAppStore from "../../../zustand/store";
 
+// TEST: Import del hook para probar
+import { useGameLeaderboard } from "../../../dojo/hooks/useGameLeaderboard";
+import { GAME_IDS } from "../../types/game.types";
+
 interface GameRankingScreenProps {
   onNavigation: (screen: any) => void;
 }
 
 export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
   const storePlayer = useAppStore(state => state.player);
+  const cavosWallet = useAppStore(state => state.cavos.wallet);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // TEST: Probar el hook useGameLeaderboard
+  const { 
+    topPlayers, 
+    currentUserRanking, 
+    isLoading, 
+    error, 
+    refetch 
+  } = useGameLeaderboard(GAME_IDS.FLAPPY_BEASTS, cavosWallet?.address);
+
+  // TEST: Log para ver los datos en consola
+  useEffect(() => {
+    console.log("🎮 ========== LEADERBOARD TEST ==========");
+    console.log("📍 User Address:", cavosWallet?.address);
+    console.log("🎯 Game ID (FLAPPY_BEASTS):", GAME_IDS.FLAPPY_BEASTS);
+    console.log("⏳ Loading:", isLoading);
+    console.log("❌ Error:", error);
+    console.log("🏆 Top Players:", topPlayers);
+    console.log("👤 Current User Ranking:", currentUserRanking);
+    console.log("🎮 =====================================");
+  }, [topPlayers, currentUserRanking, isLoading, error, cavosWallet?.address]);
 
   // Available games - expandable for future games
   const games = [
@@ -108,6 +134,17 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
 
       {/* Back Button */}
       <BackButton onClick={() => onNavigation("play")} variant="floating" className="!left-auto !right-2" />
+
+      {/* TEST: Botón de Refetch para probar */}
+      <button
+        onClick={() => {
+          console.log("🔄 Refetching leaderboard data...");
+          refetch();
+        }}
+        className="absolute top-32 left-4 z-50 bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold hover:bg-yellow-400 transition-colors"
+      >
+        TEST: Refetch Data
+      </button>
 
       {/* Banner with gradient and mascot */}
       <motion.div
