@@ -8,7 +8,7 @@ import playBackground from "../../../assets/backgrounds/bg-play.png";
 import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.png";
 import useAppStore from "../../../zustand/store";
 
-// TEST: Import del hook para probar
+// Real data integration
 import { useGameLeaderboard } from "../../../dojo/hooks/useGameLeaderboard";
 import { GAME_IDS } from "../../types/game.types";
 
@@ -31,17 +31,6 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
     refetch 
   } = useGameLeaderboard(GAME_IDS.FLAPPY_BEASTS, cavosWallet?.address);
 
-  // TEST: Log para ver los datos en consola
-  useEffect(() => {
-    console.log("🎮 ========== LEADERBOARD TEST ==========");
-    console.log("📍 User Address:", cavosWallet?.address);
-    console.log("🎯 Game ID (FLAPPY_BEASTS):", GAME_IDS.FLAPPY_BEASTS);
-    console.log("⏳ Loading:", isLoading);
-    console.log("❌ Error:", error);
-    console.log("🏆 Top Players:", topPlayers);
-    console.log("👤 Current User Ranking:", currentUserRanking);
-    console.log("🎮 =====================================");
-  }, [topPlayers, currentUserRanking, isLoading, error, cavosWallet?.address]);
 
   // Available games - expandable for future games
   const games = [
@@ -65,32 +54,23 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
     },
   ];
 
-  // Mock data for FlappyBeasts - others will be empty for now
-  const mockRankingsFlappy = [
-    { id: "1", name: "DragonMaster", score: 2450, rank: 1, isCurrentUser: false },
-    { id: "2", name: "BeastHunter", score: 2380, rank: 2, isCurrentUser: false },
-    { id: "3", name: "SkyRunner", score: 2210, rank: 3, isCurrentUser: false },
-    { id: "4", name: "You", score: 1890, rank: 4, isCurrentUser: true },
-    { id: "5", name: "FlappyPro", score: 1750, rank: 5, isCurrentUser: false },
-    { id: "6", name: "WingMaster", score: 1620, rank: 6, isCurrentUser: false },
-    { id: "7", name: "CloudJumper", score: 1580, rank: 7, isCurrentUser: false },
-    { id: "8", name: "AirDancer", score: 1450, rank: 8, isCurrentUser: false },
-    { id: "9", name: "SkyWalker", score: 1350, rank: 9, isCurrentUser: false },
-    { id: "10", name: "WindRider", score: 1280, rank: 10, isCurrentUser: false },
-    { id: "11", name: "FeatherFly", score: 1210, rank: 11, isCurrentUser: false },
-    { id: "12", name: "SwiftWing", score: 1150, rank: 12, isCurrentUser: false },
-    { id: "13", name: "GlideMaster", score: 1080, rank: 13, isCurrentUser: false },
-    { id: "14", name: "AeroAce", score: 1020, rank: 14, isCurrentUser: false },
-    { id: "15", name: "FlightKing", score: 980, rank: 15, isCurrentUser: false },
-    { id: "16", name: "TurboPilot", score: 920, rank: 16, isCurrentUser: false },
-    { id: "17", name: "JetStream", score: 860, rank: 17, isCurrentUser: false },
-    { id: "18", name: "SoarHigh", score: 810, rank: 18, isCurrentUser: false },
-    { id: "19", name: "FlyBoy", score: 750, rank: 19, isCurrentUser: false },
-    { id: "20", name: "WingTip", score: 690, rank: 20, isCurrentUser: false },
-  ];
-
+  // Combine real data for FlappyBeasts (top players + current user if not in top 10)
   const getRankingsForGame = (gameId: string) => {
-    if (gameId === "flappy_beasts") return mockRankingsFlappy;
+    if (gameId === "flappy_beasts") {
+      // Combine top players with current user ranking if not in top 10
+      const combinedRankings = currentUserRanking 
+        ? [...topPlayers, currentUserRanking]
+        : topPlayers;
+      
+      // Convert to the format expected by GameRankingTable
+      return combinedRankings.map(player => ({
+        id: player.address,
+        name: player.name,
+        score: player.score,
+        rank: player.rank,
+        isCurrentUser: player.isCurrentUser
+      }));
+    }
     return []; // Empty for other games
   };
 
@@ -135,16 +115,20 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
       {/* Back Button */}
       <BackButton onClick={() => onNavigation("play")} variant="floating" className="!left-auto !right-2" />
 
-      {/* TEST: Botón de Refetch para probar */}
-      <button
-        onClick={() => {
-          console.log("🔄 Refetching leaderboard data...");
-          refetch();
-        }}
-        className="absolute top-32 left-4 z-50 bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold hover:bg-yellow-400 transition-colors"
-      >
-        TEST: Refetch Data
-      </button>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mx-4 mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="font-semibold">Error loading FlappyBeasts rankings:</div>
+          <div className="text-sm">{error.message}</div>
+          <button 
+            onClick={refetch}
+            className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Banner with gradient and mascot */}
       <motion.div
@@ -225,7 +209,7 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
               >
                 <GameRankingTable 
                   rankings={getRankingsForGame(game.id)} 
-                  isLoading={false}
+                  isLoading={game.id === "flappy_beasts" ? isLoading : false}
                   gameName={game.name}
                   isAvailable={game.isAvailable}
                 />
