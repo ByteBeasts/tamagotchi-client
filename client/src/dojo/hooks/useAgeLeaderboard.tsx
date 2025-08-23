@@ -4,13 +4,17 @@ import { addAddressPadding, shortString } from 'starknet';
 // Dojo config import
 import { dojoConfig } from '../dojoConfig';
 
+// Beast assets import
+import { BEAST_ASSETS, type BeastType as EggBeastType } from '../../components/screens/Hatch/components/eggAnimation';
+
 // Types
 export interface LeaderboardBeast {
   rank: number;
   playerAddress: string;
   playerName: string;
   beastId: number;
-  beastName: string;
+  beastType: number;
+  beastAsset: string;
   age: number;
   isAlive: boolean;
   isCurrentUserBeast: boolean;
@@ -42,7 +46,6 @@ const TOP_BEASTS_BY_AGE_QUERY = `
           birth_date
           specie
           beast_type
-          name
         }
       }
     }
@@ -110,7 +113,6 @@ const USER_OLDEST_BEAST_QUERY = `
           birth_date
           specie
           beast_type
-          name
         }
       }
     }
@@ -127,6 +129,22 @@ const hexToNumber = (hexValue: string | number): number => {
     return parseInt(hexValue, 10);
   }
   return 0;
+};
+
+// Helper to get beast asset based on beast_type
+const getBeastAsset = (beastType: number): string => {
+  // Map numeric beast_type to string for BEAST_ASSETS
+  const getBeastTypeString = (beastType: number): EggBeastType => {
+    switch (beastType) {
+      case 1: return 'wolf';
+      case 2: return 'dragon';  
+      case 3: return 'snake';
+      default: return 'wolf';
+    }
+  };
+  
+  const beastTypeString = getBeastTypeString(beastType);
+  return BEAST_ASSETS[beastTypeString];
 };
 
 // Main hook
@@ -164,8 +182,7 @@ export function useAgeLeaderboard(currentUserAddress?: string): UseAgeLeaderboar
         age: hexToNumber(edge.node.age),
         birth_date: hexToNumber(edge.node.birth_date),
         specie: hexToNumber(edge.node.specie),
-        beast_type: hexToNumber(edge.node.beast_type),
-        name: edge.node.name
+        beast_type: hexToNumber(edge.node.beast_type)
       }));
 
       // Sort by age DESC, then by birth_date ASC (older first)
@@ -257,8 +274,8 @@ export function useAgeLeaderboard(currentUserAddress?: string): UseAgeLeaderboar
       
       // If no name, use truncated address
       if (!decodedName || decodedName === '') {
-        if (address.length > 10) {
-          decodedName = `${address.slice(0, 6)}...${address.slice(-4)}`;
+        if (address.length > 6) {
+          decodedName = `${address.slice(0, 4)}...${address.slice(-2)}`;
         } else {
           decodedName = address;
         }
@@ -268,27 +285,13 @@ export function useAgeLeaderboard(currentUserAddress?: string): UseAgeLeaderboar
     } catch (error) {
       console.error('❌ Error fetching name for address:', address, error);
       // Return truncated address as fallback
-      if (address.length > 10) {
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+      if (address.length > 6) {
+        return `${address.slice(0, 4)}...${address.slice(-2)}`;
       }
       return address;
     }
   };
 
-  // Decode beast name
-  const decodeBeastName = (rawName: string | undefined, beastId: number): string => {
-    if (!rawName || rawName === '0x0' || rawName === '0') {
-      return `Beast #${beastId}`;
-    }
-    
-    try {
-      const decoded = shortString.decodeShortString(rawName);
-      return decoded || `Beast #${beastId}`;
-    } catch (error) {
-      console.warn('⚠️ Error decoding beast name:', rawName, error);
-      return `Beast #${beastId}`;
-    }
-  };
 
   // Fetch user's oldest beast
   const fetchUserOldestBeast = async (address: string) => {
@@ -323,8 +326,7 @@ export function useAgeLeaderboard(currentUserAddress?: string): UseAgeLeaderboar
         age: hexToNumber(beast.age),
         birth_date: hexToNumber(beast.birth_date),
         specie: hexToNumber(beast.specie),
-        beast_type: hexToNumber(beast.beast_type),
-        name: beast.name
+        beast_type: hexToNumber(beast.beast_type)
       };
     } catch (error) {
       console.error('❌ Error fetching user beast:', error);
@@ -429,7 +431,8 @@ export function useAgeLeaderboard(currentUserAddress?: string): UseAgeLeaderboar
           playerAddress: beast.player,
           playerName: namesMap.get(normalizedBeastPlayer) || 'Unknown',
           beastId: beast.beast_id,
-          beastName: decodeBeastName(beast.name, beast.beast_id),
+          beastType: beast.beast_type,
+          beastAsset: getBeastAsset(beast.beast_type),
           age: beast.age,
           isAlive: statusMap.get(`${beast.player}_${beast.beast_id}`) || false,
           isCurrentUserBeast
@@ -452,7 +455,8 @@ export function useAgeLeaderboard(currentUserAddress?: string): UseAgeLeaderboar
             playerAddress: userOldestBeast.player,
             playerName: namesMap.get(normalizedUserPlayer) || 'You',
             beastId: userOldestBeast.beast_id,
-            beastName: decodeBeastName(userOldestBeast.name, userOldestBeast.beast_id),
+            beastType: userOldestBeast.beast_type,
+            beastAsset: getBeastAsset(userOldestBeast.beast_type),
             age: userOldestBeast.age,
             isAlive: statusMap.get(`${userOldestBeast.player}_${userOldestBeast.beast_id}`) || false,
             isCurrentUserBeast: true

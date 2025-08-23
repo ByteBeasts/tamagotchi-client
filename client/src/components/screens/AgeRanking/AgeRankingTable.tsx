@@ -50,7 +50,7 @@ export function AgeRankingTable({
           <div className="col-span-3 font-luckiest text-lg text-cream drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Player
           </div>
-          <div className="col-span-4 font-luckiest text-lg text-cream drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
+          <div className="col-span-4 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
             Beast
           </div>
           <div className="col-span-1 font-luckiest text-lg text-cream text-center drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">

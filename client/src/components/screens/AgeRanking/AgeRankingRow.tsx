@@ -114,11 +114,13 @@ export function AgeRankingRow({
           </div>
         </div>
 
-        {/* Beast Name */}
-        <div className={`col-span-4 font-rubik text-base ${getTextClasses()}`}>
-          <div className="truncate">
-            {beast.beastName}
-          </div>
+        {/* Beast Image */}
+        <div className="col-span-4 flex items-center justify-center">
+          <img 
+            src={beast.beastAsset} 
+            alt={`Beast Type ${beast.beastType}`}
+            className="w-12 h-12 object-contain"
+          />
         </div>
 
         {/* Age */}
