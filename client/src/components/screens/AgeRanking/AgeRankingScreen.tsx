@@ -107,6 +107,21 @@ export function AgeRankingScreen({ onNavigation }: AgeRankingScreenProps) {
         </div>
       </motion.div>
 
+      {/* Leaderboard Type Tabs */}
+      <div className="flex justify-center space-x-2 mb-4 z-10">
+        <button
+          className="px-6 py-2 rounded-full text-sm font-rubik transition-all bg-gold-gradient text-black font-bold"
+        >
+          Age Leaderboard
+        </button>
+        <button
+          onClick={() => onNavigation("gameRanking")}
+          className="px-6 py-2 rounded-full text-sm font-rubik transition-all bg-white/20 text-white hover:bg-white/30"
+        >
+          Mini Games Leaderboard
+        </button>
+      </div>
+
       {/* Main Content Area */}
       <div className="flex-1 w-full max-w-4xl pb-20 z-10">
         <motion.div

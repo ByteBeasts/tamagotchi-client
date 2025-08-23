@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { PlayerInfoSectionProps } from "../../../types/home.types";
 import { DropdownMenu } from "./DropDownMenu";
 import bannerImg from "../../../../assets/banners/banner-dragon.png";
-import treeOfLifeIcon from "../../../../assets/icons/age/icon-age-tree-of-life.webp";
+import trophyIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
 import editIcon from "../../../../assets/icons/profile/edit.png";
 
 const buttonInteractionProps = {
@@ -61,7 +61,7 @@ export const PlayerInfoSection = ({
           aria-label="Age Leaderboard"
           title="View Age Leaderboard"
         >
-          <img src={treeOfLifeIcon} alt="Tree of Life" className="h-10 w-10 lg:h-12 lg:w-12" />
+          <img src={trophyIcon} alt="Trophy" className="h-10 w-10 lg:h-12 lg:w-12" />
           <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
             {age}
           </span>

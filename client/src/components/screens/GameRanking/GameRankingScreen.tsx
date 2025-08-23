@@ -170,26 +170,42 @@ export function GameRankingScreen({ onNavigation }: GameRankingScreenProps) {
         </div>
       </motion.div>
 
-      {/* Game Tabs/Indicators */}
+      {/* Leaderboard Type Tabs */}
+      <div className="flex justify-center space-x-2 mb-4 z-10">
+        <button
+          onClick={() => onNavigation("ageRanking")}
+          className="px-6 py-2 rounded-full text-sm font-rubik transition-all bg-white/20 text-white hover:bg-white/30"
+        >
+          Age Leaderboard
+        </button>
+        <button
+          className="px-6 py-2 rounded-full text-sm font-rubik transition-all bg-gold-gradient text-black font-bold"
+        >
+          Mini Games Leaderboard
+        </button>
+      </div>
+
+      {/* Carousel Dots Indicator */}
       <div className="flex justify-center space-x-2 mb-4 z-10">
         {games.map((game, index) => (
           <button
             key={game.id}
             onClick={() => {
-              carouselRef.current?.scrollTo({
-                left: index * (carouselRef.current?.clientWidth || 0),
-                behavior: 'smooth'
-              });
+              if (game.isAvailable) {
+                carouselRef.current?.scrollTo({
+                  left: index * (carouselRef.current?.clientWidth || 0),
+                  behavior: 'smooth'
+                });
+              }
             }}
-            className={`px-4 py-2 rounded-full text-sm font-rubik transition-all ${
+            className={`transition-all ${
               activeIndex === index
-                ? 'bg-gold-gradient text-black font-bold'
-                : 'bg-white/20 text-white hover:bg-white/30'
-            } ${!game.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
+                ? 'w-8 h-2 bg-gold-gradient rounded-full'
+                : 'w-2 h-2 bg-white/40 rounded-full hover:bg-white/60'
+            } ${!game.isAvailable ? 'opacity-30 cursor-not-allowed' : ''}`}
             disabled={!game.isAvailable}
-          >
-            {game.name}
-          </button>
+            aria-label={game.name}
+          />
         ))}
       </div>
 
