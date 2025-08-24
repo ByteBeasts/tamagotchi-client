@@ -61,7 +61,7 @@ export const PlayerInfoSection = ({
           aria-label="Age Leaderboard"
           title="View Age Leaderboard"
         >
-          <img src={trophyIcon} alt="Trophy" className="h-10 w-10 lg:h-12 lg:w-12" />
+          <img src={trophyIcon} alt="Trophy" className="h-12 w-12 lg:h-12 lg:w-12" />
           <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
             {age}
           </span>
