@@ -3,8 +3,8 @@ import { TamagotchiTopBar } from "../../layout/TopBar";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { BackButton } from "../../shared/BackButton";
 import { AgeRankingTable } from "./AgeRankingTable";
-import forestBackground from "../../../assets/backgrounds/bg-home.png";
-import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.png";
+import forestBackground from "../../../assets/backgrounds/bg-home.webp";
+import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.webp";
 import useAppStore from "../../../zustand/store";
 
 // Age leaderboard hook

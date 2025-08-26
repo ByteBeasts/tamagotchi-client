@@ -4,8 +4,8 @@ import { TamagotchiTopBar } from "../../layout/TopBar";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { BackButton } from "../../shared/BackButton";
 import { GameRankingTable } from "./GameRankingTable";
-import playBackground from "../../../assets/backgrounds/bg-play.png";
-import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.png";
+import playBackground from "../../../assets/backgrounds/bg-play.webp";
+import babyDragonAvatar from "../../../assets/icons/ranking/baby-dragon-ranking-avatar.webp";
 import useAppStore from "../../../zustand/store";
 
 // Real data integration

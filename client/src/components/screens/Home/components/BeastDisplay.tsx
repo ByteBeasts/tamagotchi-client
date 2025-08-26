@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { BeastHomeDisplayProps } from "../../../types/home.types";
-import editIcon from "../../../../assets/icons/profile/edit.png";
+import editIcon from "../../../../assets/icons/profile/edit.webp";
 
 const beastAnimation = {
   initial: { scale: 0.3, opacity: 0, rotate: -15 },

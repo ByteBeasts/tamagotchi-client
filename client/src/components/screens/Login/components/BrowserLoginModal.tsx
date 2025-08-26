@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import closeIcon from "../../../../assets/icons/extras/icon-close.png";
+import closeIcon from "../../../../assets/icons/extras/icon-close.webp";
 
 interface BrowserLoginModalProps {
   isOpen: boolean;

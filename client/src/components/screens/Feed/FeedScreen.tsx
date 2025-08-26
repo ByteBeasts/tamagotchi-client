@@ -24,8 +24,8 @@ import { useFeedLogic, usePortal } from "./components/hooks/useFeedLogic";
 import { FeedScreenProps } from "../../types/feed.types";
 
 // Assets
-import forestBackground from "../../../assets/backgrounds/bg-home.png";
-import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
+import forestBackground from "../../../assets/backgrounds/bg-home.webp";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
 import shopIcon from "../../../assets/icons/shop/icon-food-shop.webp";
 
 export const FeedScreen = ({ onNavigation, isBeastSleeping = false }: FeedScreenProps) => {

@@ -3,13 +3,13 @@ import { motion } from "framer-motion"
 import coinIcon from "../../../../assets/icons/coins/icon-coin-single.webp"
 
 // Status icons
-import energyIcon from "../../../../assets/icons/tobBar/icon-energy.png";
-import hungerIcon from "../../../../assets/icons/tobBar/icon-hungry.png";
-import happyIcon from "../../../../assets/icons/tobBar/icon-happy.png";
+import energyIcon from "../../../../assets/icons/tobBar/icon-energy.webp";
+import hungerIcon from "../../../../assets/icons/tobBar/icon-hungry.webp";
+import happyIcon from "../../../../assets/icons/tobBar/icon-happy.webp";
 
 // Quantity selector icons
-import minusIcon from "../../../../assets/icons/extras/icon-minus.png";
-import plusIcon from "../../../../assets/icons/extras/icon-plus.png";
+import minusIcon from "../../../../assets/icons/extras/icon-minus.webp";
+import plusIcon from "../../../../assets/icons/extras/icon-plus.webp";
 
 // Types
 import { MarketFoodItem, BeastType, BEAST_FAVORITE_FOODS } from "../../../../constants/foodMarket.constants";

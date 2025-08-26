@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { PlayerInfoSectionProps } from "../../../types/home.types";
 import { DropdownMenu } from "./DropDownMenu";
-import bannerImg from "../../../../assets/banners/banner-dragon.png";
+import bannerImg from "../../../../assets/banners/banner-dragon.webp";
 import trophyIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
-import editIcon from "../../../../assets/icons/profile/edit.png";
+import editIcon from "../../../../assets/icons/profile/edit.webp";
 
 const buttonInteractionProps = {
   whileHover: { scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 15 } },
@@ -12,7 +12,7 @@ const buttonInteractionProps = {
 
 export const PlayerInfoSection = ({
   playerName,
-  age,
+  // age,
   onProfileClick,
   onNavigateLogin,
   onEditName,
@@ -62,9 +62,9 @@ export const PlayerInfoSection = ({
           title="View Age Leaderboard"
         >
           <img src={trophyIcon} alt="Trophy" className="h-12 w-12 lg:h-12 lg:w-12" />
-          <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
+          {/* <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
             {age}
-          </span>
+          </span> */}
         </motion.button>
 
         <motion.div

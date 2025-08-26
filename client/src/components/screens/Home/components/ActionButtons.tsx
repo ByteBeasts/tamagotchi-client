@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ActionButtonsProps } from "../../../types/home.types";
-//import dailyQuestIcon from "../../../../assets/icons/daily-quests/icon-daily-quests.png";
+//import dailyQuestIcon from "../../../../assets/icons/daily-quests/icon-daily-quests.webp";
 import shopIcon from "../../../../assets/icons/shop/icon-food-shop.webp";
 
 const buttonInteractionProps = {
