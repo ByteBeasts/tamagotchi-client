@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { GameOverModal } from '../GameOverModal';
 import { useFlappyGameLogic } from '../flappybeast/useFlappyGameLogic';
 //import { useHighScores } from '../../hooks/useHighScore.tsx';
-import { ShareModal } from '../../../../Home/components/ShareModal.tsx';
 import { MiniGameScreenProps, GameResult } from '../../../../../types/play.types';
 
 // Assets
@@ -51,7 +50,7 @@ const BIRD_COLLIDER_OFFSET_Y = (BIRD_HEIGHT - BIRD_COLLIDER_HEIGHT) / 2;
 
 const GAME_NAME = "Flappy Beasts";
 
-const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
+const FlappyBirdMiniGame = forwardRef<{ resetGame: () => void }, MiniGameScreenProps>(({
   onExitGame,
   beastImage,
 }, ref) => {
@@ -69,7 +68,6 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
   const [gameActive, setGameActive] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const [showShareModal, setShowShareModal] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [isStarting, setIsStarting] = useState(false);
@@ -319,7 +317,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
     (async () => {
       const result = await handleGameCompletion(currentScoreRef.current);
       setGameResult(result);
-      setShowShareModal(true);
+      setShowGameOverModal(true);
     })();
   };
 
@@ -336,7 +334,6 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
     if (!ok) return;
 
     setShowGameOverModal(false);
-    setShowShareModal(false);
     resetGame();
   };
 
@@ -381,7 +378,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
     const onKey = (e: KeyboardEvent) => {
       if (e.code.match(/Space|ArrowUp|KeyW/) && !isProcessingResults) {
         // Only prevent default if not a modal
-        if (!showShareModal && !showGameOverModal) {
+        if (!showGameOverModal) {
           e.preventDefault(); 
           jump();
         }
@@ -397,7 +394,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
       ctr.removeEventListener('touchstart', onTouch);
       window.removeEventListener('keydown', onKey);
     };
-  }, [gameActive, gameOver, isProcessingResults, showShareModal, showGameOverModal]);
+  }, [gameActive, gameOver, isProcessingResults, showGameOverModal]);
 
   // Responsiveness
   useEffect(() => {
@@ -469,7 +466,13 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
             {/* Body */}
             <div className="p-6 bg-gradient-to-b from-cream to-cream/80 text-center">
               <div className="mb-6">
-                <div className="text-6xl mb-4">🐦</div>
+                <div className="mb-4 flex justify-center">
+                  <img 
+                    src={beastImage} 
+                    alt="Beast" 
+                    className="w-20 h-20 object-contain"
+                  />
+                </div>
                 <p className="text-gray-700 font-rubik text-lg leading-relaxed">
                   Guide your beast through the pipes!
                 </p>
@@ -517,20 +520,7 @@ const FlappyBirdMiniGame = forwardRef<any, MiniGameScreenProps>(({
         </div>
       )}
 
-      {/* Share Modal */}
-      {showShareModal && gameResult && (
-        <div className="modal-overlay">
-          <ShareModal
-            isOpen={showShareModal}
-            onClose={() => {
-              setShowShareModal(false);
-              setShowGameOverModal(true);
-            }}
-            type="minigame"
-            minigameData={{ name: GAME_NAME, score: currentScoreRef.current }}
-          />
-        </div>
-      )}
+
 
       {/* Game Over Modal */}
       {showGameOverModal && gameResult && (
