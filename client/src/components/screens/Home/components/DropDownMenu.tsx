@@ -134,17 +134,19 @@ export const DropdownMenu = ({ onNavigateLogin }: DropdownMenuProps) => {
             <span className="text-dark font-luckiest">Profile</span>
           </button> */}
 
-          <button
-            onClick={handleShareClick}
-            className="flex items-center space-x-3 w-full hover:scale-105 transition-transform"
-            role="menuitem"
-            disabled={!hasLiveBeast} // Disable if no beast exists
-          >
-            <img src={shareIcon} alt="" className="w-5 h-5" />
-            <span className={`font-luckiest ${!hasLiveBeast ? 'text-gray-400' : 'text-dark'}`}>
-              Share on X
-            </span>
-          </button>
+          {/* Share button - only show when beast is alive */}
+          {hasLiveBeast && (
+            <button
+              onClick={handleShareClick}
+              className="flex items-center space-x-3 w-full hover:scale-105 transition-transform"
+              role="menuitem"
+            >
+              <img src={shareIcon} alt="" className="w-5 h-5" />
+              <span className="text-dark font-luckiest">
+                Share on X
+              </span>
+            </button>
+          )}
 
           <button
             onClick={toggleMute}
