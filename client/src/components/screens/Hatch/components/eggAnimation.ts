@@ -29,8 +29,8 @@ import BabySnake from "../../../../assets/beasts/baby-snake.webp";
 
 // Sleeping beast assets
 import BabyWolfSleeping from "../../../../assets/beasts-sleeping/baby-wolf-sleeping.png";
-import BabyDragonSleeping from "../../../../assets/beasts-sleeping/baby-dragon-sleeping.png";
-import BabySnakeSleeping from "../../../../assets/beasts-sleeping/baby-snake-sleeping.png";
+import BabyDragonSleeping from "../../../../assets/beasts-sleeping/baby-dragon-sleeping.webp";
+import BabySnakeSleeping from "../../../../assets/beasts-sleeping/baby-snake-sleeping.webp";
 
 export type EggType = 'shadow' | 'dragon' | 'water';
 export type BeastType = 'wolf' | 'dragon' | 'snake';
