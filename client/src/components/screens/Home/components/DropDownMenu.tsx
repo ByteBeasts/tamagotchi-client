@@ -15,7 +15,7 @@ import useAppStore from "../../../../zustand/store";
 // Assets
 import menuIcon from "../../../../assets/icons/menu/icon-menu.webp";
 import closeIcon from "../../../../assets/icons/extras/icon-close.png";
-//import profileIcon from "../../../../assets/icons/menu/svg/icon-profile.svg";
+import profileIcon from "../../../../assets/icons/menu/svg/icon-profile.svg";
 import shareIcon from "../../../../assets/icons/menu/svg/icon-share.svg";
 import logoutIcon from "../../../../assets/icons/menu/svg/icon-logout.svg";
 import soundOnIcon from "../../../../assets/icons/menu/svg/icon-sound-on.svg";
@@ -134,17 +134,19 @@ export const DropdownMenu = ({ onNavigateLogin }: DropdownMenuProps) => {
             <span className="text-dark font-luckiest">Profile</span>
           </button> */}
 
-          <button
-            onClick={handleShareClick}
-            className="flex items-center space-x-3 w-full hover:scale-105 transition-transform"
-            role="menuitem"
-            disabled={!hasLiveBeast} // Disable if no beast exists
-          >
-            <img src={shareIcon} alt="" className="w-5 h-5" />
-            <span className={`font-luckiest ${!hasLiveBeast ? 'text-gray-400' : 'text-dark'}`}>
-              Share on X
-            </span>
-          </button>
+          {/* Share button - only show when beast is alive */}
+          {hasLiveBeast && (
+            <button
+              onClick={handleShareClick}
+              className="flex items-center space-x-3 w-full hover:scale-105 transition-transform"
+              role="menuitem"
+            >
+              <img src={shareIcon} alt="" className="w-5 h-5" />
+              <span className="text-dark font-luckiest">
+                Share on X
+              </span>
+            </button>
+          )}
 
           <button
             onClick={toggleMute}
@@ -153,6 +155,15 @@ export const DropdownMenu = ({ onNavigateLogin }: DropdownMenuProps) => {
           >
             <img src={isMuted ? soundOffIcon : soundOnIcon} alt="" className="w-5 h-5" />
             <span className="text-dark font-luckiest">{isMuted ? "Unmute" : "Mute"}</span>
+          </button>
+
+          <button
+            id="feedback-button"
+            className="flex items-center space-x-3 w-full hover:scale-105 transition-transform"
+            role="menuitem"
+          >
+            <img src={profileIcon} alt="" className="w-5 h-5" />
+            <span className="text-dark font-luckiest">Feedback</span>
           </button>
 
           <button

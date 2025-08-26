@@ -48,6 +48,9 @@ function AppContent() {
   // Get sleep state from store for global darkening effect
   const realTimeStatusUI = useAppStore(state => state.getRealTimeStatusForUI());
   const isBeastSleeping = realTimeStatusUI ? !realTimeStatusUI.isAwake : false;
+  
+  // Get beast status for navigation blocking
+  const hasLiveBeast = useAppStore(state => state.hasLiveBeast());
 
   // Clear cache on wallet change
   useEffect(() => {
@@ -303,6 +306,7 @@ function AppContent() {
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}
           shouldBlockNavigation={shouldBlockNavigation}
+          hasLiveBeast={hasLiveBeast}
         />
       )}
     </div>

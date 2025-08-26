@@ -23,9 +23,9 @@ import EggWaterFrame4 from "../../../../assets/eggs/egg-snake/egg-snake-frame-4.
 import EggWaterFrame5 from "../../../../assets/eggs/egg-snake/egg-snake-frame-5.png";
 
 // Beast assets
-import BabyWolf from "../../../../assets/beasts/baby-wolf.png";
-import BabyDragon from "../../../../assets/beasts/baby-dragon.png";
-import BabySnake from "../../../../assets/beasts/baby-snake.png";
+import BabyWolf from "../../../../assets/beasts/baby-wolf.webp";
+import BabyDragon from "../../../../assets/beasts/baby-dragon.webp";
+import BabySnake from "../../../../assets/beasts/baby-snake.webp";
 
 // Sleeping beast assets
 import BabyWolfSleeping from "../../../../assets/beasts-sleeping/baby-wolf-sleeping.png";

@@ -14,13 +14,15 @@ type Screen = "login" | "cover" | "home" | "sleep" | "feed" | "clean" | "play";
 interface NavBarProps {
   onNavigation?: (screen: Screen) => void;
   activeTab?: Screen;
-  shouldBlockNavigation?: boolean; // NEW: Indicates if navigation should be blocked
+  shouldBlockNavigation?: boolean;
+  hasLiveBeast?: boolean;
 }
 
 export function NavBar({
   onNavigation,
   activeTab = 'home',
-  shouldBlockNavigation = false, // NEW: Default to false
+  shouldBlockNavigation = false,
+  hasLiveBeast = true,
 }: NavBarProps) {
   const [active, setActive] = useState<Screen>(activeTab);
 
@@ -53,8 +55,17 @@ export function NavBar({
    * @returns true if the item should be disabled
    */
   const isItemDisabled = (itemId: Screen): boolean => {
-    // When navigation is blocked, disable all items except Sleep
-    return shouldBlockNavigation && itemId !== 'sleep';
+    // When beast is dead, disable all items except home
+    if (!hasLiveBeast) {
+      return itemId !== 'home';
+    }
+    
+    // When navigation is blocked (beast sleeping), disable all items except Sleep
+    if (shouldBlockNavigation) {
+      return itemId !== 'sleep';
+    }
+    
+    return false;
   };
 
   /**
@@ -74,7 +85,7 @@ export function NavBar({
     `;
     
     if (isDisabled) {
-      // 🚫 Disabled state (beast sleeping)
+      // 🚫 Disabled state (beast dead or sleeping)
       classes += ` 
         opacity-50 cursor-not-allowed 
         bg-transparent text-gray-500
@@ -116,9 +127,12 @@ export function NavBar({
             layout
             onClick={() => !isDisabled && handleClick(item.id)}
             className={getItemClasses(item)}
-            aria-label={`${item.label}${isDisabled ? ' (Disabled - Beast Sleeping)' : ''}`}
+            aria-label={`${item.label}${isDisabled ? ' (Disabled)' : ''}`}
             disabled={isDisabled}
-            title={isDisabled ? "Your beast is sleeping! Wake them up first 😴" : item.label}
+            title={isDisabled ? 
+              (!hasLiveBeast ? "No beast available! Hatch one first 🥚" : "Your beast is sleeping! Wake them up first 😴") 
+              : item.label
+            }
           >      
             <div className="relative">
               {/* Icon with conditional styling */}
@@ -131,8 +145,8 @@ export function NavBar({
                 `}
               />
               
-              {/* 🌙 Sleep indicator for disabled items */}
-              {isDisabled && (
+              {/* 🌙 Sleep indicator for disabled items when beast sleeping */}
+              {isDisabled && shouldBlockNavigation && (
                 <div className="absolute -top-1 -right-1 text-xs">
                   🌙
                 </div>
