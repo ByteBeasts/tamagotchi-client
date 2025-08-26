@@ -22,7 +22,7 @@ import { getBeastDisplayInfo } from "../../../utils/beastHelpers";
 import { getEggTypeBySpecie, BEAST_ASSETS } from "./components/eggAnimation";
 
 // Assets
-import forestBackground from "../../../assets/backgrounds/bg-home.png";
+import forestBackground from "../../../assets/backgrounds/bg-home.webp";
 
 interface HatchEggScreenProps {
   onLoadingComplete: () => void;

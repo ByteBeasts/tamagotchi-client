@@ -3,8 +3,8 @@ import Slider from "react-slick";
 import { GameCarouselProps } from "../../../types/play.types";
 import { useGameCarousel } from "./hooks/useGameCarousel";
 import { GAME_CAROUSEL_STYLES } from "./config/carousel.config";
-import ArrowLeftIcon from "../../../../assets/icons/extras/icon-arrow-left.png";
-import ArrowRightIcon from "../../../../assets/icons/extras/icon-arrow-right.png";
+import ArrowLeftIcon from "../../../../assets/icons/extras/icon-arrow-left.webp";
+import ArrowRightIcon from "../../../../assets/icons/extras/icon-arrow-right.webp";
 
 export const GameCarousel = ({ games, onGameSelect }: GameCarouselProps) => {
   const {

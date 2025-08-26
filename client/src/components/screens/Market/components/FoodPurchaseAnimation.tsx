@@ -6,9 +6,9 @@ import { MoveDirection } from "@tsparticles/engine"
 import { loadSlim } from "@tsparticles/slim"
 
 // Status icons
-import energyIcon from "../../../../assets/icons/tobBar/icon-energy.png";
-import hungerIcon from "../../../../assets/icons/tobBar/icon-hungry.png";
-import happyIcon from "../../../../assets/icons/tobBar/icon-happy.png";
+import energyIcon from "../../../../assets/icons/tobBar/icon-energy.webp";
+import hungerIcon from "../../../../assets/icons/tobBar/icon-hungry.webp";
+import happyIcon from "../../../../assets/icons/tobBar/icon-happy.webp";
 
 // Types
 import { MarketFoodItem, FOOD_CATEGORIES_CONFIG, BeastType, BEAST_FAVORITE_FOODS } from "../../../../constants/foodMarket.constants";

@@ -1,6 +1,6 @@
 import useAppStore from '../../../../zustand/store';
 import { motion } from 'framer-motion';
-import bgLoging from '../../../../assets/backgrounds/bg-loging.png';
+import bgLoging from '../../../../assets/backgrounds/bg-loging.webp';
 import MagicalParticles from './MagicalParticles';
 
 interface LoginBackgroundProps {

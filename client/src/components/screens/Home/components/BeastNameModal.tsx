@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import closeIcon from "../../../../assets/icons/extras/icon-close.png";
+import closeIcon from "../../../../assets/icons/extras/icon-close.webp";
 import gemIcon from "../../../../assets/icons/gems/icon-gem-single.webp";
 
 interface BeastNameModalProps {

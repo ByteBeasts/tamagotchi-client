@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useBeastShareData } from '../../../../dojo/hooks/useBeastsShareData';
-import closeIcon from "../../../../assets/icons/extras/icon-close.png";
+import closeIcon from "../../../../assets/icons/extras/icon-close.webp";
 
 interface ShareModalProps {
   isOpen: boolean;

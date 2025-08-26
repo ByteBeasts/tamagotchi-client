@@ -30,7 +30,7 @@ import {
 } from "../../../constants/foodMarket.constants";
 
 // Assets
-import sellertIcon from "../../../assets/icons/market/DragonSeller.png"; 
+import sellertIcon from "../../../assets/icons/market/DragonSeller.webp"; 
 
 // Screen props
 import type { Screen } from "../../types/screens";

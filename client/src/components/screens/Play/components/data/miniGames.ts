@@ -1,6 +1,6 @@
 import { MiniGame, GameId } from "../../../../types/play.types";
-import flappyGameIcon from "../../../../../assets/icons/games/flappy.png";
-import platformGameIcon from "../../../../../assets/icons/games/platform.png";
+import flappyGameIcon from "../../../../../assets/icons/games/flappy.webp";
+import platformGameIcon from "../../../../../assets/icons/games/platform.webp";
 
 // Import mini-game screen components
 import FlappyBeastsScreen from "../minigames/flappybeast/FlappyBeastsScreen";

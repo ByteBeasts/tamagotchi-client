@@ -6,17 +6,17 @@ import coinIcon from "../../assets/icons/coins/icon-coin-single.webp";
 import gemIcon from "../../assets/icons/gems/icon-gem-single.webp";
 
 // Assets - Status Icons
-import energyIcon from "../../assets/icons/tobBar/icon-energy.png";
-import hungerIcon from "../../assets/icons/tobBar/icon-hungry.png";
-import hygieneIcon from "../../assets/icons/tobBar/icon-clean.png";
+import energyIcon from "../../assets/icons/tobBar/icon-energy.webp";
+import hungerIcon from "../../assets/icons/tobBar/icon-hungry.webp";
+import hygieneIcon from "../../assets/icons/tobBar/icon-clean.webp";
 
 // Assets - Plus Icon
-import plusIcon from "../../assets/icons/tobBar/icon-plus.png";
+import plusIcon from "../../assets/icons/tobBar/icon-plus.webp";
 
 // Assets - Happiness Icons (3 states)
-import happyIcon from "../../assets/icons/tobBar/icon-happy.png";
-import neutralIcon from "../../assets/icons/tobBar/icon-neutral.png";
-import sadIcon from "../../assets/icons/tobBar/icon-sad.png";
+import happyIcon from "../../assets/icons/tobBar/icon-happy.webp";
+import neutralIcon from "../../assets/icons/tobBar/icon-neutral.webp";
+import sadIcon from "../../assets/icons/tobBar/icon-sad.webp";
 
 // Internal components
 import CircularProgressBar from "../utils/CircularProgressBar";

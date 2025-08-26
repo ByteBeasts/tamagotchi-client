@@ -1,8 +1,8 @@
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import cleanBackground from "../../../assets/backgrounds/bg-clean.png";
-import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.png";
+import cleanBackground from "../../../assets/backgrounds/bg-clean.webp";
+import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import RainParticles from "./components/RainParticles";
 import { CleanScreenProps } from "../../types/clean.types";
@@ -24,7 +24,7 @@ import { CloudController } from "./components/CloudController";
 import { BeastDisplay } from "./components/BeastDisplay";
 
 // Assets
-import cloudOff from "../../../assets/icons/cloud/icon-cloud.png";
+import cloudOff from "../../../assets/icons/cloud/icon-cloud.webp";
 
 export const CleanScreen = ({ 
   onNavigation,
