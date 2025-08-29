@@ -4,6 +4,8 @@ import { dojoConfig } from "../dojoConfig";
 import { Beast, BeastStatus } from '../models.gen';
 import useAppStore from '../../zustand/store';
 import { hexToNumber, hexToBool } from '../../utils/dataConversion';
+import fetchStatus from '../../utils/fetchStatus';
+import { network } from '../../config/cavosConfig';
 
 // Hook return interface
 interface UseLiveBeastReturn {
@@ -198,6 +200,21 @@ export const useLiveBeast = (): UseLiveBeastReturn => {
       setIsLoading(true);
       setError(null);
       
+      // FIRST: Check real status from contract
+      const contractStatus = await fetchStatus({ address: userAddress, chainId: network });
+      
+      // If contract says beast is dead (undefined) or has is_alive=false
+      const isDeadInContract = !contractStatus || (contractStatus && contractStatus[2] === 0);
+      
+      if (isDeadInContract) {
+        console.log('💀 Contract says beast is dead, clearing beast data');
+        clearLiveBeast();
+        setIsLoading(false);
+        isRefetchingRef.current = false;
+        return;
+      }
+      
+      // THEN: Fetch from Torii if beast is alive in contract
       const { beast, status } = await fetchLiveBeastData(userAddress);
       
       if (beast && status && status.is_alive) {

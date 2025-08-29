@@ -14,6 +14,7 @@ import { useSetBeastName } from "../../../dojo/hooks/useSetBeastName";
 import { useSetPlayerName } from "../../../dojo/hooks/useSetPlayerName";
 import { useLiveBeast } from "../../../dojo/hooks/useLiveBeast";
 import { usePlayer } from "../../../dojo/hooks/usePlayer";
+import { useRealTimeStatus } from "../../../dojo/hooks/useRealTimeStatus";
 
 // Store
 import useAppStore from "../../../zustand/store";
@@ -52,6 +53,9 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     hasLiveBeast,
     isLoading
   } = useBeastDisplay();
+  
+  // Get real-time status from contract
+  const { statusForUI } = useRealTimeStatus();
   
   // Hook for setting beast name
   const { setBeastName, optimisticName } = useSetBeastName();
@@ -141,8 +145,20 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     updatePlayerName();
   }, [cavosWallet?.address, decodedPlayerName]);
 
-  // Beast data para la UI
+  // Beast data para la UI - Use contract data first, Torii as fallback
   const beastData: BeastData = useMemo(() => {
+    // Prefer real-time status from contract
+    if (statusForUI) {
+      return {
+        age: currentBeastDisplay?.age || 0,
+        energy: statusForUI.energy,
+        hunger: statusForUI.hunger,
+        happiness: statusForUI.happiness,
+        cleanliness: statusForUI.hygiene,
+      };
+    }
+    
+    // Fallback to Torii data if no contract data
     if (!liveBeastStatus) {
       return {
         age: 0,
@@ -160,7 +176,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
       happiness: liveBeastStatus.happiness,
       cleanliness: liveBeastStatus.hygiene,
     };
-  }, [liveBeastStatus, currentBeastDisplay]);
+  }, [statusForUI, liveBeastStatus, currentBeastDisplay]);
 
   // Custom hooks
   const { isPlayerInfoModalOpen, openPlayerModal, closePlayerModal } = usePlayerModal();
@@ -258,11 +274,11 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
       <TamagotchiTopBar
         coins={storePlayer?.total_coins || 0}
         gems={storePlayer?.total_gems || 0}
-        status={{
-          energy: liveBeastStatus?.energy || 0,
-          hunger: liveBeastStatus?.hunger || 0,
-          happiness: liveBeastStatus?.happiness || 0,
-          hygiene: liveBeastStatus?.hygiene || 0
+        status={statusForUI || {
+          energy: 0,
+          hunger: 0,
+          happiness: 0,
+          hygiene: 0
         }}
       />
 

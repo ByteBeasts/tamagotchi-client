@@ -65,7 +65,7 @@ const fetchStatus = async (account: AccountLike): Promise<number[] | undefined |
         contractAddress: contractAddresses.game,
         entrypoint: "get_timestamp_based_status_with_address",
         calldata: CallData.compile([account.address])
-      });
+      }, "latest");
     }
     
     const result = hexToDecimalArray(response);
