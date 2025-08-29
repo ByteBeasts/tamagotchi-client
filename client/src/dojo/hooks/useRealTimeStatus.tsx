@@ -91,23 +91,39 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
         }
       } else if (newStatus === undefined) {
         // undefined means the beast is dead (Option::unwrap failed in contract)
-        console.log('💀 Beast is dead, resetting all status to 0');
-        useAppStore.setState({ 
-          isStatusLoading: false,
-          liveBeast: {
-            ...useAppStore.getState().liveBeast,
-            isAlive: false,
-            status: {
-              ...useAppStore.getState().liveBeast.status!,
-              hunger: 0,
-              happiness: 0,
-              hygiene: 0,
-              energy: 0
-            }
-          },
-          // Also reset realTimeStatus to ensure NavBar shows 0s
-          realTimeStatus: []
-        });
+        console.log('💀 Beast is dead, marking as dead in store');
+        const currentState = useAppStore.getState();
+        
+        if (currentState.liveBeast.status) {
+          // Update existing beast to dead status
+          useAppStore.setState({ 
+            isStatusLoading: false,
+            liveBeast: {
+              ...currentState.liveBeast,
+              isAlive: false,
+              status: {
+                ...currentState.liveBeast.status,
+                is_alive: false,
+                hunger: 0,
+                happiness: 0,
+                hygiene: 0,
+                energy: 0
+              }
+            },
+            // Also reset realTimeStatus to ensure NavBar shows 0s
+            realTimeStatus: []
+          });
+        } else {
+          // No beast status, just mark as not alive
+          useAppStore.setState({ 
+            isStatusLoading: false,
+            liveBeast: {
+              ...currentState.liveBeast,
+              isAlive: false
+            },
+            realTimeStatus: []
+          });
+        }
       } else {
         console.log('❌ Invalid status response');
         useAppStore.setState({ isStatusLoading: false });
@@ -173,6 +189,10 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
   useEffect(() => {
     if (cavosWallet?.address && hasLiveBeast && !isPollingRef.current) {
       startPolling();
+    } else if (cavosWallet?.address && !hasLiveBeast && !isPollingRef.current) {
+      // NEW: Even if no live beast, try to fetch once to validate death status
+      console.log('🔍 Checking contract for beast status (possible dead beast)...');
+      fetchLatestStatus();
     } else if ((!cavosWallet?.address || !hasLiveBeast) && isPollingRef.current) {
       stopPolling();
       clearRealTimeStatus();
@@ -181,7 +201,7 @@ export const useRealTimeStatus = (): UseRealTimeStatusReturn => {
     return () => {
       stopPolling();
     };
-  }, [cavosWallet?.address, hasLiveBeast, startPolling, stopPolling, clearRealTimeStatus]);
+  }, [cavosWallet?.address, hasLiveBeast, startPolling, stopPolling, clearRealTimeStatus, fetchLatestStatus]);
   
   // Cleanup on unmount
   useEffect(() => {
