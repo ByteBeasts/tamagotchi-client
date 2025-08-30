@@ -87,8 +87,8 @@ export const AuthCallback: React.FC<AuthCallbackProps> = ({ onAuthComplete }) =>
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-cream w-[90%] max-w-md rounded-2xl shadow-[0_8px_0_rgba(0,0,0,0.2)] overflow-hidden border-4 border-gold/30 mx-4"
-        style={{ maxHeight: '80vh', maxWidth: '90vw' }}
+        className="bg-cream w-full max-w-md rounded-2xl shadow-[0_8px_0_rgba(0,0,0,0.2)] overflow-hidden border-4 border-gold/30 mx-4"
+        style={{ maxHeight: '80vh' }}
       >
         {/* Header */}
         <div className="bg-gold-gradient p-4 border-b-4 border-gold/40">
