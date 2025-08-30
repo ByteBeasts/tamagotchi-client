@@ -1,30 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { SignInWithGoogle } from 'cavos-service-sdk';
 import closeIcon from "../../../../assets/icons/extras/icon-close.webp";
 
 interface BrowserLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (email: string, password: string) => void;
+  onGoogleLogin: () => void;
   isLoading?: boolean;
 }
 
 export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
   isOpen,
   onClose,
-  onSubmit,
+  onGoogleLogin,
   isLoading = false
 }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isValid, setIsValid] = useState(false);
-
-  // Validate form
-  useEffect(() => {
-    const emailValid = email.includes('@') && email.includes('.') && email.length > 5;
-    const passwordValid = password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password);
-    setIsValid(emailValid && passwordValid);
-  }, [email, password]);
+  // Handle Google login click
+  const handleGoogleClick = () => {
+    onGoogleLogin();
+  };
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -42,22 +37,7 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
     };
   }, [isOpen]);
 
-  // Clear form when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setEmail('');
-      setPassword('');
-    }
-  }, [isOpen]);
-
   if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isValid && !isLoading) {
-      onSubmit(email, password);
-    }
-  };
 
   const handleCloseClick = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
@@ -99,7 +79,7 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
         {/* Header */}
         <div className="bg-gold-gradient p-4 border-b-4 border-gold/40 flex justify-between items-center">
           <h2 className="text-gray-800 font-luckiest text-2xl tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
-            BROWSER LOGIN
+            SIGN IN
           </h2>
           {!isLoading && (
             <motion.button 
@@ -119,112 +99,49 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 bg-gradient-to-b from-cream to-cream/80">
+        <div className="p-6 bg-gradient-to-b from-cream to-cream/80">
           {/* Info message */}
-          <div className="mb-6 text-center">
+          <div className="mb-8 text-center">
+            <p className="text-gray-800 font-luckiest text-lg mb-2">
+              Welcome to ByteBeasts!
+            </p>
             <p className="text-gray-700 font-rubik text-base leading-relaxed">
-              Create or login to your ByteBeasts account
+              Sign in with your Google account to start your adventure
             </p>
           </div>
 
-          {/* Email field */}
-          <div className="mb-4">
-            <label className="block text-gray-800 font-luckiest text-sm mb-2 tracking-wide">
-              EMAIL
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-              className="w-full bg-surface/20 rounded-xl p-4 text-gray-800 font-rubik focus:outline-none 
-                border-2 border-gold/30 focus:border-gold/60 shadow-inner backdrop-blur-sm
-                placeholder:text-gray-500 text-sm disabled:opacity-50"
-              placeholder="your-email@example.com"
-              required
-              style={{ touchAction: 'manipulation' }}
-            />
-          </div>
-
-          {/* Password field */}
-          <div className="mb-6">
-            <label className="block text-gray-800 font-luckiest text-sm mb-2 tracking-wide">
-              PASSWORD
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-              className="w-full bg-surface/20 rounded-xl p-4 text-gray-800 font-rubik focus:outline-none 
-                border-2 border-gold/30 focus:border-gold/60 shadow-inner backdrop-blur-sm
-                placeholder:text-gray-500 text-sm disabled:opacity-50"
-              placeholder="Min 8 chars, 1 upper & 1 lowercase"
-              required
-              minLength={8}
-              style={{ touchAction: 'manipulation' }}
-            />
-          </div>
-
-          {/* Validation indicator */}
-          {(email || password) && (
-            <div className="mb-4 space-y-1">
-              <div className="flex items-center gap-2 text-sm font-rubik">
-                <span className={email.includes('@') && email.includes('.') && email.length > 5 ? 'text-green-600' : 'text-gray-500'}>
-                  {email.includes('@') && email.includes('.') && email.length > 5 ? '✅' : '⭕'} Valid email
-                </span>
+          {/* Google Sign In Button */}
+          <div className="flex flex-col items-center space-y-4">
+            {!isLoading ? (
+              <div className="w-full" onClick={handleGoogleClick}>
+                <SignInWithGoogle
+                  appId={import.meta.env.VITE_CAVOS_APP_ID || ""}
+                  network={import.meta.env.VITE_CAVOS_DEFAULT_NETWORK || "mainnet"}
+                  finalRedirectUri={`${window.location.origin}/auth/callback`}
+                  text="Continue with Google"
+                />
               </div>
-              <div className="flex items-center gap-2 text-sm font-rubik">
-                <span className={password.length >= 8 ? 'text-green-600' : 'text-gray-500'}>
-                  {password.length >= 8 ? '✅' : '⭕'} 8+ characters
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm font-rubik">
-                <span className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-500'}>
-                  {/[A-Z]/.test(password) ? '✅' : '⭕'} 1 uppercase letter
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm font-rubik">
-                <span className={/[a-z]/.test(password) ? 'text-green-600' : 'text-gray-500'}>
-                  {/[a-z]/.test(password) ? '✅' : '⭕'} 1 lowercase letter
-                </span>
-              </div>
-            </div>
-          )}
-        </form>
-
-        {/* Footer */}
-        <div className="p-6 bg-gold/10 border-t-4 border-gold/30">
-          <motion.button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={!isValid || isLoading}
-            className="bg-gold text-gray-800 w-full flex items-center justify-center gap-2 font-luckiest text-lg py-3 px-6 rounded-xl
-              shadow-[0_4px_0_rgba(0,0,0,0.2)] hover:shadow-[0_2px_0_rgba(0,0,0,0.2)] 
-              active:shadow-none active:translate-y-1
-              transition-all duration-150 touch-manipulation
-              disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0"
-            whileHover={isValid && !isLoading ? { scale: 1.02 } : {}}
-            whileTap={isValid && !isLoading ? { scale: 0.98 } : {}}
-            style={{ 
-              touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent',
-              cursor: isValid && !isLoading ? 'pointer' : 'not-allowed'
-            }}
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-800/30 border-t-gray-800"></div>
-                <span className="drop-shadow-[1px_1px_0px_rgba(255,255,255,0.3)]">
-                  CONNECTING...
-                </span>
-              </>
             ) : (
-              <span className="drop-shadow-[1px_1px_0px_rgba(255,255,255,0.3)]">
-                {isValid ? 'START YOUR JOURNEY' : 'FILL ALL FIELDS'}
-              </span>
+              <div className="w-full bg-gold/20 rounded-xl p-4 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-800/30 border-t-gray-800 mr-3"></div>
+                <span className="text-gray-800 font-rubik">Processing authentication...</span>
+              </div>
             )}
-          </motion.button>
+          </div>
+
+          {/* Additional info */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-600 font-rubik text-sm">
+              Your wallet will be automatically created and managed by ByteBeasts
+            </p>
+          </div>
+        </div>
+
+        {/* Footer - Privacy note */}
+        <div className="p-4 bg-gold/10 border-t-4 border-gold/30">
+          <p className="text-center text-xs text-gray-600 font-rubik">
+            By signing in, you agree to ByteBeasts' Terms of Service and Privacy Policy
+          </p>
         </div>
       </motion.div>
     </div>

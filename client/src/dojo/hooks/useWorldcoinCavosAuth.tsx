@@ -13,6 +13,8 @@ interface UseWorldcoinCavosAuthReturn {
   handleRegister: () => Promise<void>;
   handleLogin: () => Promise<void>;
   handleBrowserLogin: (email: string, password: string) => Promise<void>;
+  handleGoogleAuth: () => void;
+  handleGoogleCallback: (callbackData: any) => void;
   handleDisconnect: () => void;
   isConnected: boolean;
   testCavosConnection: () => Promise<void>;
@@ -256,6 +258,34 @@ export function useWorldcoinCavosAuth(): UseWorldcoinCavosAuthReturn {
     }
   };
 
+  /**
+   * Handle Google OAuth initiation - redirects to Google OAuth flow
+   */
+  const handleGoogleAuth = () => {
+    console.log('🎯 Initiating Google OAuth flow...');
+    // The SignInWithGoogle component handles the actual redirect
+    // This function is mainly for logging and any pre-redirect setup
+  };
+
+  /**
+   * Handle Google OAuth callback - processes the callback data
+   */
+  const handleGoogleCallback = (callbackData: any) => {
+    setCavosLoading(false);
+    setCavosError(null);
+    
+    console.log('🎯 Processing Google OAuth callback...', callbackData);
+    
+    // The auth state should already be set by the AuthCallback component
+    // This is mainly for any additional processing if needed
+    if (callbackData) {
+      console.log('✅ Google OAuth callback processed successfully');
+    } else {
+      console.error('❌ Google OAuth callback failed - no data received');
+      setCavosError('Google authentication failed');
+    }
+  };
+
   const handleDisconnect = () => {
     clearCavosAuth();
     setWorldcoinCredentials(undefined);
@@ -289,6 +319,8 @@ export function useWorldcoinCavosAuth(): UseWorldcoinCavosAuthReturn {
     handleRegister,
     handleLogin,
     handleBrowserLogin,
+    handleGoogleAuth,
+    handleGoogleCallback,
     handleDisconnect,
     isConnected: cavos.isAuthenticated,
     testCavosConnection,
