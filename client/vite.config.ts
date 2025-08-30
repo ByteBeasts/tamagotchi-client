@@ -101,7 +101,8 @@ export default defineConfig(({ command }) => {
               },
             },
             {
-              urlPattern: /.*/,
+              // Exclude OAuth callback routes from caching
+              urlPattern: ({ url }) => !url.pathname.includes('/auth/callback'),
               handler: "StaleWhileRevalidate",
               options: {
                 cacheName: "fallback-cache",
@@ -109,6 +110,9 @@ export default defineConfig(({ command }) => {
               },
             },
           ],
+          // Skip waiting and claim clients immediately
+          skipWaiting: true,
+          clientsClaim: true,
         },
         manifest: {
           name: "Byte Beasts Tamagotchi",
@@ -155,6 +159,19 @@ export default defineConfig(({ command }) => {
         '.trycloudflare.com',
         '.vercel.app'
       ],
+    },
+    // Configure SPA fallback for development
+    preview: {
+      port: 3002,
+      ...getHttpsConfig(),
+    },
+    build: {
+      rollupOptions: {
+        // Ensure all routes fallback to index.html for SPA
+        input: {
+          main: './index.html'
+        }
+      }
     },
     define: {
       global: 'globalThis',

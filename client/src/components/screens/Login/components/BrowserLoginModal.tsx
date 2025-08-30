@@ -24,17 +24,19 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
+      // Store original values
+      const originalOverflow = document.body.style.overflow;
+      const originalTouchAction = document.body.style.touchAction;
+      
       document.body.style.overflow = 'hidden';
       document.body.style.touchAction = 'none';
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
+      
+      return () => {
+        // Restore original values or use CSS default
+        document.body.style.overflow = originalOverflow || 'hidden'; // Keep original CSS setting
+        document.body.style.touchAction = originalTouchAction || 'manipulation'; // Keep original CSS setting
+      };
     }
-    
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
-    };
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -57,7 +59,7 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 overflow-hidden"
       onClick={handleBackdropClick}
       onTouchStart={handleBackdropClick}
       style={{ 
@@ -71,10 +73,10 @@ export const BrowserLoginModal: React.FC<BrowserLoginModalProps> = ({
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-cream w-[90%] max-w-md rounded-2xl shadow-[0_8px_0_rgba(0,0,0,0.2)] overflow-hidden border-4 border-gold/30"
+        className="bg-cream w-[90%] max-w-md rounded-2xl shadow-[0_8px_0_rgba(0,0,0,0.2)] overflow-hidden border-4 border-gold/30 mx-4"
         onClick={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
-        style={{ touchAction: 'auto' }}
+        style={{ touchAction: 'auto', maxHeight: '80vh', maxWidth: '90vw' }}
       >
         {/* Header */}
         <div className="bg-gold-gradient p-4 border-b-4 border-gold/40 flex justify-between items-center">
