@@ -4,6 +4,7 @@ import { useLoginAnimations } from './components/useLoginAnimations';
 import { UniverseView, GameView } from './components/CoverViews';
 import { LoginBackground } from './components/LoginBackground';
 import { BrowserLoginModal } from './components/BrowserLoginModal';
+import { AuthCallback } from '../../../app/auth/callback/AuthCallback';
 import { useEffect, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import useAppStore from '../../../zustand/store'; 
@@ -21,13 +22,15 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
   const { view } = useLoginAnimations();
   const [isConnecting, setIsConnecting] = useState(false);
   const [showBrowserModal, setShowBrowserModal] = useState(false);
+  const [showGoogleCallback, setShowGoogleCallback] = useState(false);
   
   // Integrate Worldcoin + Cavos authentication hook
   const { 
     error: connectionError,
     address,
     handleLogin,
-    handleBrowserLogin,
+    handleGoogleAuth,
+    handleGoogleCallback,
     isConnected,
     loading: authLoading,
     isWorldApp,
@@ -71,20 +74,40 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     }
   };
 
-  // Handle browser modal form submission
-  const handleBrowserModalSubmit = async (email: string, password: string) => {
-    // Hide modal immediately and show normal loading spinner
+  // Handle browser modal Google login
+  const handleBrowserGoogleLogin = () => {
+    console.log('🎯 Starting Google OAuth from modal...');
     setShowBrowserModal(false);
     setIsConnecting(true);
+    handleGoogleAuth();
+  };
+
+  // Handle Google OAuth callback completion
+  const handleGoogleAuthComplete = (success: boolean, data?: any) => {
+    console.log('🎯 Google auth complete:', { success, hasData: !!data });
+    setShowGoogleCallback(false);
+    setIsConnecting(false);
     
-    try {
-      await handleBrowserLogin(email, password);
-    } catch (error) {
-      console.error('Browser login failed:', error);
-      setIsConnecting(false);
-      // Could show toast error here if needed
+    if (success && data) {
+      handleGoogleCallback(data);
+    } else {
+      toast.error('Google authentication failed. Please try again.');
     }
   };
+
+  // Check for Google OAuth callback on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasGoogleCallback = urlParams.has('user_data') || urlParams.has('error');
+    
+    if (hasGoogleCallback) {
+      console.log('🎯 Detected Google OAuth callback in URL');
+      setShowGoogleCallback(true);
+      setIsConnecting(true);
+    }
+  }, []);
+
+  // Legacy function removed - now using Google OAuth only
 
   // Trigger complete player initialization on Cavos authentication
   useEffect(() => {
@@ -272,13 +295,18 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
             }}
           />
 
-          {/* Browser Login Modal */}
+          {/* Browser Login Modal with Google Auth */}
           <BrowserLoginModal
             isOpen={showBrowserModal}
             onClose={() => setShowBrowserModal(false)}
-            onSubmit={handleBrowserModalSubmit}
+            onGoogleLogin={handleBrowserGoogleLogin}
             isLoading={false}
           />
+
+          {/* Google OAuth Callback Handler */}
+          {showGoogleCallback && (
+            <AuthCallback onAuthComplete={handleGoogleAuthComplete} />
+          )}
         </>
       );
     default:

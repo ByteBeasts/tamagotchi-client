@@ -23,11 +23,32 @@
 }
 
 /* Base resets */
-body {
-  background: rgb(var(--bg-screen));
+html, body {
+  height: 100%;
+  width: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  background: rgb(var(--bg-screen));
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
 }
 
 * {

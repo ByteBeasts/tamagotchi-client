@@ -27,11 +27,13 @@ import type { BeastSpawnParams } from "../utils/beastHelpers";
 // Wallet and cache management  
 import { useCavosAccount } from "../dojo/hooks/useCavosAccount";
 import useAppStore from "../zustand/store";
+import { AuthCallback } from "./auth/callback/AuthCallback";
 
 function AppContent() {
   const [currentScreen, setCurrentScreenState] = useState<Screen>("login");
   const [playerAddress] = useState("0x123"); // Temporary address
   const [currentGameId, setCurrentGameId] = useState<GameId | null>(null);
+  const [isGoogleCallback, setIsGoogleCallback] = useState(false);
   
   // State for predefined beast parameters
   const [pendingBeastParams, setPendingBeastParams] = useState<BeastSpawnParams | null>(null);
@@ -80,9 +82,29 @@ function AppContent() {
     }
   }, [account?.address, resetStore]);
 
-  // Clear cache on app start (aggressive approach)
+  // Clear cache on app start (aggressive approach) and check for Google callback
   useEffect(() => {
     console.log('🚀 App started, performing initial cache cleanup...');
+    
+    // Check if this is a Google OAuth callback
+    const currentPath = window.location.pathname;
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasCallbackData = urlParams.has('user_data') || urlParams.has('error');
+    
+    console.log('🔍 Route detection:', {
+      currentPath,
+      hasCallbackData,
+      fullUrl: window.location.href
+    });
+    
+    if (currentPath === '/auth/callback' || hasCallbackData) {
+      console.log('🎯 Detected Google OAuth callback');
+      setIsGoogleCallback(true);
+      
+      // Force the browser to stay on this page
+      window.history.replaceState(null, '', '/auth/callback' + window.location.search);
+      return; // Don't clear cache during callback processing
+    }
     
     // Clear all tamagotchi cache on app start
     const keysToRemove: string[] = [];
@@ -180,16 +202,39 @@ function AppContent() {
     setCurrentScreenState("home");
   }, []);
 
+  // Handle Google OAuth callback completion
+  const handleGoogleAuthComplete = useCallback((success: boolean, data?: any) => {
+    console.log('🎯 Google auth callback complete:', { success, hasData: !!data });
+    setIsGoogleCallback(false);
+    
+    // Clean up URL
+    window.history.replaceState({}, document.title, '/');
+    
+    if (success) {
+      // The AuthCallback component will have updated the Zustand store
+      // The LoginScreen will pick up the auth state and proceed with initialization
+      toast.success('🎉 Successfully signed in with Google!');
+    } else {
+      toast.error('❌ Google authentication failed. Please try again.');
+    }
+  }, []);
+
   return (
     <div className="relative min-h-screen pb-16">
-      {currentScreen === "login" && (
+      {/* Google OAuth Callback Handler */}
+      {isGoogleCallback && (
+        <AuthCallback onAuthComplete={handleGoogleAuthComplete} />
+      )}
+      
+      {/* Normal App Screens */}
+      {!isGoogleCallback && currentScreen === "login" && (
         <LoginScreen 
           onLoginSuccess={handleLoginComplete}
         />
       )}
 
       {/* Pass beastParams instead of hardcoded eggType */}
-      {currentScreen === "hatch" && pendingBeastParams && (
+      {!isGoogleCallback && currentScreen === "hatch" && pendingBeastParams && (
         <HatchEggScreen
           onLoadingComplete={handleHatchComplete}  
           beastParams={pendingBeastParams} 
@@ -197,7 +242,7 @@ function AppContent() {
       )}
 
       {/* Safety: If no params available, show loading or redirect */}
-      {currentScreen === "hatch" && !pendingBeastParams && (
+      {!isGoogleCallback && currentScreen === "hatch" && !pendingBeastParams && (
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
@@ -206,34 +251,34 @@ function AppContent() {
         </div>
       )}
 
-      {currentScreen === "cover" && (
+      {!isGoogleCallback && currentScreen === "cover" && (
         <CoverScreen
           onLoadingComplete={handleCoverComplete}  
         />
       )}
 
-      {currentScreen === "home" && (
+      {!isGoogleCallback && currentScreen === "home" && (
         <HomeScreen
           onNavigation={handleNavigation}
           playerAddress={cavosWallet?.address || ""}
         />
       )}
 
-      {currentScreen === "sleep" && (
+      {!isGoogleCallback && currentScreen === "sleep" && (
         <SleepScreen
           onNavigation={handleNavigation}
           playerAddress={playerAddress}
         />
       )}
 
-      {currentScreen === "feed" && (
+      {!isGoogleCallback && currentScreen === "feed" && (
         <FeedScreen
           onNavigation={handleNavigation}
           isBeastSleeping={isBeastSleeping}
         />
       )}
 
-      {currentScreen === "clean" && (
+      {!isGoogleCallback && currentScreen === "clean" && (
         <CleanScreen
           onNavigation={handleNavigation}
           playerAddress={playerAddress}
@@ -241,7 +286,7 @@ function AppContent() {
         />
       )}
 
-      {currentScreen === "play" && (
+      {!isGoogleCallback && currentScreen === "play" && (
         <PlayScreen
           onNavigation={handleNavigation}
           playerAddress={cavosWallet?.address || ""}
@@ -250,7 +295,7 @@ function AppContent() {
       )}
 
       {/* Game Screen for mini-games */}
-      {currentScreen === "game" && currentGameId && (
+      {!isGoogleCallback && currentScreen === "game" && currentGameId && (
         <GameScreen
           gameId={currentGameId}
           onExitGame={handleExitGame}
@@ -258,20 +303,20 @@ function AppContent() {
       )}
 
       {/* Game Ranking Screen */}
-      {currentScreen === "gameRanking" && (
+      {!isGoogleCallback && currentScreen === "gameRanking" && (
         <GameRankingScreen
           onNavigation={handleNavigation}
         />
       )}
 
       {/* Age Ranking Screen */}
-      {currentScreen === "ageRanking" && (
+      {!isGoogleCallback && currentScreen === "ageRanking" && (
         <AgeRankingScreen
           onNavigation={handleNavigation}
         />
       )}
 
-      {currentScreen === "market" && (
+      {!isGoogleCallback && currentScreen === "market" && (
         <MarketScreen
           onNavigation={handleNavigation}
         />
@@ -279,7 +324,7 @@ function AppContent() {
 
       {/* Global dark overlay when beast is sleeping - applies to all screens */}
       <AnimatePresence>
-        {isBeastSleeping && currentScreen !== "login" && currentScreen !== "hatch" && (
+        {!isGoogleCallback && isBeastSleeping && currentScreen !== "login" && currentScreen !== "hatch" && (
           <motion.div
             className="fixed inset-0 bg-black pointer-events-none"
             initial={{ opacity: 0 }}
@@ -295,7 +340,8 @@ function AppContent() {
       </AnimatePresence>
 
       {/* NavBar - Hide on game screen, ranking screen, and market for fullscreen experience */}
-      {currentScreen !== "cover" && 
+      {!isGoogleCallback && 
+       currentScreen !== "cover" && 
        currentScreen !== "login" && 
        currentScreen !== "hatch" && 
        currentScreen !== "game" && 
