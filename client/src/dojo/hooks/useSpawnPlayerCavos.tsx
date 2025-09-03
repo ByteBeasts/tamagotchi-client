@@ -5,6 +5,7 @@ import { useCavosTransaction } from './useCavosTransaction';
 import { usePlayer } from './usePlayer';
 import useAppStore from '../../zustand/store';
 import { getContractAddresses } from '../../config/cavosConfig';
+import { useWorldcoinCavosAuth } from './useWorldcoinCavosAuth';
 
 interface InitializationResult {
   success: boolean;
@@ -30,6 +31,7 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
   const { client } = useDojoSDK();
   const { executeTransaction, loading: txLoading } = useCavosTransaction();
   const { refetch: refetchPlayer } = usePlayer();
+  const { worldcoinCredentials, isWorldApp } = useWorldcoinCavosAuth();
   
   const [isInitializing, setIsInitializing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -171,7 +173,23 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       // Poll for player data with more attempts
       const playerDataFound = await waitForPlayerData(walletAddress, 20);
       
-      // No need to clear flags since we use timestamp-based detection
+      // If we're in World App and have Worldcoin credentials, set the world coin address
+      if (playerDataFound && isWorldApp && worldcoinCredentials?.walletAddress) {
+        console.log('🌍 Setting Worldcoin address for World App user...');
+        try {
+          const worldcoinCalls = [{
+            contractAddress: contractAddresses.player,
+            entrypoint: 'set_world_coin_address',
+            calldata: [worldcoinCredentials.walletAddress]
+          }];
+          
+          const worldcoinTxHash = await executeTransaction(worldcoinCalls);
+          console.log('✅ Worldcoin address set successfully:', worldcoinTxHash);
+        } catch (error) {
+          console.error('⚠️ Failed to set Worldcoin address (non-critical):', error);
+          // Don't fail the entire process for this
+        }
+      }
 
       if (playerDataFound) {
         console.log('✅ Player data successfully indexed!');
