@@ -1,5 +1,6 @@
 import sepolia from "../config/manifest_sepolia.json";
 import mainnet from "../config/manifest_mainnet.json";
+import mainnet_staging from "../config/manifest_mainnet_staging.json";
 
 // Define valid deploy types
 type DeployType = keyof typeof manifests;
@@ -8,6 +9,7 @@ type DeployType = keyof typeof manifests;
 const manifests = {
   sepolia,
   mainnet,
+  mainnet_staging,
 };
 
 // Get deployment type from environment with fallback
