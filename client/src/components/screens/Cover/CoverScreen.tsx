@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import CoverImgMobile from "../../../assets/LoginCovers/Mobile.webp";
-import CoverImgWeb from "../../../assets/LoginCovers/Web.webp";
+import bgLoging from '../../../assets/backgrounds/bg-loging.webp';
+import MagicalParticles from '../Login/components/MagicalParticles';
 
 interface CoverScreenProps {
   onLoadingComplete: () => void;
@@ -8,13 +8,6 @@ interface CoverScreenProps {
 
 export const CoverScreen = ({ onLoadingComplete }: CoverScreenProps) => {
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     const startTime = Date.now();
@@ -40,20 +33,20 @@ export const CoverScreen = ({ onLoadingComplete }: CoverScreenProps) => {
   }, [onLoadingComplete]);
 
   return (
-    <div className="fixed inset-0 bg-screen flex items-center justify-center overflow-hidden">
-      {/* Background cover */}
-      <img
-        src={isMobile ? CoverImgMobile : CoverImgWeb}
-        alt="Tamagotchi Cover"
-        className="absolute inset-0 w-full h-full object-cover object-center"
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).src =
-            "/placeholder.svg?height=800&width=450";
-        }}
-      />
+    <div 
+      className="fixed inset-0 flex items-center justify-center overflow-hidden"
+      style={{
+        backgroundImage: `url(${bgLoging})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Magical Particles Effect */}
+      <MagicalParticles />
       
       {/* Progress bar */}
-      <div className="absolute top-4 left-4 right-4 z-10">
+      <div className="absolute bottom-20 left-4 right-4 z-10">
         <div className="relative h-5 bg-surface/30 rounded-full overflow-hidden backdrop-blur-sm">
           {/* Animated fill - With gradient */}
           <div
