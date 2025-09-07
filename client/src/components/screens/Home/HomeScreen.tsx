@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { HomeScreenProps, BeastData, PlayerData } from "../../types/home.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
@@ -7,6 +7,8 @@ import { BeastNameModal } from "./components/BeastNameModal";
 import { PlayerNameModal } from "./components/PlayerNameModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.webp";
 import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
+import { MiniKit, RequestPermissionPayload, Permission } from '@worldcoin/minikit-js';
+import toast from 'react-hot-toast';
 
 // Universal hook to encapsulate beast display logic
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -45,6 +47,11 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
 
   // Music context
   const { setCurrentScreen } = useMusic();
+  
+  // Track if we've already requested notification permission
+  const [hasRequestedPermission, setHasRequestedPermission] = useState(() => {
+    return localStorage.getItem('tamagotchi-notification-requested') === 'true';
+  });
 
   // Universal hook to encapsulate beast display logic
   const {
@@ -121,6 +128,88 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   useEffect(() => {
     setCurrentScreen("home");
   }, [setCurrentScreen]);
+  
+  // Request notification permission for World App users
+  const requestNotificationPermission = useCallback(async () => {
+    try {
+      if (!MiniKit.isInstalled()) {
+        console.log('Not running in World App, skipping notification permission request');
+        return;
+      }
+
+      console.log('🔔 Requesting notification permission...');
+      const requestPermissionPayload: RequestPermissionPayload = {
+        permission: Permission.Notifications,
+      };
+      
+      const { finalPayload } = await MiniKit.commandsAsync.requestPermission(requestPermissionPayload);
+      
+      if (finalPayload.status === 'success') {
+        console.log('✅ Notification permission granted');
+        toast.success('Notifications enabled! You\'ll be notified when your beast needs attention.', {
+          duration: 4000,
+          position: 'top-center'
+        });
+        // Mark as requested so we don't ask again
+        localStorage.setItem('tamagotchi-notification-requested', 'true');
+        setHasRequestedPermission(true);
+      } else if (finalPayload.status === 'error') {
+        console.log('❌ Notification permission error:', finalPayload.error_code);
+        
+        // Handle specific error cases
+        switch (finalPayload.error_code) {
+          case 'user_rejected':
+            toast.error('Notifications declined. You can enable them later in settings.', {
+              duration: 4000,
+              position: 'top-center'
+            });
+            break;
+          case 'already_granted':
+            console.log('Notifications already granted');
+            break;
+          case 'already_requested':
+            toast('You can enable notifications in World App settings', {
+              duration: 4000,
+              position: 'top-center',
+              icon: 'ℹ️'
+            });
+            break;
+          case 'permission_disabled':
+            toast('Please enable notifications for World App first', {
+              duration: 4000,
+              position: 'top-center',
+              icon: '⚠️'
+            });
+            break;
+          default:
+            toast.error('Could not enable notifications. Please try again later.', {
+              duration: 4000,
+              position: 'top-center'
+            });
+        }
+        
+        // Mark as requested even on error (except for already_granted)
+        if (finalPayload.error_code !== 'already_granted') {
+          localStorage.setItem('tamagotchi-notification-requested', 'true');
+          setHasRequestedPermission(true);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to request notification permission:', error);
+    }
+  }, []);
+  
+  // Request notification permission on mount for World App users (only once)
+  useEffect(() => {
+    if (!hasRequestedPermission && MiniKit.isInstalled()) {
+      // Delay the request slightly to not overwhelm the user
+      const timer = setTimeout(() => {
+        requestNotificationPermission();
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [hasRequestedPermission, requestNotificationPermission]);
 
   // Username effect using decoded name or Cavos wallet address
   useEffect(() => {
