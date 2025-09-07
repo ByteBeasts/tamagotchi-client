@@ -33,10 +33,10 @@ console.log(`📍 Chain Details:`, {
 // Contract addresses per network
 export const CONTRACT_ADDRESSES = {
   mainnet: {
-    world: '0x79b0f0159ae6655ace0db5efc04f261340dc3e6f22e59c0b46237b5e9ced055',
-    player: '0x38e837b4e9e5f2c08acecca5c464740d2fd35fb500b0914a4962e8d59ee0d8b',
-    game: '0x2d4ac6b623b25e2af63b861ee1fc7c7a41d135f9d29577cb4e6f6a934c0564d',
-    achieve: '0x44c537565cd0b4e571614b3491fc949889cbcf0b14e17789357260cae2efff1'
+    world: '0x44d11b2f49103d6303cf860f9700820b155c12f41c18aaf576fa0a794acafd',
+    player: '0x39fe46386b8004555a807c981b43fa26f8d0447cdaf253ef112d75d467a3891',
+    game: '0x380bb3e194c5e8a158ade92494e17d05bf980987ce99dc5a8a7cbc3ca0b55d3',
+    achieve: '0x11f07433de9a6fcfccc256f3c259e11bbbceac444a203046e0b3a54c34d3afd'
   },
   mainnet_staging: {
     world: '0x44d11b2f49103d6303cf860f9700820b155c12f41c18aaf576fa0a794acafd',
