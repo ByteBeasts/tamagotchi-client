@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import coinIcon from "../../../../assets/icons/coins/icon-coin-single.webp"
+import gemIcon from "../../../../assets/icons/gems/icon-gem-single.webp"
 
 // Status icons
 import energyIcon from "../../../../assets/icons/tobBar/icon-energy.webp";
@@ -91,25 +92,27 @@ export function FoodCard({ food, onPurchase }: FoodCardProps) {
         )}
       </h3>
 
-      {/* Stat increments - Single badge */}
-      <div className={`flex items-center gap-3 px-3 py-1 rounded-full mb-2 ${
-        isFavorite 
-          ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400' 
-          : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-300'
-      }`}>
-        <div className="flex items-center gap-1">
-          <img src={hungerIcon} alt="Hunger" className="w-4 h-4" />
-          <span className="text-xs font-bold text-gray-700">+{statIncrements.hunger}</span>
+      {/* Stat increments - Single badge - Only show for non-magic items */}
+      {food.category !== 'magic_items' && (
+        <div className={`flex items-center gap-3 px-3 py-1 rounded-full mb-2 ${
+          isFavorite 
+            ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400' 
+            : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-300'
+        }`}>
+          <div className="flex items-center gap-1">
+            <img src={hungerIcon} alt="Hunger" className="w-4 h-4" />
+            <span className="text-xs font-bold text-gray-700">+{statIncrements.hunger}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <img src={happyIcon} alt="Happy" className="w-4 h-4" />
+            <span className="text-xs font-bold text-gray-700">+{statIncrements.happiness}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <img src={energyIcon} alt="Energy" className="w-4 h-4" />
+            <span className="text-xs font-bold text-gray-700">+{statIncrements.energy}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <img src={happyIcon} alt="Happy" className="w-4 h-4" />
-          <span className="text-xs font-bold text-gray-700">+{statIncrements.happiness}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <img src={energyIcon} alt="Energy" className="w-4 h-4" />
-          <span className="text-xs font-bold text-gray-700">+{statIncrements.energy}</span>
-        </div>
-      </div>
+      )}
 
       {/* Description */}
       <p className="font-luckiest text-sm text-gray-800 mb-3 text-center h-12 overflow-hidden leading-tight">
@@ -144,14 +147,27 @@ export function FoodCard({ food, onPurchase }: FoodCardProps) {
       {/* Purchase button - Always "Buy" */}
       <motion.button
         onClick={() => onPurchase(quantity)}
-        className="btn-cr-store w-full flex items-center justify-center gap-2"
-        whileTap={{ scale: 0.95 }}
-        whileHover={{ scale: 1.02 }}
+        className={`btn-cr-store w-full flex items-center justify-center gap-2 ${
+          food.isComingSoon ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
+        whileTap={food.isComingSoon ? {} : { scale: 0.95 }}
+        whileHover={food.isComingSoon ? {} : { scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+        disabled={food.isComingSoon}
       >
-        <span>Buy</span>
-        <img src={coinIcon} alt="Coin" className="h-5 w-5" />
-        <span>{totalPrice}</span>
+        {food.isComingSoon ? (
+          <span>?</span>
+        ) : (
+          <>
+            <span>Buy</span>
+            <img 
+              src={food.priceType === 'gems' ? gemIcon : coinIcon} 
+              alt={food.priceType === 'gems' ? 'Gem' : 'Coin'} 
+              className="h-5 w-5" 
+            />
+            <span>{totalPrice}</span>
+          </>
+        )}
       </motion.button>
       </motion.div>
     )

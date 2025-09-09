@@ -82,6 +82,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
   // Group foods by category
   const foodsByCategory = useMemo(() => {
     const grouped: Record<FoodCategory, MarketFoodItem[]> = {
+      magic_items: [],
       fruits: [],
       vegetables: [],
       meats: [],
@@ -211,6 +212,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
             <FoodInsufficientBalanceAnimation
               food={selectedFood}
               currentBalance={storePlayer?.total_coins || 0}
+              currentGems={storePlayer?.total_gems || 0}
               onClose={handleCloseAnimation}
             />
           )}

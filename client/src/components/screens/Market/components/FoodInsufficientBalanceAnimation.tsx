@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { motion } from "framer-motion"
 import coinIcon from "../../../../assets/icons/coins/icon-coin-single.webp"
+import gemIcon from "../../../../assets/icons/gems/icon-gem-single.webp"
 
 // Types
 import { MarketFoodItem } from "../../../../constants/foodMarket.constants";
@@ -10,6 +11,7 @@ import { MarketFoodItem } from "../../../../constants/foodMarket.constants";
 interface FoodInsufficientBalanceAnimationProps {
   food: MarketFoodItem;
   currentBalance: number;
+  currentGems?: number;
   onClose: () => void;
 }
 
@@ -19,9 +21,14 @@ interface FoodInsufficientBalanceAnimationProps {
 export function FoodInsufficientBalanceAnimation({ 
   food, 
   currentBalance, 
+  currentGems = 0,
   onClose 
 }: FoodInsufficientBalanceAnimationProps): JSX.Element {
-  const missingAmount = food.price - currentBalance;
+  const isGemPurchase = food.priceType === 'gems';
+  const actualBalance = isGemPurchase ? currentGems : currentBalance;
+  const missingAmount = food.price - actualBalance;
+  const currencyIcon = isGemPurchase ? gemIcon : coinIcon;
+  const currencyName = isGemPurchase ? 'gems' : 'coins';
 
   // Effect to automatically close after 4 seconds
   useEffect(() => {
@@ -79,15 +86,15 @@ export function FoodInsufficientBalanceAnimation({
         <div className="flex items-center justify-center gap-2 mb-3">
           <p className="font-luckiest text-gray-800">You have:</p>
           <div className="flex items-center">
-            <img src={coinIcon} alt="Coin" className="h-5 w-5 mr-1" />
-            <span className="font-bold">{currentBalance}</span>
+            <img src={currencyIcon} alt={currencyName} className="h-5 w-5 mr-1" />
+            <span className="font-bold">{actualBalance}</span>
           </div>
         </div>
 
         <div className="flex items-center justify-center gap-2 mb-4">
           <p className="font-luckiest text-gray-800">You need:</p>
           <div className="flex items-center">
-            <img src={coinIcon} alt="Coin" className="h-5 w-5 mr-1" />
+            <img src={currencyIcon} alt={currencyName} className="h-5 w-5 mr-1" />
             <span className="font-bold">{food.price}</span>
           </div>
         </div>
@@ -98,7 +105,7 @@ export function FoodInsufficientBalanceAnimation({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          You need {missingAmount} more coins to purchase this delicious {food.name}!
+          You need {missingAmount} more {currencyName} to purchase this {isGemPurchase ? 'magical' : 'delicious'} {food.name}!
         </motion.p>
       </motion.div>
     </motion.div>
