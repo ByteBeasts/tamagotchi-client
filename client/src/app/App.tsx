@@ -12,6 +12,7 @@ import { GameScreen } from "../components/screens/Play/components/GameScreen";
 import { GameRankingScreen } from "../components/screens/GameRanking/GameRankingScreen";
 import { AgeRankingScreen } from "../components/screens/AgeRanking/AgeRankingScreen";
 import { MarketScreen } from "../components/screens/Market/MarketScreen";
+import { GemShopScreen } from "../components/screens/GemShop/GemShopScreen";
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
 import type { Screen } from "../components/types/screens";
@@ -322,6 +323,12 @@ function AppContent() {
         />
       )}
 
+      {!isGoogleCallback && currentScreen === "gemShop" && (
+        <GemShopScreen
+          onNavigation={handleNavigation}
+        />
+      )}
+
       {/* Global dark overlay when beast is sleeping - applies to all screens */}
       <AnimatePresence>
         {!isGoogleCallback && isBeastSleeping && currentScreen !== "login" && currentScreen !== "hatch" && (
@@ -347,7 +354,8 @@ function AppContent() {
        currentScreen !== "game" && 
        currentScreen !== "gameRanking" && 
        currentScreen !== "ageRanking" && 
-       currentScreen !== "market" && (
+       currentScreen !== "market" && 
+       currentScreen !== "gemShop" && (
         <NavBar
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}

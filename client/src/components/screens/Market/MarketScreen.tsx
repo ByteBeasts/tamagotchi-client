@@ -142,6 +142,7 @@ export function MarketScreen({onNavigation}: MarketScreenProps) {
       <TamagotchiTopBar 
         coins={storePlayer?.total_coins || 0}
         gems={storePlayer?.total_gems || 0}
+        onNavigateToGemShop={() => onNavigation("gemShop")}
       />
 
       {/* Animated banner */}

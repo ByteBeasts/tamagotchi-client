@@ -369,6 +369,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
           happiness: 0,
           hygiene: 0
         }}
+        onNavigateToGemShop={() => onNavigation("gemShop")}
       />
 
       <PlayerInfoSection
