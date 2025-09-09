@@ -11,4 +11,5 @@ export type Screen =
   | "gameRanking"    
   | "ageRanking"
   | "profile"
-  | "market";
+  | "market"
+  | "gemShop";

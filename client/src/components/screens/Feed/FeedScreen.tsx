@@ -225,6 +225,7 @@ export const FeedScreen = ({ onNavigation, isBeastSleeping = false }: FeedScreen
           happiness: liveBeastStatus?.happiness || 0,
           hygiene: liveBeastStatus?.hygiene || 0
         }}
+        onNavigateToGemShop={() => onNavigation("gemShop")}
       />
 
       {/* Screen title with beast name */}

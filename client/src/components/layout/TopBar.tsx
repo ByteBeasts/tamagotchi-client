@@ -35,12 +35,14 @@ interface TamagotchiTopBarProps {
   coins: number;
   gems: number;
   status?: TamagotchiStatus;
+  onNavigateToGemShop?: () => void;
 }
 
 export function TamagotchiTopBar({ 
   coins, 
   gems, 
-  status: fallbackStatus
+  status: fallbackStatus,
+  onNavigateToGemShop
 }: TamagotchiTopBarProps) {
 
   // Use real-time status hook
@@ -214,7 +216,13 @@ export function TamagotchiTopBar({
           transition={{ delay: 0.2 }}
         >
           <button
-            onClick={() => setShowGemsPopup(!showGemsPopup)}
+            onClick={() => {
+              if (onNavigateToGemShop) {
+                onNavigateToGemShop();
+              } else {
+                setShowGemsPopup(!showGemsPopup);
+              }
+            }}
             className="mr-0.5 flex items-center justify-center rounded-full h-8 w-8 sm:h-6 sm:w-6 drop-shadow-sm transition-colors flex-shrink-0 p-0.5"
           >
             <img src={plusIcon} alt="Add gems" className="h-full w-full object-contain" />
