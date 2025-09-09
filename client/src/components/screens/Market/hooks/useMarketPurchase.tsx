@@ -42,7 +42,13 @@ export const useMarketPurchase = ({
   const canPurchase = (food: MarketFoodItem, quantity: number = 1): boolean => {
     if (!cavosAuth.isAuthenticated || !cavosAuth.wallet || !cavosAuth.accessToken) return false;
     
-    const playerBalance = storePlayer?.total_coins || 0;
+    // Check for coming soon items
+    if (food.isComingSoon) return false;
+    
+    // Check balance based on price type
+    const playerBalance = food.priceType === 'gems' 
+      ? (storePlayer?.total_gems || 0)
+      : (storePlayer?.total_coins || 0);
     const totalPrice = food.price * quantity;
     return playerBalance >= totalPrice;
   };
@@ -58,7 +64,8 @@ export const useMarketPurchase = ({
     }
 
     if (!canPurchase(food, quantity)) {
-      toast.error("Insufficient coins for this purchase", { position: toastPosition });
+      const currency = food.priceType === 'gems' ? 'gems' : 'coins';
+      toast.error(`Insufficient ${currency} for this purchase`, { position: toastPosition });
       return false;
     }
 

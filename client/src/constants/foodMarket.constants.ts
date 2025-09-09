@@ -3,10 +3,14 @@
 // Import existing food assets from feed constants - NO DUPLICATES!
 import { FOOD_ASSETS } from './feed.constants';
 
+// Import magic item assets
+import sparkBerryIcon from '../assets/Food/magic-items/spark-berry.png';
+import misteryIcon from '../assets/Food/magic-items/mistery-icon.png';
+
 /**
  * Food categories for marketplace organization
  */
-export type FoodCategory = 'fruits' | 'vegetables' | 'meats' | 'sweets' | 'fast_food';
+export type FoodCategory = 'magic_items' | 'fruits' | 'vegetables' | 'meats' | 'sweets' | 'fast_food';
 
 /**
  * Beast types for food preferences
@@ -32,11 +36,13 @@ export interface MarketFoodItem {
   image: string;
   category: FoodCategory;
   price: number;
+  priceType?: 'coins' | 'gems'; // Type of currency, defaults to coins
   healthiness: number; // 1-5 scale (1 = unhealthy/cheap, 5 = healthy/expensive)
   hungerRestore: number;
   owned: boolean; // Whether player has this food in inventory
   ownedAmount?: number; // How many player currently has
   statIncrements?: Record<BeastType, FoodStatIncrements>; // Stat increments per beast type
+  isComingSoon?: boolean; // For items that are not yet available
 }
 
 /**
@@ -73,6 +79,31 @@ export const getFoodStatIncrements = (foodId: number, beastType: BeastType): Foo
  * Now includes stat increments per beast type
  */
 export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ownedAmount'>> = {
+  // ✨ MAGIC ITEMS (Premium items with special effects)
+  100: {
+    id: 100,
+    name: 'Spark Cherry',
+    description: 'Instantly boosts your beast to maximum energy!',
+    image: sparkBerryIcon,
+    category: 'magic_items',
+    priceType: 'gems',
+    healthiness: 5,
+    hungerRestore: 0,
+    price: 20, // 20 gems
+  },
+  101: {
+    id: 101,
+    name: 'Soon...',
+    description: 'More Magic items coming soon',
+    image: misteryIcon,
+    category: 'magic_items',
+    priceType: 'gems',
+    healthiness: 5,
+    hungerRestore: 0,
+    price: 0,
+    isComingSoon: true,
+  },
+
   // 🍎 FRUITS (Healthy = More Expensive)
   1: {
     id: 1,
@@ -328,6 +359,12 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
  * Category display configuration
  */
 export const FOOD_CATEGORIES_CONFIG = {
+  magic_items: {
+    name: 'Magic Items',
+    emoji: '✨',
+    description: 'Special items with magical properties',
+    color: 'rgb(168, 85, 247)', // Purple
+  },
   fruits: {
     name: 'Fruits',
     emoji: '🍎',
@@ -375,9 +412,10 @@ export const getFoodMarketDataById = (id: number): Omit<MarketFoodItem, 'owned' 
 };
 
 /**
- * Get category order for display (healthiest first)
+ * Get category order for display (magic items first, then healthiest first)
  */
 export const CATEGORY_DISPLAY_ORDER: FoodCategory[] = [
+  'magic_items',
   'fruits',
   'vegetables', 
   'meats',
