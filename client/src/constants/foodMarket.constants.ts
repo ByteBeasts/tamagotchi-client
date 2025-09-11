@@ -5,7 +5,9 @@ import { FOOD_ASSETS } from './feed.constants';
 
 // Import magic item assets
 import sparkBerryIcon from '../assets/Food/magic-items/spark-berry.png';
-import misteryIcon from '../assets/Food/magic-items/mistery-icon.png';
+import feastAppleIcon from '../assets/Food/magic-items/feast-apple.png';
+import joyMangoIcon from '../assets/Food/magic-items/joy-mango.png';
+import triboostSmoothieIcon from '../assets/Food/magic-items/triboost-smoothie.png';
 
 /**
  * Food categories for marketplace organization
@@ -83,7 +85,7 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   100: {
     id: 100,
     name: 'Spark Cherry',
-    description: 'Instantly boosts your beast to maximum energy!',
+    description: 'Instantly boosts to max energy',
     image: sparkBerryIcon,
     category: 'magic_items',
     priceType: 'gems',
@@ -93,15 +95,36 @@ export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ow
   },
   101: {
     id: 101,
-    name: 'Soon...',
-    description: 'More Magic items coming soon',
-    image: misteryIcon,
+    name: 'Feast Apple',
+    description: 'Instantly fills hunger',
+    image: feastAppleIcon,
+    category: 'magic_items',
+    priceType: 'gems',
+    healthiness: 5,
+    hungerRestore: 100,
+    price: 20, // 20 gems
+  },
+  102: {
+    id: 102,
+    name: 'Joy Mango',
+    description: 'Instantly maxes happiness',
+    image: joyMangoIcon,
     category: 'magic_items',
     priceType: 'gems',
     healthiness: 5,
     hungerRestore: 0,
-    price: 0,
-    isComingSoon: true,
+    price: 20, // 20 gems
+  },
+  103: {
+    id: 103,
+    name: 'Triboost',
+    description: 'Maxes all stats instantly',
+    image: triboostSmoothieIcon,
+    category: 'magic_items',
+    priceType: 'gems',
+    healthiness: 5,
+    hungerRestore: 100,
+    price: 50, // 50 gems - most expensive as it maxes all stats
   },
 
   // 🍎 FRUITS (Healthy = More Expensive)
