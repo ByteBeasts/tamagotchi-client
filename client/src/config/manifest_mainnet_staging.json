@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x13d92333361bb7049c1232c0a5404e2c19082ededc3a73d75cb33fa952adec7",
-    "address": "0x44d11b2f49103d6303cf860f9700820b155c12f41c18aaf576fa0a794acafd",
-    "seed": "tamagotchi4",
+    "address": "0x605715b84ddacd1997810c948ad07867b69e664012559f0dd4b515034ce6cd9",
+    "seed": "tamagotchi7",
     "name": "ByteBeasts Tamagotchi",
     "entrypoints": [
       "uuid",
@@ -1328,7 +1328,7 @@
   },
   "contracts": [
     {
-      "address": "0x11f07433de9a6fcfccc256f3c259e11bbbceac444a203046e0b3a54c34d3afd",
+      "address": "0x61535293bc907763f832ad67e89cdfcd21ee575aa995a737454c8af38720349",
       "class_hash": "0x419f5712020abc951a7cd8cbdb9b6c7306abdfd3fb531a02bcfcd81109833a6",
       "abi": [
         {
@@ -1630,8 +1630,8 @@
       ]
     },
     {
-      "address": "0x380bb3e194c5e8a158ade92494e17d05bf980987ce99dc5a8a7cbc3ca0b55d3",
-      "class_hash": "0x4dedca22412e9c251b48df2108aa5d353a10b851c4c006ef7436977e7946f3c",
+      "address": "0x344973876a611563b73a09c978261960b0bb7954194b05b5c40d3287b1ef870",
+      "class_hash": "0xb2c63bc806ef25181dbcb3f58d2ba50ed4f43e6e86421fbda937480ad8a426",
       "abi": [
         {
           "type": "impl",
@@ -1840,6 +1840,10 @@
                 {
                   "name": "name",
                   "type": "core::felt252"
+                },
+                {
+                  "name": "magic_food_id",
+                  "type": "core::integer::u8"
                 }
               ],
               "outputs": [],
@@ -1888,6 +1892,13 @@
             {
               "type": "function",
               "name": "pet",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "max_energy",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
@@ -2099,6 +2110,7 @@
         "awake",
         "play",
         "pet",
+        "max_energy",
         "clean",
         "revive",
         "set_beast_name",
@@ -2110,8 +2122,8 @@
       ]
     },
     {
-      "address": "0x39fe46386b8004555a807c981b43fa26f8d0447cdaf253ef112d75d467a3891",
-      "class_hash": "0x1c1aa91770e417206ccfd8030afff2e3f40681c4acf4cd2d24cb74adfdedc1d",
+      "address": "0x6f621ebc5b36103e52c9e4b574a876d66bdc01655e5805dfd0f1fee4202e38b",
+      "class_hash": "0xeddbbe202515c1bd4eb372f97ec8d83fa9d93044e9c6571aa9450871f14dc4",
       "abi": [
         {
           "type": "impl",
@@ -2328,6 +2340,22 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "purchase_with_gems",
+              "inputs": [
+                {
+                  "name": "gems",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
+              "state_mutability": "external"
             }
           ]
         },
@@ -2454,6 +2482,7 @@
         "emit_player_push_token",
         "set_player_name",
         "set_world_coin_address",
+        "purchase_with_gems",
         "upgrade"
       ]
     }

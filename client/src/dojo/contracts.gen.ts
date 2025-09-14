@@ -508,19 +508,19 @@ export function setupWorld(provider: DojoProvider) {
         }
     };
 
-    const build_game_spawnBeastCustomStatus_calldata = (specie: number, beastType: number, beastStatus: models.BeastStatus, name: number): DojoCall => {
+    const build_game_spawnBeastCustomStatus_calldata = (specie: number, beastType: number, beastStatus: models.BeastStatus, name: number, magicFoodId: number): DojoCall => {
         return {
             contractName: "game",
             entrypoint: "spawn_beast_custom_status",
-            calldata: [specie, beastType, beastStatus, name],
+            calldata: [specie, beastType, beastStatus, name, magicFoodId],
         };
     };
 
-    const game_spawnBeastCustomStatus = async (snAccount: Account | AccountInterface, specie: number, beastType: number, beastStatus: models.BeastStatus, name: number) => {
+    const game_spawnBeastCustomStatus = async (snAccount: Account | AccountInterface, specie: number, beastType: number, beastStatus: models.BeastStatus, name: number, magicFoodId: number) => {
         try {
             return await provider.execute(
                 snAccount,
-                build_game_spawnBeastCustomStatus_calldata(specie, beastType, beastStatus, name),
+                build_game_spawnBeastCustomStatus_calldata(specie, beastType, beastStatus, name, magicFoodId),
                 "tamagotchi",
             );
         } catch (error) {
@@ -760,6 +760,27 @@ export function setupWorld(provider: DojoProvider) {
         }
     };
 
+    const build_player_purchaseWithGems_calldata = (gems: Number): DojoCall => {
+        return {
+            contractName: "player",
+            entrypoint: "purchase_with_gems",
+            calldata: [gems],
+        };
+    };
+
+    const player_purchaseWithGems = async (snAccount: Account | AccountInterface, gems: Number) => {
+        try {
+            return await provider.execute(
+                snAccount,
+                build_player_purchaseWithGems_calldata(gems),
+                "tamagotchi",
+            );
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    };
+
 
 
     return {
@@ -840,6 +861,8 @@ export function setupWorld(provider: DojoProvider) {
             buildSetPlayerNameCalldata: build_player_setPlayerName_calldata,
             setWorldCoinAddress: player_setWorldCoinAddress,
             buildSetWorldCoinAddressCalldata: build_player_setWorldCoinAddress_calldata,
+            purchaseWithGems: player_purchaseWithGems,
+            buildPurchaseWithGemsCalldata: build_player_purchaseWithGems_calldata,
         },
     };
 }
