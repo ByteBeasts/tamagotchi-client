@@ -79,45 +79,78 @@ export const useMarketPurchase = ({
 
     try {
       setIsPurchasing(true);
-      
-      // Optimistic update: immediately reduce coins in the store
+
+      // Optimistic update: immediately reduce currency in the store
       const currentPlayer = useAppStore.getState().player;
       if (currentPlayer) {
-        const optimisticPlayer = {
-          ...currentPlayer,
-          total_coins: Math.max(0, currentPlayer.total_coins - totalCost)
-        };
-        
+        const optimisticPlayer = food.priceType === 'gems'
+          ? {
+              ...currentPlayer,
+              total_gems: Math.max(0, currentPlayer.total_gems - totalCost)
+            }
+          : {
+              ...currentPlayer,
+              total_coins: Math.max(0, currentPlayer.total_coins - totalCost)
+            };
+
         console.log("🔮 [MarketPurchase] Optimistic update:", {
-          before: currentPlayer.total_coins,
-          after: optimisticPlayer.total_coins,
+          currency: food.priceType,
+          before: food.priceType === 'gems' ? currentPlayer.total_gems : currentPlayer.total_coins,
+          after: food.priceType === 'gems' ? optimisticPlayer.total_gems : optimisticPlayer.total_coins,
           spent: totalCost,
           quantity: quantity
         });
-        
+
         // Update store immediately (optimistic)
         useAppStore.getState().setPlayer(optimisticPlayer);
       }
       
       // Execute blockchain transaction using Cavos
       const contractAddresses = getContractAddresses();
-      
-      const calls = [{
-        contractAddress: contractAddresses.player,
-        entrypoint: 'add_or_update_food_amount',
-        calldata: [
-          food.id.toString(),      // food ID
-          quantity.toString(),     // amount (buying specified quantity)
-          totalCost.toString()     // total price in coins
-        ]
-      }];
+
+      let calls: any[];
+
+      if (food.priceType === 'gems') {
+        // For magic items: purchase with gems then add the item
+        calls = [
+          // First: Deduct gems using purchase_with_gems
+          {
+            contractAddress: contractAddresses.player,
+            entrypoint: 'purchase_with_gems',
+            calldata: [totalCost.toString()] // gems amount
+          },
+          // Second: Add the magic item to inventory
+          {
+            contractAddress: contractAddresses.player,
+            entrypoint: 'add_or_update_food_amount',
+            calldata: [
+              food.id.toString(),      // food ID (17-20 for magic items)
+              quantity.toString(),     // amount
+              '0'                      // price 0 because gems already deducted
+            ]
+          }
+        ];
+      } else {
+        // For normal items: use existing logic with coins
+        calls = [{
+          contractAddress: contractAddresses.player,
+          entrypoint: 'add_or_update_food_amount',
+          calldata: [
+            food.id.toString(),      // food ID
+            quantity.toString(),     // amount (buying specified quantity)
+            totalCost.toString()     // total price in coins
+          ]
+        }];
+      }
       
       console.log('🛒 Executing purchase transaction...', {
         food: food.name,
         quantity: quantity,
         unitPrice: food.price,
         totalPrice: totalCost,
-        coins_before: storePlayer?.total_coins
+        currency: food.priceType,
+        balance_before: food.priceType === 'gems' ? storePlayer?.total_gems : storePlayer?.total_coins,
+        calls: calls.length
       });
       
       const transactionHash = await executeTransaction(calls);
@@ -132,19 +165,20 @@ export const useMarketPurchase = ({
         
         // Get current store state before refetch
         const currentPlayerBeforeRefetch = useAppStore.getState().player;
-        console.log("💰 [MarketPurchase] Player coins before refetch:", currentPlayerBeforeRefetch?.total_coins);
-        
+        const currencyField = food.priceType === 'gems' ? 'total_gems' : 'total_coins';
+        console.log(`💰 [MarketPurchase] Player ${food.priceType} before refetch:`, currentPlayerBeforeRefetch?.[currencyField]);
+
         await refetchPlayer();
         await refetchFoodInventory();
-        
+
         // Log after refetch to see what happened
         const currentPlayerAfterRefetch = useAppStore.getState().player;
-        console.log("💰 [MarketPurchase] Player coins after refetch:", currentPlayerAfterRefetch?.total_coins);
+        console.log(`💰 [MarketPurchase] Player ${food.priceType} after refetch:`, currentPlayerAfterRefetch?.[currencyField]);
         console.log("🍎 [MarketPurchase] Food inventory refreshed after purchase");
-        
+
         // If blockchain hasn't processed yet, keep optimistic state
-        if (currentPlayerAfterRefetch && currentPlayerBeforeRefetch && 
-            currentPlayerAfterRefetch.total_coins > currentPlayerBeforeRefetch.total_coins) {
+        if (currentPlayerAfterRefetch && currentPlayerBeforeRefetch &&
+            currentPlayerAfterRefetch[currencyField] > currentPlayerBeforeRefetch[currencyField]) {
           console.log("⚠️ [MarketPurchase] Blockchain not processed yet, keeping optimistic state");
           useAppStore.getState().setPlayer(currentPlayerBeforeRefetch);
         }
@@ -168,17 +202,25 @@ export const useMarketPurchase = ({
       // Revert optimistic update on error
       const currentPlayer = useAppStore.getState().player;
       if (currentPlayer) {
-        const revertedPlayer = {
-          ...currentPlayer,
-          total_coins: currentPlayer.total_coins + totalCost // Add back the coins
-        };
-        
+        const revertedPlayer = food.priceType === 'gems'
+          ? {
+              ...currentPlayer,
+              total_gems: currentPlayer.total_gems + totalCost // Add back the gems
+            }
+          : {
+              ...currentPlayer,
+              total_coins: currentPlayer.total_coins + totalCost // Add back the coins
+            };
+
+        const currencyField = food.priceType === 'gems' ? 'total_gems' : 'total_coins';
+
         console.log("↩️ [MarketPurchase] Reverting optimistic update:", {
-          before: currentPlayer.total_coins,
-          after: revertedPlayer.total_coins,
+          currency: food.priceType,
+          before: currentPlayer[currencyField],
+          after: revertedPlayer[currencyField],
           refunded: totalCost
         });
-        
+
         useAppStore.getState().setPlayer(revertedPlayer);
       }
       

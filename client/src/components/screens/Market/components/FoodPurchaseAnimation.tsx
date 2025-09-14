@@ -243,25 +243,27 @@ export function FoodPurchaseAnimation({ food, quantity, onClose }: FoodPurchaseA
           )}
         </h2>
 
-        {/* Stat increments badge */}
-        <div className={`flex items-center gap-3 px-3 py-1 rounded-full mb-3 ${
-          isFavorite 
-            ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400' 
-            : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-300'
-        }`}>
-          <div className="flex items-center gap-1">
-            <img src={hungerIcon} alt="Hunger" className="w-4 h-4" />
-            <span className="text-xs font-bold text-gray-700">+{statIncrements.hunger}</span>
+        {/* Stat increments badge - Only show for non-magic items */}
+        {food.category !== 'magic_items' && (
+          <div className={`flex items-center gap-3 px-3 py-1 rounded-full mb-3 ${
+            isFavorite
+              ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400'
+              : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-300'
+          }`}>
+            <div className="flex items-center gap-1">
+              <img src={hungerIcon} alt="Hunger" className="w-4 h-4" />
+              <span className="text-xs font-bold text-gray-700">+{statIncrements.hunger}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <img src={happyIcon} alt="Happy" className="w-4 h-4" />
+              <span className="text-xs font-bold text-gray-700">+{statIncrements.happiness}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <img src={energyIcon} alt="Energy" className="w-4 h-4" />
+              <span className="text-xs font-bold text-gray-700">+{statIncrements.energy}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <img src={happyIcon} alt="Happy" className="w-4 h-4" />
-            <span className="text-xs font-bold text-gray-700">+{statIncrements.happiness}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <img src={energyIcon} alt="Energy" className="w-4 h-4" />
-            <span className="text-xs font-bold text-gray-700">+{statIncrements.energy}</span>
-          </div>
-        </div>
+        )}
 
         {/* Food description */}
         <p className="text-gray-800 font-luckiest text-center mb-3 text-sm">

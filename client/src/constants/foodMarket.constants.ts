@@ -3,12 +3,6 @@
 // Import existing food assets from feed constants - NO DUPLICATES!
 import { FOOD_ASSETS } from './feed.constants';
 
-// Import magic item assets
-import sparkBerryIcon from '../assets/Food/magic-items/spark-berry.png';
-import feastAppleIcon from '../assets/Food/magic-items/feast-apple.png';
-import joyMangoIcon from '../assets/Food/magic-items/joy-mango.png';
-import triboostSmoothieIcon from '../assets/Food/magic-items/triboost-smoothie.png';
-
 /**
  * Food categories for marketplace organization
  */
@@ -82,44 +76,45 @@ export const getFoodStatIncrements = (foodId: number, beastType: BeastType): Foo
  */
 export const FOOD_MARKET_DATA: Record<number, Omit<MarketFoodItem, 'owned' | 'ownedAmount'>> = {
   // ✨ MAGIC ITEMS (Premium items with special effects)
-  100: {
-    id: 100,
+  // IDs 17-20 match the feed system exactly
+  17: {
+    id: 17,
     name: 'Spark Cherry',
     description: 'Instantly boosts to max energy',
-    image: sparkBerryIcon,
+    image: FOOD_ASSETS[17].img,
     category: 'magic_items',
     priceType: 'gems',
     healthiness: 5,
     hungerRestore: 0,
     price: 20, // 20 gems
   },
-  101: {
-    id: 101,
+  18: {
+    id: 18,
     name: 'Feast Apple',
     description: 'Instantly fills hunger',
-    image: feastAppleIcon,
+    image: FOOD_ASSETS[18].img,
     category: 'magic_items',
     priceType: 'gems',
     healthiness: 5,
     hungerRestore: 100,
     price: 20, // 20 gems
   },
-  102: {
-    id: 102,
+  19: {
+    id: 19,
     name: 'Joy Mango',
     description: 'Instantly maxes happiness',
-    image: joyMangoIcon,
+    image: FOOD_ASSETS[19].img,
     category: 'magic_items',
     priceType: 'gems',
     healthiness: 5,
     hungerRestore: 0,
     price: 20, // 20 gems
   },
-  103: {
-    id: 103,
+  20: {
+    id: 20,
     name: 'Triboost',
     description: 'Maxes all stats instantly',
-    image: triboostSmoothieIcon,
+    image: FOOD_ASSETS[20].img,
     category: 'magic_items',
     priceType: 'gems',
     healthiness: 5,
