@@ -18,6 +18,14 @@ export const STATS_CONFIG = {
   }
 } as const;
 
+// Magic item IDs and their effects
+export const MAGIC_ITEMS = {
+  SPARK_CHERRY: 17,      // Fills energy to 100%
+  FEAST_APPLE: 18,       // Fills hunger to 100%
+  JOY_MANGO: 19,         // Fills happiness to 100%
+  TRI_BOOST_SMOOTHIE: 20 // Fills hunger, happiness, and energy to 100%
+} as const;
+
 // Stat array indices
 export const STAT_INDICES = {
   PLAYER: 0,
@@ -49,29 +57,60 @@ export function calculateOptimisticFeed(
   }
 
   const newStats = [...currentStats];
-  const isFavorite = BEAST_FAVORITE_FOODS[beastType]?.includes(foodId) || false;
-  
-  // Food stat increments based on contract logic
-  const increments = isFavorite
-    ? { hunger: 8, happiness: 4, energy: 2 }
-    : { hunger: 4, happiness: 4, energy: 2 };
-  
-  // Apply increments with max validation
-  newStats[STAT_INDICES.HUNGER] = Math.min(
-    STATS_CONFIG.MAX_STAT,
-    (newStats[STAT_INDICES.HUNGER] || 0) + increments.hunger
-  );
-  
-  newStats[STAT_INDICES.HAPPINESS] = Math.min(
-    STATS_CONFIG.MAX_STAT,
-    (newStats[STAT_INDICES.HAPPINESS] || 0) + increments.happiness
-  );
-  
-  newStats[STAT_INDICES.ENERGY] = Math.min(
-    STATS_CONFIG.MAX_STAT,
-    (newStats[STAT_INDICES.ENERGY] || 0) + increments.energy
-  );
-  
+
+  // Check if it's a magic item (IDs 17-20)
+  const isMagicItem = foodId >= MAGIC_ITEMS.SPARK_CHERRY && foodId <= MAGIC_ITEMS.TRI_BOOST_SMOOTHIE;
+
+  if (isMagicItem) {
+    // Handle magic items with special effects
+    switch (foodId) {
+      case MAGIC_ITEMS.SPARK_CHERRY: // Fills energy to 100%
+        newStats[STAT_INDICES.ENERGY] = STATS_CONFIG.MAX_STAT;
+        break;
+
+      case MAGIC_ITEMS.FEAST_APPLE: // Fills hunger to 100%
+        newStats[STAT_INDICES.HUNGER] = STATS_CONFIG.MAX_STAT;
+        break;
+
+      case MAGIC_ITEMS.JOY_MANGO: // Fills happiness to 100%
+        newStats[STAT_INDICES.HAPPINESS] = STATS_CONFIG.MAX_STAT;
+        break;
+
+      case MAGIC_ITEMS.TRI_BOOST_SMOOTHIE: // Fills hunger, happiness, and energy to 100%
+        newStats[STAT_INDICES.HUNGER] = STATS_CONFIG.MAX_STAT;
+        newStats[STAT_INDICES.HAPPINESS] = STATS_CONFIG.MAX_STAT;
+        newStats[STAT_INDICES.ENERGY] = STATS_CONFIG.MAX_STAT;
+        break;
+
+      default:
+        console.warn(`Unknown magic item ID: ${foodId}`);
+    }
+  } else {
+    // Handle normal food items (IDs 1-16)
+    const isFavorite = BEAST_FAVORITE_FOODS[beastType]?.includes(foodId) || false;
+
+    // Food stat increments based on contract logic
+    const increments = isFavorite
+      ? { hunger: 8, happiness: 4, energy: 2 }
+      : { hunger: 4, happiness: 4, energy: 2 };
+
+    // Apply increments with max validation
+    newStats[STAT_INDICES.HUNGER] = Math.min(
+      STATS_CONFIG.MAX_STAT,
+      (newStats[STAT_INDICES.HUNGER] || 0) + increments.hunger
+    );
+
+    newStats[STAT_INDICES.HAPPINESS] = Math.min(
+      STATS_CONFIG.MAX_STAT,
+      (newStats[STAT_INDICES.HAPPINESS] || 0) + increments.happiness
+    );
+
+    newStats[STAT_INDICES.ENERGY] = Math.min(
+      STATS_CONFIG.MAX_STAT,
+      (newStats[STAT_INDICES.ENERGY] || 0) + increments.energy
+    );
+  }
+
   return newStats;
 }
 

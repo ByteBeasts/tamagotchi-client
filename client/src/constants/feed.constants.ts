@@ -17,6 +17,12 @@ import Pizza from '../assets/Food/pizza.svg';
 import Corn from '../assets/Food/food-corn.svg';
 import Potato from '../assets/Food/potato.svg';
 
+// Magic items (new consumables with special effects)
+import SparkCherry from '../assets/Food/magic-items/spark-berry.png';
+import FeastApple from '../assets/Food/magic-items/feast-apple.png';
+import JoyMango from '../assets/Food/magic-items/joy-mango.png';
+import TriBoostSmoothie from '../assets/Food/magic-items/triboost-smoothie.png';
+
 /**
  * Food items configuration - IDs match contract exactly
  * This will be replaced by dynamic data from the contract
@@ -37,7 +43,12 @@ const initialFoodItems = [
   { name: 'Beef', img: Beef, count: 50, id: 13 },
   { name: 'Pizza', img: Pizza, count: 50, id: 14 },
   { name: 'Corn', img: Corn, count: 50, id: 15 },
-  { name: 'Potato', img: Potato, count: 50, id: 16 }
+  { name: 'Potato', img: Potato, count: 50, id: 16 },
+  // Magic items
+  { name: 'Spark Cherry', img: SparkCherry, count: 50, id: 17 },
+  { name: 'Feast Apple', img: FeastApple, count: 50, id: 18 },
+  { name: 'Joy Mango', img: JoyMango, count: 50, id: 19 },
+  { name: 'Tri Boost Smoothie', img: TriBoostSmoothie, count: 50, id: 20 }
 ];
 
 /**
@@ -61,6 +72,11 @@ export const FOOD_ASSETS = {
   14: { name: 'Pizza', img: Pizza },
   15: { name: 'Corn', img: Corn },
   16: { name: 'Potato', img: Potato },
+  // Magic items with special effects
+  17: { name: 'Spark Cherry', img: SparkCherry },
+  18: { name: 'Feast Apple', img: FeastApple },
+  19: { name: 'Joy Mango', img: JoyMango },
+  20: { name: 'Tri Boost Smoothie', img: TriBoostSmoothie },
 } as const;
 
 /**
@@ -103,6 +119,11 @@ export const FOOD_UI_CONFIG = {
     14: "#7C2D12", // Pizza - Red
     15: "#7C2D12", // Corn - Yellow-orange
     16: "#7C2D12", // Potato - Purple
+    // Magic items with vibrant colors
+    17: "#7C2D12", // Spark Cherry - Bright Red (Electric)
+    18: "#7C2D12", // Feast Apple - Golden Amber
+    19: "#7C2D12", // Joy Mango - Vibrant Pink
+    20: "#7C2D12", // Tri Boost Smoothie - Purple (Magical)
   } as Record<number, string>,
 } as const;
 
