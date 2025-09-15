@@ -7,6 +7,7 @@ import { BeastNameModal } from "./components/BeastNameModal";
 import { PlayerNameModal } from "./components/PlayerNameModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.webp";
 import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
+import gemIcon from "../../../assets/icons/gems/icon-gem-single.webp";
 import { MiniKit, RequestPermissionPayload, Permission } from '@worldcoin/minikit-js';
 import toast from 'react-hot-toast';
 
@@ -17,6 +18,7 @@ import { useSetPlayerName } from "../../../dojo/hooks/useSetPlayerName";
 import { useLiveBeast } from "../../../dojo/hooks/useLiveBeast";
 import { usePlayer } from "../../../dojo/hooks/usePlayer";
 import { useRealTimeStatus } from "../../../dojo/hooks/useRealTimeStatus";
+import { useReviveBeast } from "../../../dojo/hooks/useReviveBeast";
 
 // Store
 import useAppStore from "../../../zustand/store";
@@ -75,6 +77,9 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   
   // Hook for refetching player data
   const { refetch: refetchPlayer } = usePlayer();
+
+  // Hook for reviving beast
+  const { reviveBeast, isReviving, error: reviveError } = useReviveBeast();
   
   // Get current beast name from store
   const liveBeast = useAppStore(state => state.liveBeast.beast);
@@ -128,6 +133,16 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   useEffect(() => {
     setCurrentScreen("home");
   }, [setCurrentScreen]);
+
+  // Handle revive errors
+  useEffect(() => {
+    if (reviveError) {
+      toast.error(reviveError, {
+        duration: 4000,
+        position: 'top-center'
+      });
+    }
+  }, [reviveError]);
   
   // Request notification permission for World App users
   const requestNotificationPermission = useCallback(async () => {
@@ -283,6 +298,18 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
     openPlayerModal();
   };
 
+  // Handle revive beast action
+  const handleReviveBeast = async () => {
+    const result = await reviveBeast();
+    if (result.success) {
+      // Refetch beast and player data after successful revive
+      setTimeout(() => {
+        refetchBeast();
+        refetchPlayer();
+      }, 3000);
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -327,12 +354,52 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
           </p>
 
           {/* Botón */}
-          <button 
-            onClick={() => onNavigation("hatch")}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg font-luckiest text-lg"
-          >
-            {!currentBeastDisplay ? "🥚 Hatch New Beast" : "✨ Revive Beast"}
-          </button>
+          <div className="flex flex-col items-center space-y-2">
+            <button
+              onClick={!currentBeastDisplay ? () => onNavigation("hatch") : handleReviveBeast}
+              disabled={isReviving || (!!currentBeastDisplay && (storePlayer?.total_gems || 0) < 20)}
+              className={`
+                ${!currentBeastDisplay
+                  ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500"
+                  : (storePlayer?.total_gems || 0) >= 20
+                    ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500"
+                    : "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed"
+                }
+                text-white px-8 py-4 rounded-xl font-bold transition-all transform
+                ${!isReviving && ((storePlayer?.total_gems || 0) >= 20 || !currentBeastDisplay) ? "hover:scale-105" : ""}
+                shadow-lg font-luckiest text-lg flex items-center gap-2 justify-center
+                ${isReviving ? "opacity-75 cursor-not-allowed" : ""}
+              `}
+            >
+              {isReviving ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Reviving...
+                </>
+              ) : !currentBeastDisplay ? (
+                <>🥚 Hatch New Beast</>
+              ) : (
+                <>
+                  <img src={gemIcon} alt="Gem" className="w-5 h-5" />
+                  20 ✨ Revive Beast
+                </>
+              )}
+            </button>
+
+            {/* Insufficient gems message */}
+            {currentBeastDisplay && (storePlayer?.total_gems || 0) < 20 && (
+              <p className="text-sm text-red-400 drop-shadow-md text-center">
+                Insufficient gems! You have {storePlayer?.total_gems || 0}/20 gems.
+                <br />
+                <span
+                  className="text-blue-300 underline cursor-pointer hover:text-blue-200"
+                  onClick={() => onNavigation("gemShop")}
+                >
+                  Get more gems →
+                </span>
+              </p>
+            )}
+          </div>
         </div>
       );
     }
