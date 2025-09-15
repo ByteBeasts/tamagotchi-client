@@ -5,9 +5,11 @@ import { GemPack } from "../../../../constants/gemShop.constants";
 interface GemPackCardProps {
   pack: GemPack;
   onPurchase: () => void;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-export function GemPackCard({ pack, onPurchase }: GemPackCardProps) {
+export function GemPackCard({ pack, onPurchase, disabled = false, loading = false }: GemPackCardProps) {
   const item = {
     hidden: { y: 20, opacity: 0 },
     show: { y: 0, opacity: 1 },
@@ -70,14 +72,28 @@ export function GemPackCard({ pack, onPurchase }: GemPackCardProps) {
       {/* Purchase button */}
       <motion.button
         onClick={onPurchase}
-        className="btn-cr-store w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white"
-        whileTap={{ scale: 0.95 }}
-        whileHover={{ scale: 1.02 }}
+        disabled={disabled || loading}
+        className={`btn-cr-store w-full flex items-center justify-center gap-2 text-white ${
+          disabled || loading
+            ? 'bg-gray-400 cursor-not-allowed opacity-60'
+            : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700'
+        }`}
+        whileTap={!disabled && !loading ? { scale: 0.95 } : {}}
+        whileHover={!disabled && !loading ? { scale: 1.02 } : {}}
         transition={{ type: "spring", stiffness: 300, damping: 15 }}
       >
-        <span>Buy</span>
-        <span className="font-bold">{pack.priceDisplay}</span>
-        <span className="text-xs">USDC</span>
+        {loading ? (
+          <>
+            <span className="animate-spin">⏳</span>
+            <span>Processing...</span>
+          </>
+        ) : (
+          <>
+            <span>Buy</span>
+            <span className="font-bold">{pack.priceDisplay}</span>
+            <span className="text-xs">USDC</span>
+          </>
+        )}
       </motion.button>
     </motion.div>
   );
