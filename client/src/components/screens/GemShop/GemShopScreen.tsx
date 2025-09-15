@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
+import { MiniKit } from '@worldcoin/minikit-js';
 
 // Layout components
 import { TamagotchiTopBar } from "../../layout/TopBar";
@@ -24,6 +25,13 @@ import type { Screen } from "../../types/screens";
 // Store
 import useAppStore from "../../../zustand/store";
 
+// Services
+import { worldcoinPaymentService } from "../../../services/worldcoin/payment.service";
+
+// Cavos hooks
+import { useCavosTransaction } from "../../../dojo/hooks/useCavosTransaction";
+import { getContractAddresses } from "../../../config/cavosConfig";
+
 interface GemShopScreenProps {
   onNavigation: (screen: Screen) => void;
 }
@@ -31,12 +39,22 @@ interface GemShopScreenProps {
 export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
   // Responsive state
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
-  
+  const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
+  const [processingPackId, setProcessingPackId] = useState<number | null>(null);
+
   // Toast position based on screen size
   const position = isMobile ? 'bottom-center' : 'top-right';
-  
-  // Store player data
+
+  // Store player data and Cavos auth
   const storePlayer = useAppStore(state => state.player);
+  const setPlayer = useAppStore(state => state.setPlayer);
+  const cavosAuth = useAppStore(state => state.cavos);
+
+  // Cavos transaction hook
+  const { executeTransaction } = useCavosTransaction();
+
+  // Check if we're in World App
+  const isInWorldApp = MiniKit.isInstalled();
   
   // Responsive design
   useEffect(() => {
@@ -45,17 +63,132 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Handle gem pack purchase (UX only for now)
+  // Handle gem pack purchase with Worldcoin payments
   const handlePurchase = async (pack: GemPack) => {
-    // For now, just show a coming soon message
-    toast.success(
-      `Payment integration coming soon! You selected ${pack.gemAmount} gems for ${pack.priceDisplay} USDC`,
-      { 
+    // Check if we're in World App
+    if (!isInWorldApp) {
+      toast.error(
+        'Please open this app in World App to make purchases',
+        {
+          position,
+          duration: 4000,
+          icon: '🌍'
+        }
+      );
+      return;
+    }
+
+    try {
+      setIsProcessingPayment(true);
+      setProcessingPackId(pack.id);
+
+      // Show processing toast
+      toast.loading(
+        `Processing payment for ${pack.gemAmount} gems...`,
+        {
+          position,
+          id: 'payment-processing'
+        }
+      );
+
+      // Send payment through World App
+      const paymentResult = await worldcoinPaymentService.sendPayment(pack);
+
+      if (paymentResult) {
+        // Parse gem amount from reference
+        const gemAmount = worldcoinPaymentService.parseGemAmountFromReference(paymentResult.reference);
+
+        if (gemAmount > 0) {
+          try {
+            // Check if user is authenticated with Cavos
+            if (!cavosAuth.isAuthenticated || !cavosAuth.wallet) {
+              throw new Error('Please login with ByteBeasts to complete the purchase');
+            }
+
+            // Calculate new total gems
+            const newTotalGems = (storePlayer?.total_gems || 0) + gemAmount;
+
+            // Get contract addresses
+            const contractAddresses = getContractAddresses();
+
+            // Prepare transaction call to update gems
+            const calls = [{
+              contractAddress: contractAddresses.player,
+              entrypoint: 'update_player_total_gems',
+              calldata: [newTotalGems.toString()]
+            }];
+
+            // Execute transaction via Cavos
+            const transactionHash = await executeTransaction(calls);
+
+            // Update local store (optimistic update)
+            if (storePlayer) {
+              const updatedPlayer = {
+                ...storePlayer,
+                total_gems: newTotalGems
+              };
+              setPlayer(updatedPlayer);
+            }
+
+            // Show success message
+            toast.success(
+              `Successfully purchased ${gemAmount} gems! 💎`,
+              {
+                position,
+                duration: 5000,
+                id: 'payment-processing'
+              }
+            );
+
+            console.log('Payment completed:', {
+              packId: pack.id,
+              gems: gemAmount,
+              worldcoinTxId: paymentResult.transaction_id,
+              blockchainTxHash: transactionHash,
+              newTotalGems
+            });
+          } catch (contractError) {
+            console.error('Failed to update gems on blockchain:', contractError);
+            throw new Error('Failed to update gems balance. Please contact support.');
+          }
+        } else {
+          throw new Error('Invalid payment data');
+        }
+      } else {
+        // User cancelled or payment failed
+        toast.dismiss('payment-processing');
+        toast.error(
+          'Payment was cancelled or failed',
+          {
+            position,
+            duration: 4000
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+
+      // Show specific error message
+      let errorMessage = 'Payment failed. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('login') || error.message.includes('ByteBeasts')) {
+          errorMessage = 'Please login with ByteBeasts to complete the purchase';
+        } else if (error.message.includes('World App')) {
+          errorMessage = 'Please open this app in World App to make payments';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      toast.error(errorMessage, {
         position,
         duration: 4000,
-        icon: '🚀'
-      }
-    );
+        id: 'payment-processing'
+      });
+    } finally {
+      setIsProcessingPayment(false);
+      setProcessingPackId(null);
+    }
   };
 
   const container = {
@@ -162,6 +295,8 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
                     key={pack.id}
                     pack={pack}
                     onPurchase={() => handlePurchase(pack)}
+                    disabled={isProcessingPayment && processingPackId !== pack.id}
+                    loading={isProcessingPayment && processingPackId === pack.id}
                   />
                 ))}
               </div>
@@ -182,6 +317,29 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
                 <li>⚡ Speed up recovery times and skip waiting periods</li>
               </ul>
             </motion.div>
+
+            {/* Payment Requirements Info */}
+            {(!isInWorldApp || !cavosAuth.isAuthenticated) && (
+              <motion.div
+                className="bg-purple-50 border-2 border-purple-300 rounded-xl p-4 mt-4 shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <h4 className="font-luckiest text-purple-800 mb-2 flex items-center gap-2">
+                  🔒 Requirements
+                </h4>
+                <ul className="text-sm text-purple-700 font-rubik space-y-1">
+                  {!isInWorldApp && (
+                    <li>• Open this app in World App for payments</li>
+                  )}
+                  {!cavosAuth.isAuthenticated && (
+                    <li>• Login with ByteBeasts account to save gems</li>
+                  )}
+                  <li>• Payments processed with USDC on Worldchain</li>
+                </ul>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>
