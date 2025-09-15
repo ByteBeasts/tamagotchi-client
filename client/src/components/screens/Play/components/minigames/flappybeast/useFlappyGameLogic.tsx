@@ -276,22 +276,20 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       // Calculate rewards for the blockchain transactions
       const rewards = calculateRewards(score);
       
-      // Optimistic update: immediately update coins, gems and points in the store
+      // Optimistic update: immediately update coins and points in the store (no gems)
       const currentPlayer = useAppStore.getState().player;
       if (currentPlayer) {
         const optimisticPlayer = {
           ...currentPlayer,
           total_coins: currentPlayer.total_coins + rewards.coins,
-          total_gems: currentPlayer.total_gems + rewards.gems,
           total_points: currentPlayer.total_points + score
         };
-        
+
         console.log("🔮 [FlappyBeast] Optimistic update:", {
           coins: { before: currentPlayer.total_coins, after: optimisticPlayer.total_coins, earned: rewards.coins },
-          gems: { before: currentPlayer.total_gems, after: optimisticPlayer.total_gems, earned: rewards.gems },
           points: { before: currentPlayer.total_points, after: optimisticPlayer.total_points, earned: score }
         });
-        
+
         // Update store immediately (optimistic)
         useAppStore.getState().setPlayer(optimisticPlayer);
       }
@@ -312,12 +310,6 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
           entrypoint: 'update_player_total_coins',
           calldata: [rewards.coins.toString()]
         },
-        // Update total gems (player system)
-        {
-          contractAddress: contractAddresses.player,
-          entrypoint: 'update_player_total_gems',
-          calldata: [rewards.gems.toString()]
-        },
         // Update high score (player system)
         {
           contractAddress: contractAddresses.player,
@@ -328,7 +320,7 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       
       console.log('💾 Executing save game results transaction...', {
         score,
-        rewards: rewards.coins + ' coins, ' + rewards.gems + ' gems',
+        rewards: rewards.coins + ' coins',
         isNewHighScore: isNewHigh
       });
       await executeTransaction(calls);
@@ -346,7 +338,6 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
         const currentPlayerBeforeRefetch = useAppStore.getState().player;
         console.log("💰 [FlappyBeast] Player stats before refetch:", {
           coins: currentPlayerBeforeRefetch?.total_coins,
-          gems: currentPlayerBeforeRefetch?.total_gems,
           points: currentPlayerBeforeRefetch?.total_points
         });
         
@@ -356,7 +347,6 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
         const currentPlayerAfterRefetch = useAppStore.getState().player;
         console.log("💰 [FlappyBeast] Player stats after refetch:", {
           coins: currentPlayerAfterRefetch?.total_coins,
-          gems: currentPlayerAfterRefetch?.total_gems,
           points: currentPlayerAfterRefetch?.total_points
         });
       }, 8000); // Wait 8 seconds for Torii to process
@@ -371,16 +361,14 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
         const revertedPlayer = {
           ...currentPlayer,
           total_coins: Math.max(0, currentPlayer.total_coins - rewards.coins),
-          total_gems: Math.max(0, currentPlayer.total_gems - rewards.gems),
           total_points: Math.max(0, currentPlayer.total_points - score)
         };
-        
+
         console.log("↩️ [FlappyBeast] Reverting optimistic update:", {
           coins: { before: currentPlayer.total_coins, after: revertedPlayer.total_coins },
-          gems: { before: currentPlayer.total_gems, after: revertedPlayer.total_gems },
           points: { before: currentPlayer.total_points, after: revertedPlayer.total_points }
         });
-        
+
         useAppStore.getState().setPlayer(revertedPlayer);
       }
       
@@ -445,8 +433,8 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       if (isNewHigh) {
         toast.success(`🏆 New High Score: ${finalScore}!`, { duration: 4000 });
       } else {
-        toast.success(`Game Complete! +${rewards.coins} coins, +${rewards.gems} gems`, { 
-          duration: 3000 
+        toast.success(`Game Complete! +${rewards.coins} coins`, {
+          duration: 3000
         });
       }
 

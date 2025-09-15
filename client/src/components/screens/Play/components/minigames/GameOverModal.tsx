@@ -3,7 +3,6 @@ import { GameOverModalProps } from '../../../../types/play.types';
 import { useEffect, useMemo } from 'react';
 import closeIcon from "../../../../../assets/icons/extras/icon-close.webp";
 import coinIcon from "../../../../../assets/icons/coins/icon-coin-single.webp";
-import gemIcon from "../../../../../assets/icons/gems/icon-gem-single.webp";
 
 export const GameOverModal = ({
   isOpen,
@@ -52,7 +51,7 @@ export const GameOverModal = ({
   if (!isOpen || !gameResult) return null;
 
   const { score, rewards } = gameResult;
-  const { coins, gems } = rewards;
+  const { coins } = rewards;
 
   // Handlers with touch support
   const handlePlayAgainClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -136,7 +135,7 @@ export const GameOverModal = ({
               <div className="text-center mb-6">
                 <h3 className="text-gray-800 font-semibold mb-4 font-rubik">Rewards Earned</h3>
 
-                <div className="flex justify-center gap-12">
+                <div className="flex justify-center">
                   {/* Coins */}
                   <div className="text-center">
                     <div className="mb-2">
@@ -146,17 +145,6 @@ export const GameOverModal = ({
                       +{coins}
                     </div>
                     <div className="text-xs text-gray-600 font-rubik">Coins</div>
-                  </div>
-
-                  {/* Gems */}
-                  <div className="text-center">
-                    <div className="mb-2">
-                      <img src={gemIcon} alt="Gems" className="w-12 h-12 mx-auto" />
-                    </div>
-                    <div className="text-lg font-bold text-blue-600">
-                      +{gems}
-                    </div>
-                    <div className="text-xs text-gray-600 font-rubik">Gems</div>
                   </div>
                 </div>
               </div>
