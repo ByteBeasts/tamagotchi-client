@@ -22,20 +22,20 @@ export interface CoinReward {
 
 // Flappy Beasts score ranges for coin and gem rewards
 const FLAPPY_BEASTS_RANGES: ScoreRange[] = [
-  { min: 0, max: 5, coins: 10, gems: 1, label: "Beginner" },
-  { min: 6, max: 15, coins: 25, gems: 2, label: "Rookie" },
-  { min: 16, max: 30, coins: 50, gems: 5, label: "Flyer" },
-  { min: 31, max: 50, coins: 100, gems: 10, label: "Ace Pilot" },
-  { min: 51, max: Infinity, coins: 200, gems: 20, label: "Legend" }
+  { min: 0, max: 50, coins: 10, gems: 0, label: "Beginner" },
+  { min: 51, max: 150, coins: 25, gems: 0, label: "Rookie" },
+  { min: 151, max: 300, coins: 50, gems: 0, label: "Flyer" },
+  { min: 301, max: 500, coins: 100, gems: 0, label: "Ace Pilot" },
+  { min: 501, max: Infinity, coins: 200, gems: 0, label: "Legend" }
 ];
 
 // Platform Jump score ranges (for future implementation)
 const PLATFORM_JUMP_RANGES: ScoreRange[] = [
-  { min: 0, max: 250, coins: 15, gems: 1, label: "Beginner" },
-  { min: 251, max: 500, coins: 35, gems: 3, label: "Jumper" },
-  { min: 501, max: 1000, coins: 75, gems: 7, label: "Bouncer" },
-  { min: 1001, max: 2000, coins: 150, gems: 15, label: "Sky Walker" },
-  { min: 2001, max: Infinity, coins: 300, gems: 30, label: "Legend" }
+  { min: 0, max: 250, coins: 15, gems: 0, label: "Beginner" },
+  { min: 251, max: 500, coins: 35, gems: 0, label: "Jumper" },
+  { min: 501, max: 1000, coins: 75, gems: 0, label: "Bouncer" },
+  { min: 1001, max: 2000, coins: 150, gems: 0, label: "Sky Walker" },
+  { min: 2001, max: Infinity, coins: 300, gems: 0, label: "Legend" }
 ];
 
 // Registry of score ranges by game
