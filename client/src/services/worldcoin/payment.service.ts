@@ -30,16 +30,18 @@ class WorldcoinPaymentService {
    */
   private async getUSDToWLDRate(): Promise<number> {
     try {
-      const response = await fetch(
-        'https://app-backend.worldcoin.dev/public/v1/miniapps/prices?fiatCurrencies=USD&cryptoCurrencies=WLD'
-      );
+      // Use Vite proxy to avoid CORS issues
+      // TODO: Replace with Supabase backend call when available
+      const apiUrl = '/api/worldcoin/public/v1/miniapps/prices?fiatCurrencies=USD&cryptoCurrencies=WLD';
+
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch prices: ${response.status}`);
       }
 
       const data: PriceResponse = await response.json();
-      const wldPriceData = data.result.prices?.WLD?.USD;
+      const wldPriceData = data.result?.prices?.WLD?.USD;
 
       if (!wldPriceData || !wldPriceData.amount) {
         throw new Error('Invalid WLD price received from API');
@@ -56,6 +58,12 @@ class WorldcoinPaymentService {
       return roundedPrice;
     } catch (error) {
       console.error('Error fetching USD to WLD rate:', error);
+
+      // Check if it's a CORS error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('CORS: Unable to fetch WLD price. Backend proxy required.');
+      }
+
       throw new Error('Failed to get current WLD exchange rate');
     }
   }

@@ -159,6 +159,13 @@ export default defineConfig(({ command }) => {
         '.trycloudflare.com',
         '.vercel.app'
       ],
+      proxy: {
+        '/api/worldcoin': {
+          target: 'https://app-backend.worldcoin.dev',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/worldcoin/, ''),
+        },
+      },
     },
     // Configure SPA fallback for development
     preview: {
