@@ -24,11 +24,12 @@ import "slick-carousel/slick/slick-theme.css";
 
 // Eruda for debugging (especially useful in World App)
 if (typeof window !== 'undefined') {
-  // Force Eruda in World App or development
+  // Check if Eruda is enabled via env variable, in World App, or in development
+  const isErudaEnabled = import.meta.env.VITE_ENABLE_ERUDA === 'true' || import.meta.env.VITE_ENABLE_ERUDA === true;
   const isWorldApp = navigator.userAgent.includes('WorldApp') || navigator.userAgent.includes('World App');
   const isDev = import.meta.env.DEV;
-  
-  if (isWorldApp || isDev) {
+
+  if (isErudaEnabled || isWorldApp || isDev) {
     console.log('🔧 Loading Eruda for debugging...');
     import('eruda').then((eruda: any) => {
       eruda.default.init();
