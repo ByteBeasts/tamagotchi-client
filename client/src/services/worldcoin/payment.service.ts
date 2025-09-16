@@ -50,7 +50,7 @@ class WorldcoinPaymentService {
           },
           {
             symbol: Tokens.WLD,
-            token_amount: tokenToDecimals(pack.price * 2.5, Tokens.WLD).toString(), // Approximate conversion rate
+            token_amount: tokenToDecimals(pack.price, Tokens.WLD).toString(), // Approximate conversion rate
           }
         ],
         description: `Purchase ${pack.gemAmount} gems - ${pack.name}`,
