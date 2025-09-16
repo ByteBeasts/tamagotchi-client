@@ -8,7 +8,66 @@ import {
 } from '@worldcoin/minikit-js';
 import { GemPack } from '../../constants/gemShop.constants';
 
+interface PriceResponse {
+  result: {
+    prices: {
+      [cryptoCurrency: string]: {
+        [fiatCurrency: string]: {
+          asset: string;
+          amount: string;
+          decimals: number;
+          symbol: string;
+        };
+      };
+    };
+  };
+}
+
 class WorldcoinPaymentService {
+
+  /**
+   * Fetch USD to WLD conversion rate from World API
+   */
+  private async getUSDToWLDRate(): Promise<number> {
+    try {
+      const response = await fetch(
+        'https://app-backend.worldcoin.dev/public/v1/miniapps/prices?fiatCurrencies=USD&cryptoCurrencies=WLD'
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch prices: ${response.status}`);
+      }
+
+      const data: PriceResponse = await response.json();
+      const wldPriceData = data.result.prices?.WLD?.USD;
+
+      if (!wldPriceData || !wldPriceData.amount) {
+        throw new Error('Invalid WLD price received from API');
+      }
+
+      // Convert the amount considering decimals and round to 2 decimal places
+      const wldPriceInUSD = parseFloat(wldPriceData.amount) / Math.pow(10, wldPriceData.decimals);
+      const roundedPrice = Math.round(wldPriceInUSD * 100) / 100;
+
+      if (roundedPrice <= 0) {
+        throw new Error('Invalid WLD price value');
+      }
+
+      return roundedPrice;
+    } catch (error) {
+      console.error('Error fetching USD to WLD rate:', error);
+      throw new Error('Failed to get current WLD exchange rate');
+    }
+  }
+
+  /**
+   * Convert USD amount to WLD tokens
+   */
+  private async convertUSDToWLD(usdAmount: number): Promise<string> {
+    const wldRate = await this.getUSDToWLDRate();
+    const wldAmount = usdAmount / wldRate;
+    return tokenToDecimals(wldAmount, Tokens.WLD).toString();
+  }
 
   /**
    * Generate unique payment reference with gem amount encoded
@@ -39,6 +98,9 @@ class WorldcoinPaymentService {
       // Generate unique reference
       const reference = this.generateReference(pack);
 
+      // Get real-time WLD amount conversion
+      const wldTokenAmount = await this.convertUSDToWLD(pack.price);
+
       // Create payment payload with both USDC and WLD options
       const payload: PayCommandInput = {
         reference,
@@ -47,6 +109,10 @@ class WorldcoinPaymentService {
           {
             symbol: Tokens.USDC,
             token_amount: tokenToDecimals(pack.price, Tokens.USDC).toString(),
+          },
+          {
+            symbol: Tokens.WLD,
+            token_amount: wldTokenAmount,
           }
         ],
         description: `Purchase ${pack.gemAmount} gems - ${pack.name}`,
@@ -55,7 +121,8 @@ class WorldcoinPaymentService {
       console.log('Sending payment request:', {
         reference,
         gems: pack.gemAmount,
-        price: pack.price
+        price: pack.price,
+        wldAmount: wldTokenAmount
       });
 
       // Send payment command using async method
