@@ -47,10 +47,6 @@ class WorldcoinPaymentService {
           {
             symbol: Tokens.USDC,
             token_amount: tokenToDecimals(pack.price, Tokens.USDC).toString(),
-          },
-          {
-            symbol: Tokens.WLD,
-            token_amount: tokenToDecimals(pack.price, Tokens.WLD).toString(), // Approximate conversion rate
           }
         ],
         description: `Purchase ${pack.gemAmount} gems - ${pack.name}`,
