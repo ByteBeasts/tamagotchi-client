@@ -12,6 +12,7 @@ import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 
 // Gem shop components
 import { GemPackCard } from "./components/GemPackCard";
+import { WorldAppModal } from "./components/WorldAppModal";
 
 // Constants
 import { GEM_PACKS, GemPack } from "../../../constants/gemShop.constants";
@@ -42,6 +43,7 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
   const [processingPackId, setProcessingPackId] = useState<number | null>(null);
+  const [showWorldAppModal, setShowWorldAppModal] = useState<boolean>(false);
 
   // Toast position based on screen size
   const position = isMobile ? 'bottom-center' : 'top-right';
@@ -68,14 +70,7 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
   const handlePurchase = async (pack: GemPack) => {
     // Check if we're in World App
     if (!isInWorldApp) {
-      toast.error(
-        'Please open this app in World App to make purchases',
-        {
-          position,
-          duration: 4000,
-          icon: '🌍'
-        }
-      );
+      setShowWorldAppModal(true);
       return;
     }
 
@@ -272,14 +267,14 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
             >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-md"
-                style={{ 
-                  backgroundColor: 'rgba(168, 85, 247, 0.2)', 
-                  border: '2px solid rgb(168, 85, 247)' 
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center shadow-md p-2"
+                style={{
+                  backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                  border: '2px solid rgb(168, 85, 247)'
                 }}
               >
-                💎
+                <img src={gemSingleIcon} alt="gem" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h3 className="font-luckiest text-xl text-cream mb-1">
@@ -355,6 +350,12 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
           error: { duration: 3000 },
           success: { duration: 3000 }
         }}
+      />
+
+      {/* World App Modal */}
+      <WorldAppModal
+        isOpen={showWorldAppModal}
+        onClose={() => setShowWorldAppModal(false)}
       />
     </div>
   );
