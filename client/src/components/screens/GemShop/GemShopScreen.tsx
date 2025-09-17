@@ -18,6 +18,7 @@ import { GEM_PACKS, GemPack } from "../../../constants/gemShop.constants";
 
 // Assets
 import gemHandfulIcon from "../../../assets/icons/gems/icon-gems-handful.webp";
+import gemSingleIcon from "../../../assets/icons/gems/icon-gem-single.webp";
 
 // Screen props
 import type { Screen } from "../../types/screens";
@@ -132,7 +133,10 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
 
             // Show success message
             toast.success(
-              `Successfully purchased ${gemAmount} gems! 💎`,
+              <div className="flex items-center gap-2">
+                <span>Successfully purchased {gemAmount} gems!</span>
+                <img src={gemSingleIcon} alt="gem" className="w-5 h-5 inline-block" />
+              </div>,
               {
                 position,
                 duration: 5000,
