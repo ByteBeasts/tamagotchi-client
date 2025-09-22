@@ -1,5 +1,5 @@
 import { apiClient } from './config';
-import type { User, CreateUserDto, UpdateUserDto } from '@/types/api.types';
+import type { User, CreateUserDto, UpdateUserDto } from '../../types/api.types';
 
 export const usersService = {
     // Create new user

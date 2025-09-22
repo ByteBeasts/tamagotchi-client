@@ -1,5 +1,5 @@
 import { apiClient } from './config';
-import type { SystemLog, CreateSystemLogDto } from '@/types/api.types';
+import type { SystemLog, CreateSystemLogDto } from '../../types/api.types';
 
 export const systemLogsService = {
     // Create new log

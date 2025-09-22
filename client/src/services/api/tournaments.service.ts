@@ -1,5 +1,5 @@
 import { apiClient } from './config';
-import type { Tournament } from '@/types/api.types';
+import type { Tournament } from '../../types/api.types';
 
 export const tournamentsService = {
     // Get all tournaments
