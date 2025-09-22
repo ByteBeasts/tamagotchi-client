@@ -3,7 +3,7 @@ import { useOptimisticTransaction } from './useOptimisticTransaction';
 import { getContractAddresses } from '../../config/cavosConfig';
 import useAppStore from '../../zustand/store';
 import toast from 'react-hot-toast';
-import { userBalanceService } from '../../services/api';
+import { userBalanceService, systemLogsHelper } from '../../services/api';
 
 // Constants
 const REVIVE_FEE_GEMS = 20;
@@ -172,6 +172,19 @@ export const useReviveBeast = (): UseReviveBeastReturn => {
           }).catch((error) => {
             console.error('📊 Failed to sync gems balance after revive (non-critical):', error);
           });
+
+          // Log beast revival to Supabase (separate API call)
+          if (liveBeast) {
+            systemLogsHelper.logBeastRevived(
+              liveBeast.beast_id,
+              REVIVE_FEE_GEMS,
+              txHash
+            ).then(() => {
+              console.log('📝 Beast revival logged to Supabase');
+            }).catch((error) => {
+              console.error('📝 Failed to log beast revival (non-critical):', error);
+            });
+          }
         },
 
         // Error callback

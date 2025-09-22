@@ -22,7 +22,7 @@ import { useHighScore } from '../../../../../../dojo/hooks/useHighScore';
 import { usePlayer } from '../../../../../../dojo/hooks/usePlayer';
 
 // API Services
-import { userBalanceService } from '../../../../../../services/api';
+import { userBalanceService, systemLogsHelper } from '../../../../../../services/api';
 
 // Constants
 const ENERGY_REQUIREMENT = 20;
@@ -334,6 +334,21 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
         console.log('📊 Coins balance synced to Supabase after FlappyBeast game');
       }).catch((error) => {
         console.error('📊 Failed to sync coins balance after FlappyBeast game (non-critical):', error);
+      });
+
+      // Log minigame completion to Supabase (separate API call)
+      systemLogsHelper.logMinigameCompleted(
+        'flappy_beast',
+        score,
+        rewards.coins,
+        isNewHigh,
+        currentHighScore,
+        0, // gameDuration - not tracked in this game
+        'N/A' // transactionHash - not available in this context
+      ).then(() => {
+        console.log('📝 Minigame completion logged to Supabase');
+      }).catch((error) => {
+        console.error('📝 Failed to log minigame completion (non-critical):', error);
       });
 
       // Refresh high scores after saving

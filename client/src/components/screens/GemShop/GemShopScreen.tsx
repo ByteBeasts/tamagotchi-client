@@ -35,7 +35,7 @@ import { useCavosTransaction } from "../../../dojo/hooks/useCavosTransaction";
 import { getContractAddresses } from "../../../config/cavosConfig";
 
 // API Services
-import { userBalanceService } from "../../../services/api";
+import { userBalanceService, systemLogsHelper } from "../../../services/api";
 
 interface GemShopScreenProps {
   onNavigation: (screen: Screen) => void;
@@ -147,6 +147,20 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
               console.log('📊 Gems balance synced to Supabase after gem purchase');
             }).catch((error) => {
               console.error('📊 Failed to sync gems balance after gem purchase (non-critical):', error);
+            });
+
+            // Log gem purchase to Supabase (separate API call)
+            systemLogsHelper.logGemPurchase(
+              pack.id,
+              gemAmount,
+              pack.price,
+              'worldcoin',
+              paymentResult.transaction_id,
+              transactionHash
+            ).then(() => {
+              console.log('📝 Gem purchase logged to Supabase');
+            }).catch((error) => {
+              console.error('📝 Failed to log gem purchase (non-critical):', error);
             });
 
             console.log('Payment completed:', {

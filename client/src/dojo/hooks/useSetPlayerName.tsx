@@ -4,7 +4,7 @@ import { useCavosTransaction } from './useCavosTransaction';
 // Store imports
 import useAppStore from '../../zustand/store';
 import { getContractAddresses } from '../../config/cavosConfig';
-import { userBalanceService } from '../../services/api';
+import { userBalanceService, systemLogsHelper } from '../../services/api';
 
 // Hook return interface
 interface UseSetPlayerNameReturn {
@@ -117,6 +117,20 @@ export const useSetPlayerName = (): UseSetPlayerNameReturn => {
           console.log('📊 Gems balance synced to Supabase after player name change');
         }).catch((error) => {
           console.error('📊 Failed to sync gems balance after player name change (non-critical):', error);
+        });
+
+        // Log name change to Supabase (separate API call)
+        systemLogsHelper.logNameChanged(
+          'player',
+          player.address,
+          player.name || 'Unknown',
+          name,
+          5,
+          tx.transaction_hash
+        ).then(() => {
+          console.log('📝 Player name change logged to Supabase');
+        }).catch((error) => {
+          console.error('📝 Failed to log player name change (non-critical):', error);
         });
 
         return {

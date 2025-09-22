@@ -14,7 +14,7 @@ import { MarketFoodItem } from '../../../../constants/foodMarket.constants';
 import useAppStore from '../../../../zustand/store';
 
 // API Services
-import { userBalanceService } from '../../../../services/api';
+import { userBalanceService, systemLogsHelper } from '../../../../services/api';
 
 interface UseMarketPurchaseProps {
   toastPosition?: 'top-center' | 'top-right' | 'bottom-center';
@@ -211,6 +211,20 @@ export const useMarketPurchase = ({
           console.error('📊 Failed to sync coins balance after food purchase (non-critical):', error);
         });
       }
+
+      // Log food purchase to Supabase (separate API call)
+      systemLogsHelper.logFoodPurchase(
+        food.id,
+        food.name,
+        quantity,
+        totalCost,
+        food.priceType as 'coins' | 'gems',
+        transactionHash
+      ).then(() => {
+        console.log('📝 Food purchase logged to Supabase');
+      }).catch((error) => {
+        console.error('📝 Failed to log food purchase (non-critical):', error);
+      });
 
       return true;
       
