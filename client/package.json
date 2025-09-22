@@ -36,6 +36,7 @@
     "@types/uuid": "^10.0.0",
     "@worldcoin/minikit-js": "^1.9.6",
     "@worldcoin/minikit-react": "^1.9.7",
+    "axios": "^1.12.2",
     "cavos-service-sdk": "^1.2.34",
     "dexie": "^4.0.11",
     "framer-motion": "^12.15.0",
