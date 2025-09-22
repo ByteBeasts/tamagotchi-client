@@ -13,6 +13,9 @@ import { MarketFoodItem } from '../../../../constants/foodMarket.constants';
 // Store
 import useAppStore from '../../../../zustand/store';
 
+// API Services
+import { userBalanceService } from '../../../../services/api';
+
 interface UseMarketPurchaseProps {
   toastPosition?: 'top-center' | 'top-right' | 'bottom-center';
 }
@@ -189,11 +192,26 @@ export const useMarketPurchase = ({
         ? `${quantity}x ${food.name} purchased successfully!` 
         : `${food.name} purchased successfully!`;
       
-      toast.success(successMessage, { 
+      toast.success(successMessage, {
         position: toastPosition,
         duration: 3000
       });
-      
+
+      // Sync balance to Supabase based on currency type (non-blocking, background process)
+      if (food.priceType === 'gems') {
+        userBalanceService.syncGemsBalance().then(() => {
+          console.log('📊 Gems balance synced to Supabase after food purchase');
+        }).catch((error) => {
+          console.error('📊 Failed to sync gems balance after food purchase (non-critical):', error);
+        });
+      } else {
+        userBalanceService.syncCoinsBalance().then(() => {
+          console.log('📊 Coins balance synced to Supabase after food purchase');
+        }).catch((error) => {
+          console.error('📊 Failed to sync coins balance after food purchase (non-critical):', error);
+        });
+      }
+
       return true;
       
     } catch (error) {

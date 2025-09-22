@@ -34,6 +34,9 @@ import { worldcoinPaymentService } from "../../../services/worldcoin/payment.ser
 import { useCavosTransaction } from "../../../dojo/hooks/useCavosTransaction";
 import { getContractAddresses } from "../../../config/cavosConfig";
 
+// API Services
+import { userBalanceService } from "../../../services/api";
+
 interface GemShopScreenProps {
   onNavigation: (screen: Screen) => void;
 }
@@ -138,6 +141,13 @@ export function GemShopScreen({ onNavigation }: GemShopScreenProps) {
                 id: 'payment-processing'
               }
             );
+
+            // Sync gems balance to Supabase (non-blocking, background process)
+            userBalanceService.syncGemsBalance().then(() => {
+              console.log('📊 Gems balance synced to Supabase after gem purchase');
+            }).catch((error) => {
+              console.error('📊 Failed to sync gems balance after gem purchase (non-critical):', error);
+            });
 
             console.log('Payment completed:', {
               packId: pack.id,

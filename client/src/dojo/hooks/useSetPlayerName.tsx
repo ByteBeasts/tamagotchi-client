@@ -4,6 +4,7 @@ import { useCavosTransaction } from './useCavosTransaction';
 // Store imports
 import useAppStore from '../../zustand/store';
 import { getContractAddresses } from '../../config/cavosConfig';
+import { userBalanceService } from '../../services/api';
 
 // Hook return interface
 interface UseSetPlayerNameReturn {
@@ -110,6 +111,13 @@ export const useSetPlayerName = (): UseSetPlayerNameReturn => {
 
         // Success - clear optimistic name so real name from contract shows
         setOptimisticName(null);
+
+        // Sync gems balance to Supabase (non-blocking, background process)
+        userBalanceService.syncGemsBalance().then(() => {
+          console.log('📊 Gems balance synced to Supabase after player name change');
+        }).catch((error) => {
+          console.error('📊 Failed to sync gems balance after player name change (non-critical):', error);
+        });
 
         return {
           success: true,

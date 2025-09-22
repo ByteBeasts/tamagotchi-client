@@ -21,6 +21,9 @@ import { useHighScore } from '../../../../../../dojo/hooks/useHighScore';
 // player hook for refreshing player data
 import { usePlayer } from '../../../../../../dojo/hooks/usePlayer';
 
+// API Services
+import { userBalanceService } from '../../../../../../services/api';
+
 // Constants
 const ENERGY_REQUIREMENT = 20;
 
@@ -325,6 +328,13 @@ export const useFlappyGameLogic = (): UseFlappyGameLogicReturn => {
       });
       await executeTransaction(calls);
       console.log('✅ Game results saved successfully');
+
+      // Sync coins balance to Supabase (non-blocking, background process)
+      userBalanceService.syncCoinsBalance().then(() => {
+        console.log('📊 Coins balance synced to Supabase after FlappyBeast game');
+      }).catch((error) => {
+        console.error('📊 Failed to sync coins balance after FlappyBeast game (non-critical):', error);
+      });
 
       // Refresh high scores after saving
       await refetchHighScores();
