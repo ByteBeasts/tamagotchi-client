@@ -52,7 +52,7 @@ export const userBalanceService = {
     },
 
     /**
-     * Update only coins balance
+     * Update coins balance (includes gems to avoid overwriting)
      */
     async syncCoinsBalance(address?: string): Promise<void> {
         try {
@@ -61,13 +61,16 @@ export const userBalanceService = {
 
             if (!userAddress || !player) return;
 
+            // Include both balances to avoid backend setting gems to 0
             const updateData: UpdateUserDto = {
-                totalCoins: player.total_coins
+                totalCoins: player.total_coins,
+                totalGems: player.total_gems
             };
 
             console.log('🪙 Syncing coins balance to Supabase:', {
                 address: userAddress,
-                coins: updateData.totalCoins
+                coins: updateData.totalCoins,
+                gems: updateData.totalGems
             });
 
             await usersService.update(userAddress, updateData);
@@ -79,7 +82,7 @@ export const userBalanceService = {
     },
 
     /**
-     * Update only gems balance
+     * Update gems balance (includes coins to avoid overwriting)
      */
     async syncGemsBalance(address?: string): Promise<void> {
         try {
@@ -88,12 +91,15 @@ export const userBalanceService = {
 
             if (!userAddress || !player) return;
 
+            // Include both balances to avoid backend setting coins to 0
             const updateData: UpdateUserDto = {
+                totalCoins: player.total_coins,
                 totalGems: player.total_gems
             };
 
             console.log('💎 Syncing gems balance to Supabase:', {
                 address: userAddress,
+                coins: updateData.totalCoins,
                 gems: updateData.totalGems
             });
 
