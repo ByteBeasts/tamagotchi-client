@@ -18,6 +18,19 @@ import {
 // Store import
 import useAppStore from '../../zustand/store';
 
+// API Services
+import { systemLogsHelper } from '../../services/api';
+
+// Helper function to get beast type name
+const getBeastTypeName = (beastType: number): string => {
+  switch (beastType) {
+    case 1: return 'dragon';
+    case 2: return 'wolf';
+    case 3: return 'snake';
+    default: return 'unknown';
+  }
+};
+
 // Types
 interface SpawnState {
   isSpawning: boolean;
@@ -222,6 +235,18 @@ export const useSpawnBeast = (): UseSpawnBeastReturn => {
             isSpawning: false,
             syncSuccess: isFullyComplete
           }));
+
+          // Log beast spawn to Supabase (separate API call)
+          systemLogsHelper.logBeastSpawned(
+            syncResult.finalBeastId || params.beast_type,
+            getBeastTypeName(params.beast_type),
+            params.specie,
+            tx.transaction_hash
+          ).then(() => {
+            console.log('📝 Beast spawn logged to Supabase');
+          }).catch((error) => {
+            console.error('📝 Failed to log beast spawn (non-critical):', error);
+          });
 
           return {
             success: true,

@@ -6,6 +6,8 @@ import { usePlayer } from './usePlayer';
 import useAppStore from '../../zustand/store';
 import { getContractAddresses } from '../../config/cavosConfig';
 import { useWorldcoinCavosAuth } from './useWorldcoinCavosAuth';
+import { usersService } from '../../services/api';
+import type { CreateUserDto } from '../../types/api.types';
 
 interface InitializationResult {
   success: boolean;
@@ -37,6 +39,47 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
   const [error, setError] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+
+  /**
+   * Create user in Supabase backend
+   */
+  const createUserInSupabase = useCallback(async (walletAddress: string) => {
+    try {
+      console.log('🔄 Creating user in Supabase backend...');
+
+      // Get Cavos auth state
+      const cavosAuth = useAppStore.getState().cavos;
+
+      // Prepare user data
+      const userData: CreateUserDto = {
+        address: walletAddress,
+        worldCoinAddress: undefined,
+        totalCoins: 300, // Default starting coins
+        totalGems: 0     // Default starting gems
+      };
+
+      // Determine if we have WorldCoin wallet or email
+      if (isWorldApp && worldcoinCredentials?.walletAddress) {
+        // If running in World App, use WorldCoin wallet address
+        userData.worldCoinAddress = worldcoinCredentials.walletAddress;
+        console.log('🌍 Using WorldCoin wallet address:', userData.worldCoinAddress);
+      } else if (cavosAuth.user?.email) {
+        // If running in browser, use email from Cavos
+        userData.worldCoinAddress = cavosAuth.user.email;
+        console.log('📧 Using email as identifier:', userData.worldCoinAddress);
+      }
+
+      // Make API call in background
+      const createdUser = await usersService.create(userData);
+      console.log('✅ User created in Supabase:', createdUser);
+
+      return createdUser;
+    } catch (error) {
+      // Don't fail the spawn process if Supabase API fails
+      console.error('⚠️ Failed to create user in Supabase (non-critical):', error);
+      return null;
+    }
+  }, [isWorldApp, worldcoinCredentials]);
 
   /**
    * Wait for player data to be indexed by Torii
@@ -161,13 +204,20 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       setTxHash(transactionHash);
       
       console.log('✅ Spawn transaction successful:', transactionHash);
-      
+
+      // Create user in Supabase (non-blocking, background process)
+      createUserInSupabase(walletAddress).then(() => {
+        console.log('📊 Supabase user creation process completed');
+      }).catch((error) => {
+        console.error('📊 Supabase user creation process failed (non-critical):', error);
+      });
+
       // Wait for transaction to be processed and indexed
       console.log('⏳ Waiting for transaction to be processed and indexed...');
       console.log('🔗 Transaction hash:', transactionHash);
       console.log('📍 Target wallet address:', walletAddress);
       console.log('🌐 Expected to index player for address:', walletAddress);
-      
+
       await new Promise(resolve => setTimeout(resolve, 5000)); // Increased wait time
       
       // Poll for player data with more attempts
@@ -220,7 +270,7 @@ export const useSpawnPlayerCavos = (): UseSpawnPlayerCavosReturn => {
       setIsInitializing(false);
       return { success: false, playerExists: false, error: errorMessage };
     }
-  }, [isInitializing, client, executeTransaction, refetchPlayer, waitForPlayerData]);
+  }, [isInitializing, client, executeTransaction, refetchPlayer, waitForPlayerData, createUserInSupabase]);
 
   const resetInitializer = useCallback(() => {
     setIsInitializing(false);

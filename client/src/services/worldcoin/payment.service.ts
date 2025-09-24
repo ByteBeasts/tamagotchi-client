@@ -7,57 +7,29 @@ import {
   ResponseEvent
 } from '@worldcoin/minikit-js';
 import { GemPack } from '../../constants/gemShop.constants';
-
-interface PriceResponse {
-  result: {
-    prices: {
-      [cryptoCurrency: string]: {
-        [fiatCurrency: string]: {
-          asset: string;
-          amount: string;
-          decimals: number;
-          symbol: string;
-        };
-      };
-    };
-  };
-}
+import { worldcoinService } from '../api';
 
 class WorldcoinPaymentService {
 
   /**
-   * Fetch USD to WLD conversion rate from World API
+   * Fetch USD to WLD conversion rate from our Supabase backend
    */
   private async getUSDToWLDRate(): Promise<number> {
     try {
-      // Direct API call with required query parameters
-      const url = 'https://app-backend.worldcoin.dev/public/v1/miniapps/prices?fiatCurrencies=USD&cryptoCurrencies=WLD';
-      const options = { method: 'GET', body: undefined };
+      // Use our backend API to avoid CORS issues
+      const wldPrice = await worldcoinService.getWLDPrice();
 
-      const response = await fetch(url, options);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch prices: ${response.status}`);
+      if (!wldPrice || wldPrice <= 0) {
+        throw new Error('Invalid WLD price received from backend');
       }
 
-      const data: PriceResponse = await response.json();
-      const wldPriceData = data.result?.prices?.WLD?.USD;
+      // Round to 2 decimal places for consistency
+      const roundedPrice = Math.round(wldPrice * 100) / 100;
 
-      if (!wldPriceData || !wldPriceData.amount) {
-        throw new Error('Invalid WLD price received from API');
-      }
-
-      // Convert the amount considering decimals and round to 2 decimal places
-      const wldPriceInUSD = parseFloat(wldPriceData.amount) / Math.pow(10, wldPriceData.decimals);
-      const roundedPrice = Math.round(wldPriceInUSD * 100) / 100;
-
-      if (roundedPrice <= 0) {
-        throw new Error('Invalid WLD price value');
-      }
-
+      console.log('WLD price from backend:', roundedPrice);
       return roundedPrice;
     } catch (error) {
-      console.error('Error fetching USD to WLD rate:', error);
+      console.error('Error fetching USD to WLD rate from backend:', error);
       throw new Error('Failed to get current WLD exchange rate');
     }
   }

@@ -6,6 +6,7 @@ import useAppStore from '../../zustand/store';
 import { hexToNumber, hexToBool } from '../../utils/dataConversion';
 import fetchStatus from '../../utils/fetchStatus';
 import { network } from '../../config/cavosConfig';
+import { systemLogsHelper } from '../../services/api';
 
 // Hook return interface
 interface UseLiveBeastReturn {
@@ -205,9 +206,23 @@ export const useLiveBeast = (): UseLiveBeastReturn => {
       
       // If contract says beast is dead (undefined) or has is_alive=false
       const isDeadInContract = !contractStatus || (contractStatus && contractStatus[2] === 0);
-      
+
       if (isDeadInContract) {
         console.log('💀 Contract says beast is dead, clearing beast data');
+
+        // Log beast death if we had a living beast before
+        if (liveBeast && liveBeastStatus) {
+          systemLogsHelper.logBeastDied(
+            liveBeast.beast_id,
+            liveBeastStatus,
+            liveBeast.age
+          ).then(() => {
+            console.log('📝 Beast death logged to Supabase');
+          }).catch((error) => {
+            console.error('📝 Failed to log beast death (non-critical):', error);
+          });
+        }
+
         clearLiveBeast();
         setIsLoading(false);
         isRefetchingRef.current = false;

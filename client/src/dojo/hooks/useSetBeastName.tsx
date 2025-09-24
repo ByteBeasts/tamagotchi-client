@@ -4,6 +4,7 @@ import { useCavosTransaction } from './useCavosTransaction';
 // Store imports
 import useAppStore from '../../zustand/store';
 import { getContractAddresses } from '../../config/cavosConfig';
+import { userBalanceService, systemLogsHelper } from '../../services/api';
 
 // Hook return interface
 interface UseSetBeastNameReturn {
@@ -120,6 +121,27 @@ export const useSetBeastName = (): UseSetBeastNameReturn => {
 
         // Success - clear optimistic name so real name from contract shows
         setOptimisticName(null);
+
+        // Sync gems balance to Supabase (non-blocking, background process)
+        userBalanceService.syncGemsBalance().then(() => {
+          console.log('📊 Gems balance synced to Supabase after beast name change');
+        }).catch((error) => {
+          console.error('📊 Failed to sync gems balance after beast name change (non-critical):', error);
+        });
+
+        // Log name change to Supabase (separate API call)
+        systemLogsHelper.logNameChanged(
+          'beast',
+          (liveBeast.beast?.beast_id || 0).toString(),
+          liveBeast.beast?.name || 'Unknown',
+          name,
+          5,
+          tx.transaction_hash
+        ).then(() => {
+          console.log('📝 Beast name change logged to Supabase');
+        }).catch((error) => {
+          console.error('📝 Failed to log beast name change (non-critical):', error);
+        });
 
         return {
           success: true,
