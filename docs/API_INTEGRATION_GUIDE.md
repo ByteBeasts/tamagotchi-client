@@ -1,5 +1,13 @@
 # 📚 Guía de Integración API - ByteBeast Backend
 
+## 📋 Cambios Recientes
+
+### Nuevo Módulo: Worldcoin
+Se ha agregado un nuevo módulo para integración con la API de Worldcoin que permite:
+- **Obtener precios de criptomonedas**: Consulta precios actuales de criptomonedas (como WLD, USDC) en diferentes monedas fiat (USD, EUR, JPY, etc.)
+- **Endpoint**: `GET /worldcoin/prices`
+- **Dependencias agregadas**: `axios` y `@nestjs/axios` para realizar peticiones HTTP externas
+
 ## 🔧 Configuración Inicial del Cliente
 
 ### Instalación de Dependencias
@@ -123,6 +131,23 @@ export interface CreateSystemLogDto {
   description: string;
   metadata?: any;
 }
+
+// Worldcoin Types
+export interface GetPricesDto {
+  fiatCurrencies: string;    // Comma-separated: "USD,EUR,JPY"
+  cryptoCurrencies: string;   // Comma-separated: "WLD,USDC"
+}
+
+export interface FormattedPriceDto {
+  cryptoCurrency: string;     // e.g., "WLD"
+  fiatCurrency: string;      // e.g., "USD"
+  price: number;             // e.g., 1.2974 (formatted to 4 decimals)
+  rawAmount: string;         // e.g., "1297392134399" (raw from API)
+}
+
+export interface FormattedPricesResponseDto {
+  prices: FormattedPriceDto[];
+}
 ```
 
 ## 🔌 Servicios API
@@ -238,6 +263,41 @@ export const systemLogsService = {
 };
 ```
 
+### Worldcoin Service
+
+```typescript
+// src/services/api/worldcoin.service.ts
+import { apiClient } from './config';
+import type { GetPricesDto, FormattedPricesResponseDto } from '@/types/api.types';
+
+export const worldcoinService = {
+  // Obtener precios de criptomonedas
+  async getPrices(params: GetPricesDto): Promise<FormattedPricesResponseDto> {
+    const { data } = await apiClient.get<FormattedPricesResponseDto>('/worldcoin/prices', {
+      params
+    });
+    return data;
+  },
+
+  // Helper: Obtener precio de WLD en USD
+  async getWLDPrice(): Promise<number> {
+    const response = await this.getPrices({
+      fiatCurrencies: 'USD',
+      cryptoCurrencies: 'WLD'
+    });
+    return response.prices[0]?.price || 0;
+  },
+
+  // Helper: Obtener múltiples precios
+  async getMultiplePrices(cryptos: string[], fiats: string[]): Promise<FormattedPricesResponseDto> {
+    return this.getPrices({
+      fiatCurrencies: fiats.join(','),
+      cryptoCurrencies: cryptos.join(',')
+    });
+  }
+};
+```
+
 ## 🎯 Hooks React Personalizados
 
 ### useUser Hook
@@ -283,6 +343,65 @@ export const useUser = (address: string) => {
   };
 
   return { user, loading, error, updateUser };
+};
+```
+
+### useWorldcoinPrices Hook
+
+```typescript
+// src/hooks/useWorldcoinPrices.ts
+import { useState, useEffect } from 'react';
+import { worldcoinService } from '@/services/api/worldcoin.service';
+import type { FormattedPriceDto } from '@/types/api.types';
+
+interface UseWorldcoinPricesOptions {
+  cryptoCurrencies?: string[];
+  fiatCurrencies?: string[];
+  refreshInterval?: number; // en milisegundos
+}
+
+export const useWorldcoinPrices = (options: UseWorldcoinPricesOptions = {}) => {
+  const {
+    cryptoCurrencies = ['WLD'],
+    fiatCurrencies = ['USD'],
+    refreshInterval = 60000 // Actualizar cada minuto
+  } = options;
+
+  const [prices, setPrices] = useState<FormattedPriceDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchPrices = async () => {
+    try {
+      setLoading(true);
+      const response = await worldcoinService.getMultiplePrices(
+        cryptoCurrencies,
+        fiatCurrencies
+      );
+      setPrices(response.prices);
+      setError(null);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrices();
+
+    // Auto-refresh si está configurado
+    let interval: NodeJS.Timeout;
+    if (refreshInterval > 0) {
+      interval = setInterval(fetchPrices, refreshInterval);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [cryptoCurrencies.join(','), fiatCurrencies.join(','), refreshInterval]);
+
+  return { prices, loading, error, refetch: fetchPrices };
 };
 ```
 
@@ -403,7 +522,42 @@ VITE_API_URL=http://localhost:3000
 | POST | `/system-logs` | Crear nuevo log |
 | DELETE | `/system-logs/:logId` | Eliminar log |
 
+### Worldcoin
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/worldcoin/prices` | Obtener precios de criptomonedas |
+
+**Parámetros de Query para `/worldcoin/prices`:**
+- `fiatCurrencies` (requerido): Monedas fiat separadas por comas (e.g., "USD,EUR,JPY")
+- `cryptoCurrencies` (requerido): Criptomonedas separadas por comas (e.g., "WLD,USDC")
+
 ## 📊 Estructura de Datos JSON
+
+### Ejemplo de Respuesta Worldcoin Prices
+```json
+{
+  "prices": [
+    {
+      "cryptoCurrency": "WLD",
+      "fiatCurrency": "USD",
+      "price": 1.2974,
+      "rawAmount": "1297392134399"
+    },
+    {
+      "cryptoCurrency": "WLD",
+      "fiatCurrency": "EUR",
+      "price": 1.1850,
+      "rawAmount": "1185012345678"
+    },
+    {
+      "cryptoCurrency": "USDC",
+      "fiatCurrency": "USD",
+      "price": 0.9999,
+      "rawAmount": "999900000000"
+    }
+  ]
+}
+```
 
 ### Ejemplo de Config para Tournament
 ```json
