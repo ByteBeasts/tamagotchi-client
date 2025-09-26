@@ -72,24 +72,29 @@ module.exports = {
           }
         },
         subtleTwinkle: {
-          '0%': { 
-            opacity: '0.7', 
-            filter: 'brightness(0.8)' 
+          '0%': {
+            opacity: '0.7',
+            filter: 'brightness(0.8)'
           },
-          '50%': { 
-            opacity: '1', 
-            filter: 'brightness(1.2)' 
+          '50%': {
+            opacity: '1',
+            filter: 'brightness(1.2)'
           },
-          '100%': { 
-            opacity: '0.7', 
-            filter: 'brightness(0.8)' 
+          '100%': {
+            opacity: '0.7',
+            filter: 'brightness(0.8)'
           }
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' }
         }
       },
       animation: {
         fadeInUp: 'fadeInUp 1s ease-out forwards',
         softGlow: 'softGlow 3.5s infinite ease-in-out alternate',
-        subtleTwinkle: 'subtleTwinkle 4s infinite ease-in-out'
+        subtleTwinkle: 'subtleTwinkle 4s infinite ease-in-out',
+        shimmer: 'shimmer 3s infinite'
       }
     },
   },
