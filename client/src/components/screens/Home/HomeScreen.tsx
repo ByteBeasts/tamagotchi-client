@@ -448,6 +448,11 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onNavigateToGemShop={() => onNavigation("gemShop")}
       />
 
+      <TournamentBanner
+        tournaments={activeTournaments}
+        onBannerClick={() => setIsTournamentModalOpen(true)}
+      />
+
       <PlayerInfoSection
         playerName={playerName}
         age={age}
@@ -456,11 +461,6 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onEditName={() => setIsPlayerNameModalOpen(true)}
         onAgeLeaderboardClick={() => onNavigation("ageRanking")}
         beastData={beastData}
-      />
-
-      <TournamentBanner
-        tournaments={activeTournaments}
-        onBannerClick={() => setIsTournamentModalOpen(true)}
       />
 
       {renderBeastContent()}

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { Tournament } from "../../types/api.types";
+import rankingIcon from "../../assets/icons/ranking/icon-ranking.webp";
 
 interface TournamentBannerProps {
     tournaments: Tournament[];
@@ -29,9 +30,7 @@ export function TournamentBanner({ tournaments, onBannerClick }: TournamentBanne
     useEffect(() => {
         if (!nextEndingTournament) return;
 
-        const showDuration = 30000;
-        const hideDuration = 270000;
-        const totalCycle = showDuration + hideDuration;
+        const showDuration = 5000;
 
         const showBanner = () => setIsVisible(true);
         const hideBanner = () => setIsVisible(false);
@@ -39,14 +38,8 @@ export function TournamentBanner({ tournaments, onBannerClick }: TournamentBanne
         showBanner();
         const hideTimer = setTimeout(hideBanner, showDuration);
 
-        const cycleInterval = setInterval(() => {
-            showBanner();
-            setTimeout(hideBanner, showDuration);
-        }, totalCycle);
-
         return () => {
             clearTimeout(hideTimer);
-            clearInterval(cycleInterval);
         };
     }, [nextEndingTournament]);
 
@@ -88,42 +81,33 @@ export function TournamentBanner({ tournaments, onBannerClick }: TournamentBanne
         <AnimatePresence>
             {isVisible && (
                 <motion.div
-                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="w-full max-w-lg mx-auto px-4 mb-4 z-20"
+                    initial={{ opacity: 0, y: -100 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -100 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="fixed top-20 left-0 right-0 mx-auto w-[90%] max-w-md z-[100]"
+                    style={{ transform: 'none' }}
                 >
                     <motion.button
                         onClick={onBannerClick}
-                        className="w-full bg-gold-gradient rounded-2xl shadow-2xl p-4 relative overflow-hidden cursor-pointer"
+                        className="w-full bg-gold-gradient rounded-2xl shadow-2xl p-2 relative overflow-hidden cursor-pointer"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/20 animate-shimmer" />
 
-                        <div className="relative z-10 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="text-3xl">🏆</div>
-                                <div className="text-left">
-                                    <h3 className="font-luckiest text-black text-sm md:text-base leading-tight">
-                                        {nextEndingTournament.name}
-                                    </h3>
-                                    <p className="font-rubik text-black/70 text-xs mt-0.5">
-                                        {tournaments.length > 1
-                                            ? `${tournaments.length} active tournaments`
-                                            : 'Tournament active'}
-                                    </p>
-                                </div>
+                        <div className="relative z-10 flex flex-col items-center text-center gap-2">
+                            <div className="flex items-center gap-2">
+                                <img src={rankingIcon} alt="Tournament" className="w-12 h-12" />
+                                <h3 className="font-luckiest text-black text-base md:text-lg leading-tight">
+                                    {nextEndingTournament.name}
+                                </h3>
                             </div>
 
-                            <div className="text-right">
-                                <div className="font-luckiest text-black text-lg md:text-xl">
+                            <div className="text-center">
+                                <div className="font-luckiest text-black text-xl md:text-2xl">
                                     {countdown}
                                 </div>
-                                <p className="font-rubik text-black/70 text-xs">
-                                    remaining
-                                </p>
                             </div>
                         </div>
                     </motion.button>
