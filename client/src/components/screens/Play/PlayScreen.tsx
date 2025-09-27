@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TamagotchiTopBar } from "../../layout/TopBar";
 import { NavBar } from "../../layout/NavBar";
 import { GameId, PlayScreenProps } from "../../types/play.types";
@@ -7,6 +7,7 @@ import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import playBackground from "../../../assets/backgrounds/bg-play.webp";
 import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
 import rankingIcon from "../../../assets/icons/ranking/icon-ranking.webp";
+import trophyIcon from "../../../assets/icons/ranking/icon-golden-trophy.webp";
 
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";
@@ -17,19 +18,28 @@ import { useMusic } from "../../../context/MusicContext";
 // Store
 import useAppStore from "../../../zustand/store";
 
+// Hooks
+import { useTournaments } from "../../../hooks/useTournaments";
+
 // Data
 import { isGameAvailable, getAvailableGames } from "./components/data/miniGames";
 
 // Components
 import { BeastPlayDisplay } from "./components/BeastDisplay";
 import { GameCarousel } from "./components/GameCarousel";
+import { TournamentModal } from "../../shared/TournamentModal";
 
 export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreenProps) => {
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
+
   // Music context
   const { setCurrentScreen } = useMusic();
 
   // Store player data
   const storePlayer = useAppStore(state => state.player);
+
+  // Fetch tournaments
+  const { activeTournaments } = useTournaments({ autoRefresh: true, refreshInterval: 300000 });
 
   // Universal hook - gets the player's current beast
   const {
@@ -160,28 +170,57 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
         }}
       />
 
-      {/* Ranking Button - Top-right corner like dropdown menu */}
-      <motion.div
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
-        className="absolute top-32 right-4 z-50"
-      >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-          onClick={() => onNavigation("gameRanking")}
-          className="flex items-center justify-center hover:scale-105 transition-transform"
-          aria-label="Open Rankings"
+      {/* Action Buttons - Top-right corner */}
+      <div className="absolute top-32 right-4 z-50 flex flex-col gap-3">
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
         >
-          <img 
-            src={rankingIcon} 
-            alt="Rankings" 
-            className="w-16 h-16"
-          />
-        </motion.button>
-      </motion.div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            onClick={() => onNavigation("gameRanking")}
+            className="flex items-center justify-center hover:scale-105 transition-transform"
+            aria-label="Open Rankings"
+          >
+            <img
+              src={rankingIcon}
+              alt="Rankings"
+              className="w-16 h-16"
+            />
+          </motion.button>
+        </motion.div>
+
+        {activeTournaments.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.45, duration: 0.5, ease: "easeOut" }}
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              onClick={() => setIsTournamentModalOpen(true)}
+              className="flex items-center justify-center hover:scale-105 transition-transform relative"
+              aria-label="Open Tournaments"
+            >
+              <img
+                src={trophyIcon}
+                alt="Tournaments"
+                className="w-16 h-16"
+              />
+              {activeTournaments.length > 1 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {activeTournaments.length}
+                </span>
+              )}
+            </motion.button>
+          </motion.div>
+        )}
+      </div>
 
       {/* Play Title - Dynamic with beast's name */}
       <motion.div
@@ -214,6 +253,19 @@ export const PlayScreen = ({ onNavigation, isBeastSleeping = false }: PlayScreen
 
       {/* Navigation Bar */}
       <NavBar onNavigation={onNavigation} activeTab="play" hasLiveBeast={hasLiveBeast} />
+
+      <TournamentModal
+        isOpen={isTournamentModalOpen}
+        onClose={() => setIsTournamentModalOpen(false)}
+        tournaments={activeTournaments}
+        onNavigateToRanking={(tournamentType) => {
+          if (tournamentType === "age_based") {
+            onNavigation("ageRanking");
+          } else if (tournamentType === "game_score") {
+            onNavigation("gameRanking");
+          }
+        }}
+      />
     </div>
   );
 };

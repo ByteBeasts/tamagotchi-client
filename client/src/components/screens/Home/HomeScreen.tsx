@@ -5,6 +5,8 @@ import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import { PlayerInfoModal } from "./components/PlayerInfoModal";
 import { BeastNameModal } from "./components/BeastNameModal";
 import { PlayerNameModal } from "./components/PlayerNameModal";
+import { TournamentBanner } from "../../shared/TournamentBanner";
+import { TournamentModal } from "../../shared/TournamentModal";
 import forestBackground from "../../../assets/backgrounds/bg-home.webp";
 import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
 import gemIcon from "../../../assets/icons/gems/icon-gem-single.webp";
@@ -26,6 +28,9 @@ import useAppStore from "../../../zustand/store";
 // Utils
 import { shortString } from "starknet";
 
+// Hooks
+import { useTournaments } from "../../../hooks/useTournaments";
+
 // Music Context
 import { useMusic } from "../../../context/MusicContext";
 
@@ -43,9 +48,13 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [isPlayerNameModalOpen, setIsPlayerNameModalOpen] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
   const [playerNameError, setPlayerNameError] = useState<string | null>(null);
-  
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
+
   // Get Cavos wallet address instead of Starknet account
   const cavosWallet = useAppStore(state => state.cavos.wallet);
+
+  // Fetch tournaments
+  const { activeTournaments } = useTournaments({ autoRefresh: true, refreshInterval: 300000 });
 
   // Music context
   const { setCurrentScreen } = useMusic();
@@ -439,6 +448,11 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onNavigateToGemShop={() => onNavigation("gemShop")}
       />
 
+      <TournamentBanner
+        tournaments={activeTournaments}
+        onBannerClick={() => setIsTournamentModalOpen(true)}
+      />
+
       <PlayerInfoSection
         playerName={playerName}
         age={age}
@@ -506,6 +520,19 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         currentName={decodedPlayerName || undefined}
         playerGems={storePlayer?.total_gems || 0}
         error={playerNameError}
+      />
+
+      <TournamentModal
+        isOpen={isTournamentModalOpen}
+        onClose={() => setIsTournamentModalOpen(false)}
+        tournaments={activeTournaments}
+        onNavigateToRanking={(tournamentType) => {
+          if (tournamentType === "age_based") {
+            onNavigation("ageRanking");
+          } else if (tournamentType === "game_score") {
+            onNavigation("gameRanking");
+          }
+        }}
       />
     </div>
   );
