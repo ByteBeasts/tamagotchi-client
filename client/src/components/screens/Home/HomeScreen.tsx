@@ -362,51 +362,66 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
               : "Your beloved companion needs your care to return to life"}
           </p>
 
-          {/* Botón */}
-          <div className="flex flex-col items-center space-y-2">
+          {/* Botones */}
+          <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
+            {/* Botón Hatch New Beast */}
             <button
-              onClick={!currentBeastDisplay ? () => onNavigation("hatch") : handleReviveBeast}
-              disabled={isReviving || (!!currentBeastDisplay && (storePlayer?.total_gems || 0) < 20)}
-              className={`
-                ${!currentBeastDisplay
-                  ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500"
-                  : (storePlayer?.total_gems || 0) >= 20
-                    ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500"
-                    : "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed"
-                }
+              onClick={() => onNavigation("hatch")}
+              className="
+                bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500
                 text-white px-8 py-4 rounded-xl font-bold transition-all transform
-                ${!isReviving && ((storePlayer?.total_gems || 0) >= 20 || !currentBeastDisplay) ? "hover:scale-105" : ""}
-                shadow-lg font-luckiest text-lg flex items-center gap-2 justify-center
-                ${isReviving ? "opacity-75 cursor-not-allowed" : ""}
-              `}
+                hover:scale-105 shadow-lg font-luckiest text-lg flex items-center gap-2 justify-center
+                w-full
+              "
             >
-              {isReviving ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Reviving...
-                </>
-              ) : !currentBeastDisplay ? (
-                <>🥚 Hatch New Beast</>
-              ) : (
-                <>
-                  <img src={gemIcon} alt="Gem" className="w-5 h-5" />
-                  20 ✨ Revive Beast
-                </>
-              )}
+              🥚 Hatch New Beast
             </button>
 
-            {/* Insufficient gems message */}
-            {currentBeastDisplay && (storePlayer?.total_gems || 0) < 20 && (
-              <p className="text-sm text-red-400 drop-shadow-md text-center">
-                Insufficient gems! You have {storePlayer?.total_gems || 0}/20 gems.
-                <br />
-                <span
-                  className="text-blue-300 underline cursor-pointer hover:text-blue-200"
-                  onClick={() => onNavigation("gemShop")}
+            {/* Botón Revive Beast - solo si el jugador tiene una bestia (viva o muerta) */}
+            {storePlayer && storePlayer.current_beast_id > 0 && (
+              <>
+                <button
+                  onClick={handleReviveBeast}
+                  disabled={isReviving || (storePlayer?.total_gems || 0) < 20}
+                  className={`
+                    ${(storePlayer?.total_gems || 0) >= 20
+                      ? "bg-gradient-to-r from-purple-400 to-purple-600 hover:from-purple-300 hover:to-purple-500"
+                      : "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed"
+                    }
+                    text-white px-8 py-4 rounded-xl font-bold transition-all transform
+                    ${!isReviving && (storePlayer?.total_gems || 0) >= 20 ? "hover:scale-105" : ""}
+                    shadow-lg font-luckiest text-lg flex items-center gap-2 justify-center
+                    ${isReviving ? "opacity-75 cursor-not-allowed" : ""}
+                    w-full
+                  `}
                 >
-                  Get more gems →
-                </span>
-              </p>
+                  {isReviving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Reviving...
+                    </>
+                  ) : (
+                    <>
+                      <img src={gemIcon} alt="Gem" className="w-5 h-5" />
+                      20 ✨ Revive Beast
+                    </>
+                  )}
+                </button>
+
+                {/* Insufficient gems message */}
+                {(storePlayer?.total_gems || 0) < 20 && (
+                  <p className="text-sm text-red-400 drop-shadow-md text-center">
+                    Insufficient gems! You have {storePlayer?.total_gems || 0}/20 gems.
+                    <br />
+                    <span
+                      className="text-blue-300 underline cursor-pointer hover:text-blue-200"
+                      onClick={() => onNavigation("gemShop")}
+                    >
+                      Get more gems →
+                    </span>
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>

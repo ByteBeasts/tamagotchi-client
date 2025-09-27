@@ -51,8 +51,8 @@ export const useReviveBeast = (): UseReviveBeastReturn => {
       return { success: false, error: errorMsg };
     }
 
-    // Validation: Check if beast exists and is dead
-    if (!liveBeast) {
+    // Validation: Check if player has a beast (use current_beast_id since liveBeast is null when dead)
+    if (!storePlayer?.current_beast_id || storePlayer.current_beast_id === 0) {
       const errorMsg = 'No beast found to revive.';
       setError(errorMsg);
       toast.error(errorMsg);
@@ -174,9 +174,9 @@ export const useReviveBeast = (): UseReviveBeastReturn => {
           });
 
           // Log beast revival to Supabase (separate API call)
-          if (liveBeast) {
+          if (storePlayer?.current_beast_id) {
             systemLogsHelper.logBeastRevived(
-              liveBeast.beast_id,
+              storePlayer.current_beast_id,
               REVIVE_FEE_GEMS,
               txHash
             ).then(() => {
