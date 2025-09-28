@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { PlayerInfoSectionProps } from "../../../types/home.types";
 import { DropdownMenu } from "./DropDownMenu";
 import bannerImg from "../../../../assets/banners/banner-dragon.webp";
-import trophyIcon from "../../../../assets/icons/ranking/icon-ranking.webp";
+import trophyIcon from "../../../../assets/icons/ranking/tournament-icon.png";
 import editIcon from "../../../../assets/icons/profile/edit.webp";
 
 const buttonInteractionProps = {

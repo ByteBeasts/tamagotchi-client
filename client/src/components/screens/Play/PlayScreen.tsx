@@ -6,8 +6,9 @@ import { GameId, PlayScreenProps } from "../../types/play.types";
 import MagicalSparkleParticles from "../../shared/MagicalSparkleParticles";
 import playBackground from "../../../assets/backgrounds/bg-play.webp";
 import deadBeastBackground from "../../../assets/backgrounds/bg-dead-beast.webp";
-import rankingIcon from "../../../assets/icons/ranking/icon-ranking.webp";
-import trophyIcon from "../../../assets/icons/ranking/icon-golden-trophy.webp";
+import rankingIcon from "../../../assets/icons/ranking/tournament-icon.png";
+import trophyIcon from "../../../assets/icons/ranking/icon-ranking.webp";
+
 
 // Universal hook for beast display
 import { useBeastDisplay } from "../../../dojo/hooks/useBeastDisplay";

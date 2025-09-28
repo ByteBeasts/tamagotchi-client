@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { Tournament } from "../../types/api.types";
 import closeIcon from "../../assets/icons/extras/icon-close.webp";
-import trophyIcon from "../../assets/icons/ranking/icon-golden-trophy.webp";
+import trophyIcon from "../../assets/icons/ranking/icon-ranking.webp";
 
 interface TournamentModalProps {
   isOpen: boolean;
@@ -165,11 +165,11 @@ export function TournamentModal({ isOpen, onClose, tournaments, onNavigateToRank
                                     <p className="font-luckiest text-lg text-purple-700">
                                       ${prize.amount}
                                     </p>
-                                    {prize.currency && (
+                                    {/* {prize.currency && (
                                       <p className="text-xs text-gray-500 uppercase">
                                         {prize.currency}
                                       </p>
-                                    )}
+                                    )} */}
                                   </div>
                                 </div>
                               </div>
@@ -207,7 +207,7 @@ export function TournamentModal({ isOpen, onClose, tournaments, onNavigateToRank
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        View Rankings 🏆
+                        View Rankings
                       </motion.button>
                     </div>
                   </div>
