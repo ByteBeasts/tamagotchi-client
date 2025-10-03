@@ -55,11 +55,24 @@ export const CONTRACT_ADDRESSES = {
 // Get contract addresses for current deployment type
 export const getContractAddresses = () => {
   // Use staging contracts if explicitly set, otherwise use network-based lookup
-  if (isStaging) {
-    return CONTRACT_ADDRESSES.mainnet_staging;
-  }
-  return CONTRACT_ADDRESSES[network as keyof typeof CONTRACT_ADDRESSES];
+  const addresses = isStaging
+    ? CONTRACT_ADDRESSES.mainnet_staging
+    : CONTRACT_ADDRESSES[network as keyof typeof CONTRACT_ADDRESSES];
+
+  console.log('🎯 Contract Addresses Selection:', {
+    isStaging,
+    network,
+    deployType,
+    selectedEnvironment: isStaging ? 'mainnet_staging' : network,
+    worldAddress: addresses.world
+  });
+
+  return addresses;
 };
+
+// Execute and log immediately on module load
+const currentAddresses = getContractAddresses();
+console.log('🚀 Initial Contract Addresses loaded:', currentAddresses);
 
 // Hardcoded credentials for testing
 export const HARDCODED_CREDENTIALS = {
