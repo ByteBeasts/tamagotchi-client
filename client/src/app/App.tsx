@@ -15,6 +15,7 @@ import { MarketScreen } from "../components/screens/Market/MarketScreen";
 import { GemShopScreen } from "../components/screens/GemShop/GemShopScreen";
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
+import { MaintenanceModal } from "../components/modals/MaintenanceModal";
 import type { Screen } from "../components/types/screens";
 import { GameId } from "../components/types/play.types";
 
@@ -35,7 +36,8 @@ function AppContent() {
   const [playerAddress] = useState("0x123"); // Temporary address
   const [currentGameId, setCurrentGameId] = useState<GameId | null>(null);
   const [isGoogleCallback, setIsGoogleCallback] = useState(false);
-  
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+
   // State for predefined beast parameters
   const [pendingBeastParams, setPendingBeastParams] = useState<BeastSpawnParams | null>(null);
 
@@ -86,27 +88,27 @@ function AppContent() {
   // Clear cache on app start (aggressive approach) and check for Google callback
   useEffect(() => {
     console.log('🚀 App started, performing initial cache cleanup...');
-    
+
     // Check if this is a Google OAuth callback
     const currentPath = window.location.pathname;
     const urlParams = new URLSearchParams(window.location.search);
     const hasCallbackData = urlParams.has('user_data') || urlParams.has('error');
-    
+
     console.log('🔍 Route detection:', {
       currentPath,
       hasCallbackData,
       fullUrl: window.location.href
     });
-    
+
     if (currentPath === '/auth/callback' || hasCallbackData) {
       console.log('🎯 Detected Google OAuth callback');
       setIsGoogleCallback(true);
-      
+
       // Force the browser to stay on this page
       window.history.replaceState(null, '', '/auth/callback' + window.location.search);
       return; // Don't clear cache during callback processing
     }
-    
+
     // Clear all tamagotchi cache on app start
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -115,17 +117,20 @@ function AppContent() {
         keysToRemove.push(key);
       }
     }
-    
+
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
     });
-    
+
     // Reset store
     resetStore();
-    
+
     if (keysToRemove.length > 0) {
       console.log('✅ Initial cache cleanup completed');
     }
+
+    // Show maintenance modal on app start
+    setShowMaintenanceModal(true);
   }, []); // Only run once on mount
 
   // Updated navigation handler to support games
@@ -222,6 +227,12 @@ function AppContent() {
 
   return (
     <div className="relative min-h-screen pb-16">
+      {/* Maintenance Modal */}
+      <MaintenanceModal
+        isOpen={showMaintenanceModal}
+        onClose={() => setShowMaintenanceModal(false)}
+      />
+
       {/* Google OAuth Callback Handler */}
       {isGoogleCallback && (
         <AuthCallback onAuthComplete={handleGoogleAuthComplete} />
