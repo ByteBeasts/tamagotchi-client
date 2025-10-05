@@ -15,7 +15,7 @@ import { MarketScreen } from "../components/screens/Market/MarketScreen";
 import { GemShopScreen } from "../components/screens/GemShop/GemShopScreen";
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
-import { MaintenanceModal } from "../components/modals/MaintenanceModal";
+//import { MaintenanceModal } from "../components/modals/MaintenanceModal";
 import type { Screen } from "../components/types/screens";
 import { GameId } from "../components/types/play.types";
 
@@ -36,7 +36,7 @@ function AppContent() {
   const [playerAddress] = useState("0x123"); // Temporary address
   const [currentGameId, setCurrentGameId] = useState<GameId | null>(null);
   const [isGoogleCallback, setIsGoogleCallback] = useState(false);
-  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  //const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
 
   // State for predefined beast parameters
   const [pendingBeastParams, setPendingBeastParams] = useState<BeastSpawnParams | null>(null);
@@ -130,7 +130,7 @@ function AppContent() {
     }
 
     // Show maintenance modal on app start
-    setShowMaintenanceModal(true);
+    //setShowMaintenanceModal(true);
   }, []); // Only run once on mount
 
   // Updated navigation handler to support games
@@ -228,10 +228,10 @@ function AppContent() {
   return (
     <div className="relative min-h-screen pb-16">
       {/* Maintenance Modal */}
-      <MaintenanceModal
+      {/* <MaintenanceModal
         isOpen={showMaintenanceModal}
         onClose={() => setShowMaintenanceModal(false)}
-      />
+      /> */}
 
       {/* Google OAuth Callback Handler */}
       {isGoogleCallback && (
