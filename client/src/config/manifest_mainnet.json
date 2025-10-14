@@ -1,8 +1,8 @@
 {
   "world": {
-    "class_hash": "0x13d92333361bb7049c1232c0a5404e2c19082ededc3a73d75cb33fa952adec7",
-    "address": "0x605715b84ddacd1997810c948ad07867b69e664012559f0dd4b515034ce6cd9",
-    "seed": "tamagotchi7",
+    "class_hash": "0x57994b6a75fad550ca18b41ee82e2110e158c59028c4478109a67965a0e5b1e",
+    "address": "0x29ac3fd304d4e8bf2151fd309a96dbd978a2d11754ac61c490acf7094e295fe",
+    "seed": "bblatest",
     "name": "ByteBeasts Tamagotchi",
     "entrypoints": [
       "uuid",
@@ -11,11 +11,13 @@
       "register_event",
       "register_model",
       "register_contract",
+      "register_external_contract",
       "register_library",
       "init_contract",
       "upgrade_event",
       "upgrade_model",
       "upgrade_contract",
+      "upgrade_external_contract",
       "emit_event",
       "emit_events",
       "set_entity",
@@ -83,6 +85,10 @@
           {
             "name": "Library",
             "type": "(core::starknet::class_hash::ClassHash, core::felt252)"
+          },
+          {
+            "name": "ExternalContract",
+            "type": "(core::starknet::contract_address::ContractAddress, core::felt252)"
           }
         ]
       },
@@ -213,6 +219,10 @@
           {
             "name": "Enum",
             "type": "core::array::Span::<dojo::meta::layout::FieldLayout>"
+          },
+          {
+            "name": "FixedArray",
+            "type": "(core::array::Span::<dojo::meta::layout::Layout>, core::integer::u32)"
           }
         ]
       },
@@ -369,6 +379,34 @@
           },
           {
             "type": "function",
+            "name": "register_external_contract",
+            "inputs": [
+              {
+                "name": "namespace",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "contract_name",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "instance_name",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "contract_address",
+                "type": "core::starknet::contract_address::ContractAddress"
+              },
+              {
+                "name": "block_number",
+                "type": "core::integer::u64"
+              }
+            ],
+            "outputs": [],
+            "state_mutability": "external"
+          },
+          {
+            "type": "function",
             "name": "register_library",
             "inputs": [
               {
@@ -461,6 +499,30 @@
                 "type": "core::starknet::class_hash::ClassHash"
               }
             ],
+            "state_mutability": "external"
+          },
+          {
+            "type": "function",
+            "name": "upgrade_external_contract",
+            "inputs": [
+              {
+                "name": "namespace",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "instance_name",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "contract_address",
+                "type": "core::starknet::contract_address::ContractAddress"
+              },
+              {
+                "name": "block_number",
+                "type": "core::integer::u64"
+              }
+            ],
+            "outputs": [],
             "state_mutability": "external"
           },
           {
@@ -928,6 +990,85 @@
       },
       {
         "type": "event",
+        "name": "dojo::world::world_contract::world::ExternalContractRegistered",
+        "kind": "struct",
+        "members": [
+          {
+            "name": "namespace",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "contract_name",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "instance_name",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "contract_selector",
+            "type": "core::felt252",
+            "kind": "key"
+          },
+          {
+            "name": "class_hash",
+            "type": "core::starknet::class_hash::ClassHash",
+            "kind": "data"
+          },
+          {
+            "name": "contract_address",
+            "type": "core::starknet::contract_address::ContractAddress",
+            "kind": "data"
+          },
+          {
+            "name": "block_number",
+            "type": "core::integer::u64",
+            "kind": "data"
+          }
+        ]
+      },
+      {
+        "type": "event",
+        "name": "dojo::world::world_contract::world::ExternalContractUpgraded",
+        "kind": "struct",
+        "members": [
+          {
+            "name": "namespace",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "instance_name",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "contract_selector",
+            "type": "core::felt252",
+            "kind": "key"
+          },
+          {
+            "name": "class_hash",
+            "type": "core::starknet::class_hash::ClassHash",
+            "kind": "data"
+          },
+          {
+            "name": "contract_address",
+            "type": "core::starknet::contract_address::ContractAddress",
+            "kind": "data"
+          },
+          {
+            "name": "block_number",
+            "type": "core::integer::u64",
+            "kind": "data"
+          }
+        ]
+      },
+      {
+        "type": "event",
         "name": "dojo::world::world_contract::world::ModelUpgraded",
         "kind": "struct",
         "members": [
@@ -1258,6 +1399,16 @@
             "kind": "nested"
           },
           {
+            "name": "ExternalContractRegistered",
+            "type": "dojo::world::world_contract::world::ExternalContractRegistered",
+            "kind": "nested"
+          },
+          {
+            "name": "ExternalContractUpgraded",
+            "type": "dojo::world::world_contract::world::ExternalContractUpgraded",
+            "kind": "nested"
+          },
+          {
             "name": "ModelUpgraded",
             "type": "dojo::world::world_contract::world::ModelUpgraded",
             "kind": "nested"
@@ -1328,310 +1479,8 @@
   },
   "contracts": [
     {
-      "address": "0x61535293bc907763f832ad67e89cdfcd21ee575aa995a737454c8af38720349",
-      "class_hash": "0x419f5712020abc951a7cd8cbdb9b6c7306abdfd3fb531a02bcfcd81109833a6",
-      "abi": [
-        {
-          "type": "impl",
-          "name": "achieve__ContractImpl",
-          "interface_name": "dojo::contract::interface::IContract"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::interface::IContract",
-          "items": []
-        },
-        {
-          "type": "impl",
-          "name": "achieve__DeployedContractImpl",
-          "interface_name": "dojo::meta::interface::IDeployedResource"
-        },
-        {
-          "type": "struct",
-          "name": "core::byte_array::ByteArray",
-          "members": [
-            {
-              "name": "data",
-              "type": "core::array::Array::<core::bytes_31::bytes31>"
-            },
-            {
-              "name": "pending_word",
-              "type": "core::felt252"
-            },
-            {
-              "name": "pending_word_len",
-              "type": "core::integer::u32"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::meta::interface::IDeployedResource",
-          "items": [
-            {
-              "type": "function",
-              "name": "dojo_name",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::byte_array::ByteArray"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "impl",
-          "name": "AchieveImpl",
-          "interface_name": "tamagotchi::systems::achieve::IAchieve"
-        },
-        {
-          "type": "interface",
-          "name": "tamagotchi::systems::achieve::IAchieve",
-          "items": [
-            {
-              "type": "function",
-              "name": "achieve_play_minigame",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_player_new_total_points",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_platform_highscore",
-              "inputs": [
-                {
-                  "name": "score",
-                  "type": "core::integer::u32"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_flappy_beast_highscore",
-              "inputs": [
-                {
-                  "name": "score",
-                  "type": "core::integer::u32"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_beast_feed",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_beast_pet",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_beast_sleep",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_beast_clean",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_beast_share",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_score_share",
-              "inputs": [
-                {
-                  "name": "score",
-                  "type": "core::integer::u32"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "achieve_beast_chat",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "WorldProviderImpl",
-          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
-        },
-        {
-          "type": "struct",
-          "name": "dojo::world::iworld::IWorldDispatcher",
-          "members": [
-            {
-              "name": "contract_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::world_provider::IWorldProvider",
-          "items": [
-            {
-              "type": "function",
-              "name": "world_dispatcher",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "dojo::world::iworld::IWorldDispatcher"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "UpgradeableImpl",
-          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::upgradeable::IUpgradeable",
-          "items": [
-            {
-              "type": "function",
-              "name": "upgrade",
-              "inputs": [
-                {
-                  "name": "new_class_hash",
-                  "type": "core::starknet::class_hash::ClassHash"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "constructor",
-          "name": "constructor",
-          "inputs": []
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-          "kind": "struct",
-          "members": [
-            {
-              "name": "class_hash",
-              "type": "core::starknet::class_hash::ClassHash",
-              "kind": "data"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "Upgraded",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-              "kind": "nested"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-          "kind": "enum",
-          "variants": []
-        },
-        {
-          "type": "event",
-          "name": "achievement::components::achievable::AchievableComponent::Event",
-          "kind": "enum",
-          "variants": []
-        },
-        {
-          "type": "event",
-          "name": "tamagotchi::systems::achieve::achieve::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "UpgradeableEvent",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-              "kind": "nested"
-            },
-            {
-              "name": "WorldProviderEvent",
-              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-              "kind": "nested"
-            },
-            {
-              "name": "AchievableEvent",
-              "type": "achievement::components::achievable::AchievableComponent::Event",
-              "kind": "flat"
-            }
-          ]
-        }
-      ],
-      "init_calldata": [],
-      "tag": "tamagotchi-achieve",
-      "selector": "0x69b5096733347438b46e8433bef09df367d0ce3c1609a10e530d7e2b696e991",
-      "systems": [
-        "dojo_init",
-        "achieve_play_minigame",
-        "achieve_player_new_total_points",
-        "achieve_platform_highscore",
-        "achieve_flappy_beast_highscore",
-        "achieve_beast_feed",
-        "achieve_beast_pet",
-        "achieve_beast_sleep",
-        "achieve_beast_clean",
-        "achieve_beast_share",
-        "achieve_score_share",
-        "achieve_beast_chat",
-        "upgrade"
-      ]
-    },
-    {
-      "address": "0x344973876a611563b73a09c978261960b0bb7954194b05b5c40d3287b1ef870",
-      "class_hash": "0xb2c63bc806ef25181dbcb3f58d2ba50ed4f43e6e86421fbda937480ad8a426",
+      "address": "0x4d49e9ba63966f2d5058d9609c7c442a08bbd117bab16ce088c8de35d4dc151",
+      "class_hash": "0x16424bccef07486b71499b03ee02d9b2eeb8d0d13c4d37fefd0d72b0311063e",
       "abi": [
         {
           "type": "impl",
@@ -1645,7 +1494,7 @@
         },
         {
           "type": "impl",
-          "name": "game__DeployedContractImpl",
+          "name": "DojoDeployedContractImpl",
           "interface_name": "dojo::meta::interface::IDeployedResource"
         },
         {
@@ -2122,8 +1971,8 @@
       ]
     },
     {
-      "address": "0x6f621ebc5b36103e52c9e4b574a876d66bdc01655e5805dfd0f1fee4202e38b",
-      "class_hash": "0xeddbbe202515c1bd4eb372f97ec8d83fa9d93044e9c6571aa9450871f14dc4",
+      "address": "0x3977f6a250118029560e5d2555961c35f2aa990dd1a5242e977978b0679965b",
+      "class_hash": "0x30a5f4d4404e171d607ecc6229d0ad091f23140cfee75077c0b2ba070b8be69",
       "abi": [
         {
           "type": "impl",
@@ -2137,7 +1986,7 @@
         },
         {
           "type": "impl",
-          "name": "player__DeployedContractImpl",
+          "name": "DojoDeployedContractImpl",
           "interface_name": "dojo::meta::interface::IDeployedResource"
         },
         {
@@ -2491,31 +2340,31 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x472c18d3cc3234983161d521f4a307beeb751d8f6324f6d801cced168323f3d",
+      "class_hash": "0x7f34d51d089621da6907dade1f050d6db923b7619e5a087127d8f2aaf249cba",
       "tag": "tamagotchi-Beast",
       "selector": "0x797d07b8fd13e637ef738a275f2e895655f27905cdd62f75d82d68f239479f8"
     },
     {
       "members": [],
-      "class_hash": "0x1652f6358dff9fb2f5184be243a0cc51bf9b518fe3af6ffc1afef5f21b09e00",
+      "class_hash": "0x2904eebfddd25589e0d8bb7ad5c6406bbd09d43f324c5187bad3f3da151ef6a",
       "tag": "tamagotchi-BeastStatus",
       "selector": "0x7dd28052791e63bdc06d6ba2a8eca548b4580c2e83bb96c03ef0a2d84f8ffde"
     },
     {
       "members": [],
-      "class_hash": "0x1b73fc0063b44e005b4f34d6518428594b4b3d28f7ebf010db5fb46c7379cca",
+      "class_hash": "0x75aaef0615d52766495e2e3749f3dfcc51778a611d6b9cd9a560297973ccf04",
       "tag": "tamagotchi-Food",
       "selector": "0x515fa0d107ea8c7ab17045bdd20faae7193cc1ea09750d35f74ebb0a94da3cc"
     },
     {
       "members": [],
-      "class_hash": "0x5e09c5bbfbc9d5f71afd48f9b6b4814e083acb9839c6a06c22c3eb22e791110",
+      "class_hash": "0x10802907b29965dddce4ff4149963e4cc56a8fba143e6239684f05583f68457",
       "tag": "tamagotchi-HighestScore",
       "selector": "0x5deb2bdb1a82577394936a27d58d8a644c1665719915e10fdb8e993021a6604"
     },
     {
       "members": [],
-      "class_hash": "0x4ce9d7dab12c4b30e429da5eb0325fd7ccf2c48198659a1146e04bdc5e2f1f4",
+      "class_hash": "0x579e30f5051a5e3567a6e50632e482cd37dfceed927f51dd4b2fa2778f252c",
       "tag": "tamagotchi-Player",
       "selector": "0x3c2b9e38bb17747db3008b613c6b1ef5f9a6bcd4c1f40f329e7ff691aafa1e2"
     }
@@ -2523,21 +2372,9 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0xb068815135b8e135296cf8bfc54e606ad1bf79139dc4d9337f3a9364c795a9",
+      "class_hash": "0x3d7c3644053cd4842e42969f67818524812f33b682e9a1336323c32531ed7d3",
       "tag": "tamagotchi-PushToken",
       "selector": "0x4e3bbf322d0cb081bf00ecf1d10a39c0d3aabd0cc5a930f68529b6beff15ee2"
-    },
-    {
-      "members": [],
-      "class_hash": "0x702d5440a155e0704b268f8d6dbf74cb8ae09b164064fe3b4f896cf725dcac7",
-      "tag": "tamagotchi-TrophyCreation",
-      "selector": "0x1454ef6269d8e20ab6a43686489082aa1525c0a46623f4670b0866c30e19eac"
-    },
-    {
-      "members": [],
-      "class_hash": "0x113e43bc604068a5811205b126a3e318b21e5c72746138efa6fb40277067f00",
-      "tag": "tamagotchi-TrophyProgression",
-      "selector": "0x6dcb5b11df802989384a789be9f9ae0bd934b8bbee1e3e1f8e6d2544e3eea65"
     }
   ],
   "external_contracts": []
