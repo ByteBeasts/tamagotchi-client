@@ -173,54 +173,51 @@ export const HabitTrackerScreen = ({ onNavigation }: HabitTrackerScreenProps) =>
 
       {/* Main Content */}
       <div className="relative z-10 px-4 pb-24 space-y-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
-        {/* Progress Card */}
-        {totalHabits > 0 && (
-          <motion.div
-            className="bg-cream rounded-xl p-4 border-2 border-gold/30 shadow-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="font-luckiest text-lg text-gray-800">Today's Progress</p>
-                <p className="font-rubik text-xs text-gray-600">
-                  {completedToday} of {totalHabits} completed
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="font-luckiest text-2xl text-gold">{completionPercentage}%</p>
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <motion.div
-                className="bg-gradient-to-r from-green-400 to-emerald-500 h-full rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${completionPercentage}%` }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Create Habit Button */}
-        <motion.button
-          onClick={() => setIsCreationModalOpen(true)}
-          className="w-full bg-gold-gradient text-gray-800 font-luckiest text-lg py-4 rounded-xl
-            shadow-[0_4px_0_rgba(0,0,0,0.2)] hover:shadow-[0_2px_0_rgba(0,0,0,0.2)]
-            active:shadow-none active:translate-y-1 transition-all duration-150
-            flex items-center justify-center gap-2"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        {/* Combined Progress Card + Create Button */}
+        <motion.div
+          className="bg-cream rounded-xl p-5 border border-gold/20 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <span className="text-2xl">➕</span>
-          <span className="drop-shadow-[1px_1px_0px_rgba(255,255,255,0.3)]">
-            CREATE NEW HABIT
-          </span>
-        </motion.button>
+          {/* Progress Section */}
+          {totalHabits > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="font-luckiest text-base text-gray-800">Today's Progress</p>
+                  <p className="font-rubik text-xs text-gray-600">
+                    {completedToday} of {totalHabits} completed
+                  </p>
+                </div>
+                <p className="font-luckiest text-3xl text-gray-800">{completionPercentage}%</p>
+              </div>
+
+              {/* Progress bar with gold gradient */}
+              <div className="w-full backdrop-blur-sm bg-white/20 rounded-full h-2.5 overflow-hidden">
+                <motion.div
+                  className="bg-gold-gradient h-full rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${completionPercentage}%` }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Create Habit Button */}
+          <motion.button
+            onClick={() => setIsCreationModalOpen(true)}
+            className="w-full bg-gold-gradient text-gray-800 font-luckiest text-base py-3.5 rounded-lg
+              shadow-[0_2px_0_rgba(0,0,0,0.1)] hover:shadow-[0_1px_0_rgba(0,0,0,0.1)]
+              active:shadow-none active:translate-y-0.5 transition-all duration-150
+              flex items-center justify-center gap-2"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+          >
+            <span className="text-xl">➕</span>
+            <span>Create New Habit</span>
+          </motion.button>
+        </motion.div>
 
         {/* Habits List */}
         {isLoading ? (
