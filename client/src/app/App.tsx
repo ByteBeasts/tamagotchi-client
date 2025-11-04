@@ -13,6 +13,7 @@ import { GameRankingScreen } from "../components/screens/GameRanking/GameRanking
 import { AgeRankingScreen } from "../components/screens/AgeRanking/AgeRankingScreen";
 import { MarketScreen } from "../components/screens/Market/MarketScreen";
 import { GemShopScreen } from "../components/screens/GemShop/GemShopScreen";
+import { HabitTrackerScreen } from "../components/screens/HabitTracker/HabitTrackerScreen";
 import { LoginScreen } from "../components/screens/Login/LoginScreen";
 import { NavBar } from "../components/layout/NavBar";
 //import { MaintenanceModal } from "../components/modals/MaintenanceModal";
@@ -340,6 +341,12 @@ function AppContent() {
         />
       )}
 
+      {!isGoogleCallback && currentScreen === "habits" && (
+        <HabitTrackerScreen
+          onNavigation={handleNavigation}
+        />
+      )}
+
       {/* Global dark overlay when beast is sleeping - applies to all screens */}
       <AnimatePresence>
         {!isGoogleCallback && isBeastSleeping && currentScreen !== "login" && currentScreen !== "hatch" && (
@@ -357,16 +364,17 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      {/* NavBar - Hide on game screen, ranking screen, and market for fullscreen experience */}
-      {!isGoogleCallback && 
-       currentScreen !== "cover" && 
-       currentScreen !== "login" && 
-       currentScreen !== "hatch" && 
-       currentScreen !== "game" && 
-       currentScreen !== "gameRanking" && 
-       currentScreen !== "ageRanking" && 
-       currentScreen !== "market" && 
-       currentScreen !== "gemShop" && (
+      {/* NavBar - Hide on game screen, ranking screen, market, and habits for fullscreen experience */}
+      {!isGoogleCallback &&
+       currentScreen !== "cover" &&
+       currentScreen !== "login" &&
+       currentScreen !== "hatch" &&
+       currentScreen !== "game" &&
+       currentScreen !== "gameRanking" &&
+       currentScreen !== "ageRanking" &&
+       currentScreen !== "market" &&
+       currentScreen !== "gemShop" &&
+       currentScreen !== "habits" && (
         <NavBar
           activeTab={currentScreen as "home" | "sleep" | "feed" | "clean" | "play"}
           onNavigation={handleNavigation}

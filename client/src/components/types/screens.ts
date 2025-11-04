@@ -8,8 +8,9 @@ export type Screen =
   | "clean"
   | "play"
   | "game"
-  | "gameRanking"    
+  | "gameRanking"
   | "ageRanking"
   | "profile"
   | "market"
-  | "gemShop";
+  | "gemShop"
+  | "habits";

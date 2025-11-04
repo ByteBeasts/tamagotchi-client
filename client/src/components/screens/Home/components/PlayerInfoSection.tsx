@@ -17,6 +17,7 @@ export const PlayerInfoSection = ({
   onNavigateLogin,
   onEditName,
   onAgeLeaderboardClick,
+  onHabitsClick,
 }: PlayerInfoSectionProps) => {
   return (
     <div className="w-full px-4 md:px-6 lg:px-8 flex justify-between items-start mt-3 md:mt-4 z-10">
@@ -50,32 +51,50 @@ export const PlayerInfoSection = ({
         </div>
       </motion.div>
 
-      {/* Right: Age & Dropdown */}
-      <div className="flex items-center space-x-3 md:space-x-4 lg:space-x-5 pt-1">
-        <motion.button
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0, transition: { delay: 0.3, duration: 0.5, ease: "easeOut" } }}
-          onClick={onAgeLeaderboardClick}
-          {...buttonInteractionProps}
-          className="flex items-center space-x-1 md:space-x-1.5 focus:outline-none cursor-pointer"
-          aria-label="Age Leaderboard"
-          title="View Age Leaderboard"
-        >
-          <img src={trophyIcon} alt="Trophy" className="h-12 w-12 lg:h-12 lg:w-12" />
-          {/* <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
-            {age}
-          </span> */}
-        </motion.button>
+      {/* Right: Age, Dropdown & Habits */}
+      <div className="flex flex-col items-end space-y-2 pt-1">
+        {/* Top row: Trophy & Dropdown */}
+        <div className="flex items-center space-x-3 md:space-x-4 lg:space-x-5">
+          <motion.button
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0, transition: { delay: 0.3, duration: 0.5, ease: "easeOut" } }}
+            onClick={onAgeLeaderboardClick}
+            {...buttonInteractionProps}
+            className="flex items-center space-x-1 md:space-x-1.5 focus:outline-none cursor-pointer"
+            aria-label="Age Leaderboard"
+            title="View Age Leaderboard"
+          >
+            <img src={trophyIcon} alt="Trophy" className="h-12 w-12 lg:h-12 lg:w-12" />
+            {/* <span className="text-xl md:text-2xl lg:text-3xl font-luckiest text-cream select-none">
+              {age}
+            </span> */}
+          </motion.button>
 
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0, transition: { delay: 0.35, duration: 0.5, ease: "easeOut" } }}
-          className="z-50"
-        >
-          <DropdownMenu 
-            onNavigateLogin={onNavigateLogin}
-          />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0, transition: { delay: 0.35, duration: 0.5, ease: "easeOut" } }}
+            className="z-50"
+          >
+            <DropdownMenu
+              onNavigateLogin={onNavigateLogin}
+            />
+          </motion.div>
+        </div>
+
+        {/* Bottom row: Habits button */}
+        {onHabitsClick && (
+          <motion.button
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0, transition: { delay: 0.4, duration: 0.5, ease: "easeOut" } }}
+            onClick={onHabitsClick}
+            {...buttonInteractionProps}
+            className="p-2 bg-cream/80 rounded-full focus:outline-none active:scale-90"
+            aria-label="Open Habits"
+            title="Habit Tracker"
+          >
+            <span className="text-2xl">🎯</span>
+          </motion.button>
+        )}
       </div>
     </div>
   );
