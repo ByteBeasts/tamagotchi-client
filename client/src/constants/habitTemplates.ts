@@ -246,7 +246,7 @@ export const HABIT_REWARDS = {
 
 export const CATEGORY_INFO = {
   health: {
-    label: 'Health & Fitness',
+    label: 'Health',
     icon: '💪',
     color: '#EF4444',
     description: 'Physical wellness and exercise'
@@ -258,7 +258,7 @@ export const CATEGORY_INFO = {
     description: 'Education and skill development'
   },
   work: {
-    label: 'Work & Productivity',
+    label: 'Productivity',
     icon: '💼',
     color: '#F59E0B',
     description: 'Professional tasks and goals'
@@ -276,7 +276,7 @@ export const CATEGORY_INFO = {
     description: 'Mental wellness and reflection'
   },
   life: {
-    label: 'Life Admin',
+    label: 'Life',
     icon: '🏠',
     color: '#6B7280',
     description: 'Daily tasks and organization'

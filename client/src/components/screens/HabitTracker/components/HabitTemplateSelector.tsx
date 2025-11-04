@@ -23,15 +23,6 @@ export const HabitTemplateSelector = ({
     ? HABIT_TEMPLATES
     : HABIT_TEMPLATES.filter(t => t.category === selectedCategory);
 
-  const getDifficultyColor = (difficulty: number) => {
-    switch (difficulty) {
-      case 1: return 'bg-green-100 border-green-300 text-green-700';
-      case 2: return 'bg-yellow-100 border-yellow-300 text-yellow-700';
-      case 3: return 'bg-red-100 border-red-300 text-red-700';
-      default: return 'bg-gray-100 border-gray-300 text-gray-700';
-    }
-  };
-
   const getDifficultyStars = (difficulty: number) => {
     return '⭐'.repeat(difficulty);
   };
@@ -45,7 +36,7 @@ export const HabitTemplateSelector = ({
           className={`px-3 py-1.5 rounded-full font-rubik text-xs whitespace-nowrap border-2 transition-all
             ${selectedCategory === 'all'
               ? 'bg-gold-gradient border-gold text-gray-800 font-bold'
-              : 'bg-white border-gray-300 text-gray-600 hover:border-gold/50'
+              : 'bg-white/10 backdrop-blur-sm border-gold/20 text-gray-600 hover:border-gold/40'
             }`}
           whileTap={{ scale: 0.95 }}
         >
@@ -58,7 +49,7 @@ export const HabitTemplateSelector = ({
             className={`px-3 py-1.5 rounded-full font-rubik text-xs whitespace-nowrap border-2 transition-all flex items-center gap-1
               ${selectedCategory === key
                 ? 'bg-gold-gradient border-gold text-gray-800 font-bold'
-                : 'bg-white border-gray-300 text-gray-600 hover:border-gold/50'
+                : 'bg-white/10 backdrop-blur-sm border-gold/20 text-gray-600 hover:border-gold/40'
               }`}
             whileTap={{ scale: 0.95 }}
           >
@@ -79,7 +70,7 @@ export const HabitTemplateSelector = ({
             <motion.button
               key={index}
               onClick={() => onSelectTemplate(template)}
-              className="text-left bg-white rounded-xl p-4 border-2 border-gray-200 hover:border-gold/50 hover:shadow-md transition-all group"
+              className="text-left bg-white/10 backdrop-blur-sm rounded-xl p-4 border-2 border-gold/20 hover:border-gold/40 hover:shadow-md transition-all group"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
@@ -105,8 +96,7 @@ export const HabitTemplateSelector = ({
                   )}
 
                   {/* Difficulty badge */}
-                  <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-rubik font-medium
-                    ${getDifficultyColor(template.difficulty)}`}>
+                  <div className="inline-flex items-center gap-1 text-xs font-rubik font-medium text-gray-700">
                     <span>{getDifficultyStars(template.difficulty)}</span>
                   </div>
                 </div>

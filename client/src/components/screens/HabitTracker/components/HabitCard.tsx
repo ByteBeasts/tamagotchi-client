@@ -20,13 +20,8 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const categoryInfo = CATEGORY_INFO[habit.category];
 
-  const getDifficultyColor = (difficulty: number) => {
-    switch (difficulty) {
-      case 1: return 'bg-green-100 border-green-300 text-green-700';
-      case 2: return 'bg-yellow-100 border-yellow-300 text-yellow-700';
-      case 3: return 'bg-red-100 border-red-300 text-red-700';
-      default: return 'bg-gray-100 border-gray-300 text-gray-700';
-    }
+  const getDifficultyColor = () => {
+    return 'text-gray-700';
   };
 
   const getDifficultyStars = (difficulty: number) => {
@@ -42,43 +37,41 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{ opacity: habit.completedToday ? 0.7 : 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={`relative bg-cream rounded-xl border-2 shadow-md transition-all overflow-hidden
+      className={`relative bg-cream rounded-xl border shadow-md transition-all overflow-hidden
         ${habit.completedToday
-          ? 'border-green-400 bg-green-50/30'
+          ? 'border-gold/20'
           : 'border-gold/30 hover:border-gold/50'
         }`}
     >
-      {/* Completed overlay */}
-      {habit.completedToday && (
-        <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-emerald-400/10 pointer-events-none" />
-      )}
-
       <div className="p-4 relative z-10">
         <div className="flex items-start gap-3">
           {/* Checkbox */}
           <motion.button
             onClick={handleCheckboxClick}
             disabled={habit.completedToday || isCompleting}
-            className={`flex-shrink-0 w-8 h-8 rounded-lg border-2 flex items-center justify-center transition-all
+            className={`flex-shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all
               ${habit.completedToday
-                ? 'bg-gold/20 border-gold cursor-default'
-                : 'bg-white border-gold/40 hover:border-gold hover:bg-gold/10 cursor-pointer'
+                ? 'bg-gold border-gold cursor-default'
+                : 'bg-white/10 backdrop-blur-sm border-gold/40 hover:border-gold hover:bg-gold/10 cursor-pointer'
               }
               ${isCompleting ? 'opacity-50 cursor-not-allowed' : ''}
             `}
             whileTap={!habit.completedToday && !isCompleting ? { scale: 0.9 } : {}}
           >
+            {habit.completedToday && (
+              <span className="text-white text-lg font-bold">✓</span>
+            )}
           </motion.button>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
             {/* Name and category */}
             <div className="flex items-start justify-between gap-2 mb-2">
-              <h3 className={`font-luckiest text-base leading-tight
-                ${habit.completedToday ? 'text-gray-600' : 'text-gray-800'}
-              `}>
+              <h3 className={`font-luckiest text-base leading-tight text-gray-800 ${
+                habit.completedToday ? 'line-through' : ''
+              }`}>
                 {habit.name}
               </h3>
 
@@ -98,8 +91,8 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
             {/* Stats row */}
             <div className="flex items-center gap-3 flex-wrap">
               {/* Difficulty */}
-              <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-rubik font-medium
-                ${getDifficultyColor(habit.difficulty)}`}>
+              <div className={`inline-flex items-center gap-1 text-xs font-rubik font-medium
+                ${getDifficultyColor()}`}>
                 <span>{getDifficultyStars(habit.difficulty)}</span>
               </div>
 
@@ -108,14 +101,6 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 border border-orange-300 text-orange-700 text-xs font-rubik font-medium">
                   <span>🔥</span>
                   <span>{habit.currentStreak} day{habit.currentStreak > 1 ? 's' : ''}</span>
-                </div>
-              )}
-
-              {/* Completed today badge */}
-              {habit.completedToday && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 border border-green-300 text-green-700 text-xs font-rubik font-medium">
-                  <span>✓</span>
-                  <span>Completed</span>
                 </div>
               )}
             </div>
@@ -137,7 +122,7 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border-2 border-gray-200 overflow-hidden z-20 min-w-[120px]"
+                  className="absolute right-0 top-8 bg-cream rounded-lg shadow-lg border border-gold/20 overflow-hidden z-20 min-w-[120px]"
                 >
                   {onEdit && (
                     <button

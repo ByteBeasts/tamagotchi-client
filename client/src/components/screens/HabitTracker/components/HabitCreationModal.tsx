@@ -233,7 +233,7 @@ export const HabitCreationModal = ({
 
                 {/* Category selector */}
                 <div>
-                  <label className="block text-sm font-rubik font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-rubik font-medium text-gray-800 mb-2">
                     Category *
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -241,10 +241,10 @@ export const HabitCreationModal = ({
                       <motion.button
                         key={key}
                         onClick={() => setCategory(key as HabitCategory)}
-                        className={`p-3 rounded-xl border-2 transition-all text-left ${
+                        className={`p-3 rounded-xl border transition-all text-left ${
                           category === key
                             ? 'bg-gold-gradient border-gold'
-                            : 'bg-white border-gray-300 hover:border-gold/50'
+                            : 'bg-white/10 backdrop-blur-sm border-gold/20 hover:border-gold/40'
                         }`}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -271,14 +271,10 @@ export const HabitCreationModal = ({
                       <motion.button
                         key={level}
                         onClick={() => setDifficulty(level as HabitDifficulty)}
-                        className={`p-4 rounded-xl border-2 transition-all ${
+                        className={`p-4 rounded-xl border transition-all ${
                           difficulty === level
-                            ? level === 1
-                              ? 'bg-green-100 border-green-400'
-                              : level === 2
-                              ? 'bg-yellow-100 border-yellow-400'
-                              : 'bg-red-100 border-red-400'
-                            : 'bg-white border-gray-300 hover:border-gold/50'
+                            ? 'bg-yellow-100 border-yellow-400'
+                            : 'bg-white/10 backdrop-blur-sm border-gold/20 hover:border-gold/40'
                         }`}
                         whileTap={{ scale: 0.95 }}
                       >
