@@ -219,6 +219,20 @@ export const HabitTrackerScreen = ({ onNavigation }: HabitTrackerScreenProps) =>
           </motion.button>
         </motion.div>
 
+        {/* Motivational message */}
+        {totalHabits > 0 && completedToday === totalHabits && (
+          <motion.div
+            className="bg-gold-gradient rounded-xl p-4 border border-gold shadow-sm text-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <p className="text-4xl mb-2">🎉</p>
+            <p className="font-luckiest text-lg text-gray-800">All habits completed!</p>
+            <p className="font-rubik text-sm text-gray-700">You crushed it today!</p>
+          </motion.div>
+        )}
+
         {/* Habits List */}
         {isLoading ? (
           <div className="text-center py-12">
@@ -258,20 +272,6 @@ export const HabitTrackerScreen = ({ onNavigation }: HabitTrackerScreenProps) =>
               />
             ))}
           </div>
-        )}
-
-        {/* Motivational message */}
-        {totalHabits > 0 && completedToday === totalHabits && (
-          <motion.div
-            className="bg-gradient-to-r from-green-100 to-emerald-50 rounded-xl p-4 border-2 border-green-300/50 text-center"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <p className="text-4xl mb-2">🎉</p>
-            <p className="font-luckiest text-lg text-green-700">All habits completed!</p>
-            <p className="font-rubik text-sm text-green-600">You crushed it today! 💪</p>
-          </motion.div>
         )}
       </div>
 

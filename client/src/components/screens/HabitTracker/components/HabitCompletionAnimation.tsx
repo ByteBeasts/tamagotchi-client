@@ -11,6 +11,7 @@ import { MoveDirection } from '@tsparticles/engine';
 import { loadSlim } from '@tsparticles/slim';
 import type { HabitRewards } from '../../../../types/habit.types';
 import gemIcon from '../../../../assets/icons/gems/icon-gem-single.webp';
+import coinIcon from '../../../../assets/icons/coins/icon-coin-single.webp';
 
 interface HabitCompletionAnimationProps {
   isOpen: boolean;
@@ -233,11 +234,10 @@ export const HabitCompletionAnimation = ({
             <div className="space-y-2">
               {/* Coins */}
               <div className="flex items-center justify-center gap-2">
-                <span className="text-2xl">💰</span>
+                <img src={coinIcon} alt="Coin" className="w-8 h-8" />
                 <span className="font-luckiest text-2xl text-yellow-700">
                   +{rewards.coins}
                 </span>
-                <span className="font-rubik text-sm text-gray-600">coins</span>
               </div>
 
               {/* Gems (if any) */}
@@ -247,7 +247,6 @@ export const HabitCompletionAnimation = ({
                   <span className="font-luckiest text-2xl text-purple-700">
                     +{rewards.gems}
                   </span>
-                  <span className="font-rubik text-sm text-gray-600">gems</span>
                 </div>
               )}
             </div>
