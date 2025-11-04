@@ -475,6 +475,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         onNavigateLogin={handleNavigateLogin}
         onEditName={() => setIsPlayerNameModalOpen(true)}
         onAgeLeaderboardClick={() => onNavigation("ageRanking")}
+        onHabitsClick={() => onNavigation("habits")}
         beastData={beastData}
       />
 

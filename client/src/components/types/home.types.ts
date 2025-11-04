@@ -27,12 +27,12 @@ export interface PlayerInfoSectionProps {
   onNavigateLogin: () => void;
   onEditName?: () => void;
   onAgeLeaderboardClick?: () => void;
+  onHabitsClick?: () => void;
   beastData: BeastData;
 }
 
 export interface ActionButtonsProps {
-  onShopClick: () => void;
-  onDailyQuestsClick: () => void;
+  onHabitsClick: () => void;
 }
 
 export interface BeastHomeDisplayProps {

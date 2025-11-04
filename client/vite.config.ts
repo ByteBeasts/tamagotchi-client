@@ -48,6 +48,13 @@ export default defineConfig(({ command }) => {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,ttf,eot,jpeg,jpg}"],
           runtimeCaching: [
             {
+              // Supabase habits/completions - MUST BE FIRST - always fetch fresh (NetworkOnly)
+              urlPattern: ({ url }) =>
+                url.hostname.includes('supabase.co') &&
+                (url.pathname.includes('/habits') || url.pathname.includes('/habit_completions')),
+              handler: "NetworkOnly",
+            },
+            {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: "CacheFirst",
               options: {
