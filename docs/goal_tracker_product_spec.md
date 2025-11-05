@@ -133,22 +133,21 @@ Pre-configured examples para quick start:
 #### 2.1 Reward Tiers by Difficulty
 ```typescript
 Easy Habits (1⭐):
-- 10-15 coins guaranteed
+- 50 coins guaranteed
 - 0.1% chance of 1 gem
-- 5% chance of basic food item
+- 5% chance of food
 
 Medium Habits (2⭐):
-- 20-30 coins guaranteed
-- 5% chance of 1-2 gems
-- 10% chance of medium food item
+- 100 coins guaranteed
+- 5% chance of 5 gems
+- 10% chance of food
 - Beast happiness +2
 
 Hard Habits (3⭐):
-- 40-60 coins guaranteed
-- 10% chance of 2-3 gems
-- 15% chance of premium food
-- 5% chance of magic item
-- Beast happiness +5, energy +3
+- 150 coins guaranteed
+- 10% chance of 10 gems
+- 15% chance of food
+- 5% chance of magic food
 ```
 
 #### 2.2 Streak Bonuses
@@ -571,9 +570,6 @@ interface Achievement {
 
 **On-chain data:**
 - Player total coins/gems (sync with Supabase)
-- NFT Beast ownership
-- Achievement NFT badges (for major milestones)
-- Tradeable reward items
 
 **Off-chain data (Supabase):**
 - Habit definitions

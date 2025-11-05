@@ -18,6 +18,7 @@ interface HabitCardProps {
 
 export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }: HabitCardProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const categoryInfo = CATEGORY_INFO[habit.category];
 
   const getDifficultyColor = () => {
@@ -28,9 +29,15 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
     return '⭐'.repeat(difficulty);
   };
 
-  const handleCheckboxClick = () => {
-    if (!habit.completedToday && !isCompleting) {
-      onComplete(habit.id, habit.difficulty);
+  const handleCheckboxClick = async () => {
+    if (!habit.completedToday && !isCompleting && !isProcessing) {
+      setIsProcessing(true);
+      try {
+        await onComplete(habit.id, habit.difficulty);
+      } finally {
+        // Keep spinner visible for a bit to let animation show
+        setTimeout(() => setIsProcessing(false), 500);
+      }
     }
   };
 
@@ -46,7 +53,20 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
         }`}
     >
       <div className="p-4 relative z-10">
-        <div className="flex items-start gap-3">
+        {/* Loading state - show spinner */}
+        {isProcessing ? (
+          <div className="flex items-center justify-center py-4">
+            <div className="flex flex-col items-center gap-2">
+              <motion.div
+                className="w-10 h-10 border-4 border-gold/30 border-t-gold rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <p className="text-xs text-gray-600 font-rubik">Processing reward...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-start gap-3">
           {/* Checkbox */}
           <motion.button
             onClick={handleCheckboxClick}
@@ -150,7 +170,8 @@ export const HabitCard = ({ habit, onComplete, isCompleting, onEdit, onDelete }:
               )}
             </div>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

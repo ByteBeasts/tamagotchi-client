@@ -283,9 +283,6 @@ export const HabitCreationModal = ({
                           <p className="font-luckiest text-xs text-gray-700">
                             {level === 1 ? 'EASY' : level === 2 ? 'MEDIUM' : 'HARD'}
                           </p>
-                          <p className="font-rubik text-xs text-gray-600 mt-1">
-                            {level === 1 ? '10 coins' : level === 2 ? '25 coins' : '50 coins'}
-                          </p>
                         </div>
                       </motion.button>
                     ))}
