@@ -53,6 +53,7 @@ export interface UpdateHabitDto {
 export interface HabitRewards {
   coins: number;
   gems: number;
+  foodId?: number | null; // Food ID if won (1-20)
 }
 
 export interface HabitCompletionResult {

@@ -12,6 +12,8 @@ import { loadSlim } from '@tsparticles/slim';
 import type { HabitRewards } from '../../../../types/habit.types';
 import gemIcon from '../../../../assets/icons/gems/icon-gem-single.webp';
 import coinIcon from '../../../../assets/icons/coins/icon-coin-single.webp';
+import { FOOD_ASSETS } from '../../../../constants/feed.constants';
+import { isMagicFood } from '../../../../utils/habitRewardCalculator';
 
 interface HabitCompletionAnimationProps {
   isOpen: boolean;
@@ -247,6 +249,32 @@ export const HabitCompletionAnimation = ({
                   <span className="font-luckiest text-2xl text-purple-700">
                     +{rewards.gems}
                   </span>
+                </div>
+              )}
+
+              {/* Food (if any) */}
+              {rewards.foodId && (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="relative">
+                    <img
+                      src={FOOD_ASSETS[rewards.foodId as keyof typeof FOOD_ASSETS]?.img}
+                      alt={FOOD_ASSETS[rewards.foodId as keyof typeof FOOD_ASSETS]?.name || 'Food'}
+                      className="w-10 h-10"
+                    />
+                    {isMagicFood(rewards.foodId) && (
+                      <span className="absolute -top-1 -right-1 text-lg">✨</span>
+                    )}
+                  </div>
+                  <div className="text-left">
+                    <span className="font-luckiest text-lg text-green-700 block">
+                      +1 {FOOD_ASSETS[rewards.foodId as keyof typeof FOOD_ASSETS]?.name || 'Food'}
+                    </span>
+                    {isMagicFood(rewards.foodId) && (
+                      <span className="text-xs text-purple-600 font-rubik font-medium">
+                        Magic Item!
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

@@ -232,12 +232,13 @@ export const HABIT_TEMPLATES: HabitTemplate[] = [
 
 // ================================================================
 // REWARD CALCULATION CONSTANTS
+// Updated to match goal_tracker_product_spec.md (line 131-152)
 // ================================================================
 
 export const HABIT_REWARDS = {
-  1: { coins: 10, gemChance: 0.01 },  // Easy: 10 coins, 1% gem chance
-  2: { coins: 25, gemChance: 0.05 },  // Medium: 25 coins, 5% gem chance
-  3: { coins: 50, gemChance: 0.10 }   // Hard: 50 coins, 10% gem chance
+  1: { coins: 50, gemChance: 0.1, foodChance: 5 },    // Easy: 50 coins, 0.1% gem chance, 5% food
+  2: { coins: 100, gemChance: 5, foodChance: 10 },    // Medium: 100 coins, 5% gem chance, 10% food
+  3: { coins: 150, gemChance: 10, foodChance: 15 }    // Hard: 150 coins, 10% gem chance, 15% food
 } as const;
 
 // ================================================================

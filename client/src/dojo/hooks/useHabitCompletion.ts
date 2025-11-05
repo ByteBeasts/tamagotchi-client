@@ -5,16 +5,18 @@
 
 import { useState } from 'react';
 import { habitService } from '../../services/habitService';
-import { HABIT_REWARDS, STREAK_BONUSES } from '../../constants/habitTemplates';
+import { STREAK_BONUSES } from '../../constants/habitTemplates';
 import useAppStore from '../../zustand/store';
 import toast from 'react-hot-toast';
 import type { HabitDifficulty, HabitCompletionResult } from '../../types/habit.types';
+import { calculateHabitReward, getRewardDisplayText, isMagicFood } from '../../utils/habitRewardCalculator';
+import { useHabitReward } from './useHabitReward';
+import { FOOD_ASSETS } from '../../constants/feed.constants';
 
 export const useHabitCompletion = () => {
   const [isCompleting, setIsCompleting] = useState(false);
   const cavosWallet = useAppStore(state => state.cavos.wallet);
-  const player = useAppStore(state => state.player);
-  const setPlayer = useAppStore(state => state.setPlayer);
+  const { grantReward } = useHabitReward();
 
   const completeHabit = async (
     habitId: string,
@@ -35,15 +37,9 @@ export const useHabitCompletion = () => {
       );
       const newStreak = currentStreak + 1;
 
-      // Calculate base rewards from difficulty
-      const baseReward = HABIT_REWARDS[difficulty];
-      let coins = baseReward.coins;
-      let gems = 0;
-
-      // Random gem drop based on difficulty
-      if (Math.random() < baseReward.gemChance) {
-        gems = difficulty === 3 ? Math.floor(Math.random() * 2) + 1 : 1;
-      }
+      // Calculate rewards using new reward calculator
+      const reward = calculateHabitReward(difficulty);
+      let { coins, gems, foodId } = reward;
 
       // Apply streak bonuses
       const streakBonus = STREAK_BONUSES[newStreak as keyof typeof STREAK_BONUSES];
@@ -56,7 +52,16 @@ export const useHabitCompletion = () => {
         }
       }
 
-      // Save completion to Supabase
+      console.log('🎁 [HabitCompletion] Rewards calculated:', {
+        difficulty,
+        coins,
+        gems,
+        foodId,
+        streak: newStreak,
+        streakBonus: streakBonus?.bonus
+      });
+
+      // Save completion to Supabase FIRST (before blockchain)
       const completion = await habitService.completeHabit(
         habitId,
         cavosWallet.address,
@@ -64,31 +69,35 @@ export const useHabitCompletion = () => {
         newStreak
       );
 
-      // Update player balance (optimistic update)
-      if (player) {
-        setPlayer({
-          ...player,
-          total_coins: (player.total_coins || 0) + coins,
-          total_gems: (player.total_gems || 0) + gems
-        });
+      // Grant rewards via blockchain
+      const rewardResult = await grantReward({ ...reward, coins, gems });
+
+      if (!rewardResult.success) {
+        throw new Error(rewardResult.error || 'Failed to grant blockchain rewards');
       }
 
-      // TODO: Sync to blockchain when smart contracts are integrated
-
-      // Show success notification
+      // Build success message
+      const rewardTexts = getRewardDisplayText({ ...reward, coins, gems });
       const streakMessage = streakBonus ? ` • ${streakBonus.bonus}` : '';
-      const gemText = gems > 0 ? `, +${gems} gems ✨` : '';
       const streakText = newStreak > 1 ? ` 🔥 ${newStreak}-day streak!` : '';
 
+      // Add food name if food was won
+      let foodText = '';
+      if (foodId !== null) {
+        const foodName = FOOD_ASSETS[foodId as keyof typeof FOOD_ASSETS]?.name || 'Food';
+        const foodEmoji = isMagicFood(foodId) ? '✨' : '🍎';
+        foodText = `\n+1 ${foodName} ${foodEmoji}`;
+      }
+
       toast.success(
-        `Habit completed! 🎉\n+${coins} coins${gemText}${streakText}${streakMessage}`,
-        { duration: 4000 }
+        `Habit completed! 🎉\n${rewardTexts.join(', ')}${foodText}${streakText}${streakMessage}`,
+        { duration: 5000 }
       );
 
       return {
         success: true,
         completion,
-        rewards: { coins, gems },
+        rewards: { coins, gems, foodId },
         streak: newStreak
       };
     } catch (error) {
