@@ -26,24 +26,22 @@ export interface HabitReward {
 const REWARD_TIERS = {
   1: { // Easy (1⭐)
     coins: 50,
-    gemChance: 0.1, // 0.1% chance of 1 gem
-    gemAmount: 1,
-    foodChance: 5, // 5% chance of basic food
+    gemChance: 10, // 10% chance of 5 gems
+    gemAmount: 5,
+    foodChance: 10, // 10% chance of basic food
   },
   2: { // Medium (2⭐)
     coins: 100,
-    gemChance: 5, // 5% chance of 1-2 gems
-    gemAmountMin: 1,
-    gemAmountMax: 2,
-    foodChance: 10, // 10% chance of food
+    gemChance: 10, // 10% chance of 5 gems
+    gemAmount: 5,
+    foodChance: 15, // 15% chance of food
   },
   3: { // Hard (3⭐)
     coins: 150,
-    gemChance: 10, // 10% chance of 2-3 gems
-    gemAmountMin: 2,
-    gemAmountMax: 3,
-    foodChance: 15, // 15% chance of food
-    magicFoodChance: 5, // 5% chance of magic food
+    gemChance: 10, // 10% chance of 10 gems
+    gemAmount: 10,
+    foodChance: 20, // 20% chance of food
+    magicFoodChance: 10, // 10% chance of magic food
   },
 } as const;
 
@@ -112,16 +110,8 @@ export function calculateHabitReward(difficulty: HabitDifficulty): HabitReward {
   let gems = 0;
   const gemRoll = rollChance(tier.gemChance);
   if (gemRoll) {
-    if (difficulty === 1) {
-      const easyTier = REWARD_TIERS[1];
-      gems = easyTier.gemAmount;
-    } else if (difficulty === 2) {
-      const mediumTier = REWARD_TIERS[2];
-      gems = randomInt(mediumTier.gemAmountMin, mediumTier.gemAmountMax);
-    } else {
-      const hardTier = REWARD_TIERS[3];
-      gems = randomInt(hardTier.gemAmountMin, hardTier.gemAmountMax);
-    }
+    const currentTier = REWARD_TIERS[difficulty];
+    gems = currentTier.gemAmount;
   }
 
   // Roll for food
@@ -187,17 +177,17 @@ export function getRewardTierSummary(difficulty: HabitDifficulty): string {
   if (difficulty === 1) {
     const tier = REWARD_TIERS[1];
     parts.push(`${tier.coins} coins guaranteed`);
-    parts.push(`${tier.gemChance}% chance of ${tier.gemAmount} gem`);
+    parts.push(`${tier.gemChance}% chance of ${tier.gemAmount} gems`);
     parts.push(`${tier.foodChance}% chance of food`);
   } else if (difficulty === 2) {
     const tier = REWARD_TIERS[2];
     parts.push(`${tier.coins} coins guaranteed`);
-    parts.push(`${tier.gemChance}% chance of 1-2 gems`);
+    parts.push(`${tier.gemChance}% chance of ${tier.gemAmount} gems`);
     parts.push(`${tier.foodChance}% chance of food`);
   } else {
     const tier = REWARD_TIERS[3];
     parts.push(`${tier.coins} coins guaranteed`);
-    parts.push(`${tier.gemChance}% chance of 2-3 gems`);
+    parts.push(`${tier.gemChance}% chance of ${tier.gemAmount} gems`);
     parts.push(`${tier.magicFoodChance}% chance of magic food`);
     parts.push(`${tier.foodChance}% chance of food`);
   }
