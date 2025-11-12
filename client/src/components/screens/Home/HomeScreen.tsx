@@ -39,6 +39,10 @@ import { usePlayerModal } from "./components/hooks/usePlayerModal";
 import { useHomeNavigation } from "./components/hooks/useHomeNavigation";
 import { PlayerInfoSection } from "./components/PlayerInfoSection";
 import { BeastHomeDisplay } from "./components/BeastDisplay";
+import { AnnouncementModal } from "../../shared/AnnouncementModal";
+
+// Utils
+import { ANNOUNCEMENT_KEYS, hasSeenAnnouncement, markAnnouncementAsSeen } from "../../../utils/announcementUtils";
 
 
 export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
@@ -49,6 +53,7 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   const [nameError, setNameError] = useState<string | null>(null);
   const [playerNameError, setPlayerNameError] = useState<string | null>(null);
   const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
+  const [isHabitAnnouncementOpen, setIsHabitAnnouncementOpen] = useState(false);
 
   // Get Cavos wallet address instead of Starknet account
   const cavosWallet = useAppStore(state => state.cavos.wallet);
@@ -142,6 +147,17 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
   useEffect(() => {
     setCurrentScreen("home");
   }, [setCurrentScreen]);
+
+  // Check if user has seen the habit tracker announcement
+  useEffect(() => {
+    if (!hasSeenAnnouncement(ANNOUNCEMENT_KEYS.HABIT_TRACKER) && cavosWallet?.address) {
+      // Show announcement after a short delay to not overwhelm the user
+      const timer = setTimeout(() => {
+        setIsHabitAnnouncementOpen(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [cavosWallet?.address]);
 
   // Handle revive errors
   useEffect(() => {
@@ -317,6 +333,19 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
         refetchPlayer();
       }, 3000);
     }
+  };
+
+  // Handle habit announcement close
+  const handleHabitAnnouncementClose = () => {
+    markAnnouncementAsSeen(ANNOUNCEMENT_KEYS.HABIT_TRACKER);
+    setIsHabitAnnouncementOpen(false);
+  };
+
+  // Handle habit announcement CTA - navigate to habits screen
+  const handleGoToHabits = () => {
+    markAnnouncementAsSeen(ANNOUNCEMENT_KEYS.HABIT_TRACKER);
+    setIsHabitAnnouncementOpen(false);
+    onNavigation('habits');
   };
 
   // Loading state
@@ -550,6 +579,40 @@ export const HomeScreen = ({ onNavigation }: HomeScreenProps) => {
           }
         }}
       />
+
+      <AnnouncementModal
+        isOpen={isHabitAnnouncementOpen}
+        onClose={handleHabitAnnouncementClose}
+        title="NEW FEATURE!"
+        icon="🎯"
+        ctaText="START TRACKING"
+        onCtaClick={handleGoToHabits}
+      >
+        <div className="space-y-4">
+          <p className="text-lg font-medium text-gray-800">
+            <strong>Habit Tracker is here!</strong>
+          </p>
+
+          <p>
+            Boost your productivity and grow your Tamagotchi at the same time!
+            Complete daily habits to earn <strong>coins, gems, and rewards</strong> for your beast.
+          </p>
+
+          <div className="bg-gold/10 rounded-lg p-4 border border-gold/30">
+            <p className="text-sm font-medium text-gray-800 mb-2">What you can do:</p>
+            <ul className="text-sm space-y-2 list-disc list-inside text-gray-700">
+              <li>Create custom daily habits</li>
+              <li>Earn rewards for each completion</li>
+              <li>Build streaks for bonus multipliers</li>
+              <li>Watch your beast celebrate your wins</li>
+            </ul>
+          </div>
+
+          <p className="text-sm text-gray-600 italic">
+            The more productive you are, the happier your beast becomes! 🐉✨
+          </p>
+        </div>
+      </AnnouncementModal>
     </div>
   );
 };
